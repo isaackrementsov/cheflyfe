@@ -1,0 +1,41 @@
+{
+  "name": "cheflyfe",
+  "version": "1.0.0",
+  "description": "Food cost calculator and social media web app",
+  "main": "src/server.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "ts-node src/server.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/isaackrementsov/cheflyfe.git"
+  },
+  "keywords": [
+    "food",
+    "cost",
+    "calculator",
+    "recipe",
+    "ingredient",
+    "social",
+    "media"
+  ],
+  "author": "Isaac Krementsov",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/isaackrementsov/cheflyfe/issues"
+  },
+  "homepage": "https://github.com/isaackrementsov/cheflyfe#readme",
+  "dependencies": {
+    "@types/node": "^12.6.8",
+    "body-parser": "^1.19.0",
+    "connect-redis": "^3.4.2",
+    "ejs": "^2.6.2",
+    "express": "^4.17.1",
+    "express-session": "^1.16.2",
+    "mysql": "^2.17.1",
+    "random-key": "^0.3.2",
+    "redis": "^2.8.0",
+    "typeorm": "^0.2.18"
+  }
+}
