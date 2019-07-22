@@ -1,6 +1,6 @@
 import {Request, Response} from 'express';
 
-class HomeController {
+export default class HomeController {
 
     getIndex = (req: Request, res: Response) => {
         res.render('index');

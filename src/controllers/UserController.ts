@@ -7,9 +7,9 @@ import User from '../entity/User';
     * remove unecessary asyncs
     * replace `req.session.username` with `req.session.userID` for faster relational queries
 */
-class UserController {
+export default class UserController {
 
-    userRepo : Repository<User>;
+    private userRepo : Repository<User>;
 
     getLogin = (req: Request, res: Response) => {
         res.render('login', {session: req.session});

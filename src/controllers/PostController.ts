@@ -4,11 +4,11 @@ import Post from '../entity/Post';
 import User from '../entity/User';
 import Comment from '../entity/Comment';
 
-class PostController {
+export default class PostController {
 
-    postRepo : Repository<Post>;
-    userRepo : Repository<User>;
-    commentRepo : Repository<Comment>;
+    private postRepo : Repository<Post>;
+    private userRepo : Repository<User>;
+    private commentRepo : Repository<Comment>;
 
     getIndex = async (req: Request, res: Response) => {
         let user : User = await this.userRepo.findOne({
@@ -18,7 +18,7 @@ class PostController {
 
         let posts : Post[] = await this.postRepo.find({
             where: {'author.username': req.params.username},
-            relations: ['author']
+            relations: ['author', 'comments']
         });
     }
 
@@ -33,6 +33,18 @@ class PostController {
         await this.postRepo.save(post);
 
         res.redirect('/users/' + req.session.username);
+    }
+
+    postCreateComment = async (req: Request, res: Response) => {
+        let comment : Comment = new Comment(
+            req.body.text,
+            await this.postRepo.findOne(JSON.parse(req.body.id)),
+            await this.userRepo.findOne(req.session.userID)
+        );
+
+        await this.commentRepo.save(comment);
+
+        res.redirect('/users/' + req.body.userID);
     }
 
     patchUpdate = async (req: Request, res: Response) => {

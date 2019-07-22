@@ -10,11 +10,11 @@ import Recipe from '../entity/Recipe';
     * check relation queries
     * add basic views
 */
-class MenuController {
+export default class MenuController {
 
-    menuRepo : Repository<Menu>;
-    userRepo : Repository<User>;
-    recipeRepo : Repository<Recipe>;
+    private menuRepo : Repository<Menu>;
+    private userRepo : Repository<User>;
+    private recipeRepo : Repository<Recipe>;
 
     getIndex = async (req: Request, res: Response) => {
         let menu : Menu = await this.menuRepo.findOne(req.params.id, {relations: ['recipes']});

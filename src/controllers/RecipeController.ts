@@ -5,11 +5,11 @@ import Ingredient from '../entity/Ingredient';
 import User from '../entity/User';
 
 //TODO: Add recipe sharing, user security
-class RecipeController {
+export default class RecipeController {
 
-    recipeRepo : Repository<Recipe>;
-    ingredientRepo : Repository<Ingredient>;
-    userRepo : Repository<User>;
+    private recipeRepo : Repository<Recipe>;
+    private ingredientRepo : Repository<Ingredient>;
+    private userRepo : Repository<User>;
 
     getIndex = async (req: Request, res: Response) => {
         let recipe : Recipe = await this.recipeRepo.findOne(req.params.id, {

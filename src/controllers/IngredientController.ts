@@ -4,10 +4,10 @@ import Ingredient from '../entity/Ingredient';
 import User from '../entity/User';
 import NutritionalInfo from '../entity/NutritionalInfo';
 
-class IngredientController {
+export default class IngredientController {
 
-    ingredientRepo : Repository<Ingredient>;
-    userRepo : Repository<User>;
+    private ingredientRepo : Repository<Ingredient>;
+    private userRepo : Repository<User>;
 
     getAll = async (req: Request, res: Response) => {
         let ingredients : Ingredient[] = await this.ingredientRepo.find({
