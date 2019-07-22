@@ -37,7 +37,12 @@ export default class Recipe {
         return this.profit() / this.price.val;
     }
 
+    nutritionalInfo() : NutritionalInfo {
+        return new NutritionalInfo({}); //Finish this later
+    }
+
     constructor(
+        @Column('simple-array') public steps : string[],
         @Column('simple-json') public price : PricePerUnit,
         @Column('simple-json') public costs : Costs,
         @Column('simple-json') public quantities : UnitQt[],
