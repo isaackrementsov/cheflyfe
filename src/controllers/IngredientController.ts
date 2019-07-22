@@ -10,9 +10,9 @@ class IngredientController {
     userRepo : Repository<User>;
 
     getAll = async (req: Request, res: Response) => {
-        let ingredients = await this.ingredientRepo.find({
+        let ingredients : Ingredient[] = await this.ingredientRepo.find({
             where: {'author.username': req.session.username},
-            'relations': ['author', 'recipes'],
+            relations: ['author', 'recipes'],
         });
 
         res.render('ingredients', {ingredients: ingredients, session: req.session});
