@@ -44,6 +44,18 @@ class RecipeController {
         )
     }
 
+    patchUpdate = async (req: Request, res: Response) => {
+        await this.recipeRepo.update(req.params.id, req.body);
+
+        res.redirect('/recipes/' + req.params.id);
+    }
+
+    delete = async (req: Request, res: Response) => {
+        await this.recipeRepo.delete(req.params.id);
+
+        res.redirect('/recipes');
+    }
+
     constructor(){
         this.recipeRepo = getRepository(Recipe);
         this.ingredientRepo = getRepository(Ingredient);
