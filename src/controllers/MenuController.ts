@@ -2,6 +2,7 @@ import {Request, Response} from 'express';
 import {Repository, getRepository} from 'typeorm';
 import Menu from '../entity/Menu';
 import User from '../entity/User';
+import Recipe from '../entity/Recipe';
 
 /*TODO:
     * Add user verification security
@@ -13,6 +14,7 @@ class MenuController {
 
     menuRepo : Repository<Menu>;
     userRepo : Repository<User>;
+    recipeRepo : Repository<Recipe>;
 
     getIndex = async (req: Request, res: Response) => {
         let menu : Menu = await this.menuRepo.findOne(req.params.id, {relations: ['recipes']});
@@ -34,7 +36,7 @@ class MenuController {
             '',
             req.body.text,
             JSON.parse(req.body.info),
-            [],
+            await this.recipeRepo.findByIds(JSON.parse(req.body.ids)),
             await this.userRepo.findOne({'username': req.session.username})
         );
 
@@ -58,6 +60,7 @@ class MenuController {
     constructor(){
         this.menuRepo = getRepository(Menu);
         this.userRepo = getRepository(User);
+        this.recipeRepo = getRepository(Recipe);
     }
 
 }
