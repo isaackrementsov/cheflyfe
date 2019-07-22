@@ -5,6 +5,7 @@ import Ingredient from './Ingredient';
 import NutritionalInfo from './NutritionalInfo';
 import User from './User';
 
+@Entity()
 export default class Recipe {
 
     @PrimaryGeneratedColumn()

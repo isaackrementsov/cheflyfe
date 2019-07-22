@@ -2,6 +2,7 @@ import {Entity, Column, PrimaryGeneratedColumn, ManyToOne, OneToMany} from 'type
 import User from './User';
 import Comment from './Comment';
 
+@Entity()
 export default class Post {
 
     @PrimaryGeneratedColumn()
