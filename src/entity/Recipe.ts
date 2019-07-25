@@ -1,5 +1,5 @@
 import {Entity, Column, PrimaryGeneratedColumn, ManyToMany, ManyToOne, JoinTable} from 'typeorm';
-import {UnitQt, PricePerUnit, Costs} from '../util/typeDefs';
+import {UnitQt, PricePerUnit, Costs, Info} from '../util/typeDefs';
 import Menu from './Menu';
 import Ingredient from './Ingredient';
 import NutritionalInfo from './NutritionalInfo';
@@ -11,8 +11,44 @@ export default class Recipe {
     @PrimaryGeneratedColumn()
     id : number;
 
+    @Column()
+    name : string;
+    @Column()
+    description : string;
+    @Column('simple-array')
+    steps : string[];
+    @Column('simple-array')
+    images : string[]; //Limit to 6
+    @Column('simple-json')
+    price : PricePerUnit;
+    @Column('simple-json')
+    costs : Costs;
+    @Column('simple-json')
+    quantities : UnitQt[];
+    @Column('simple-json')
+    sharingPermissions : Info = {
+        allergens: false,
+        profitMargin: false,
+        profit: false,
+        price: false,
+        labor: false,
+        overhead: false,
+        misc: false,
+        food: false
+    };
+
     @ManyToMany(type => Menu)
+    @JoinTable()
     menus : Menu[];
+    @ManyToMany(type => User)
+    @JoinTable()
+    sharedUsers : User[];
+    @ManyToMany(type => Ingredient)
+    @JoinTable() public ingredients : Ingredient[];
+    @ManyToMany(type => Recipe)
+    @JoinTable() public subRecipes : Recipe[];
+    @ManyToOne(type => User, user => user.recipes)
+    public author : User;
 
     foodCost() : number {
         let sum = 0;
@@ -41,14 +77,8 @@ export default class Recipe {
         return new NutritionalInfo({}); //Finish this later
     }
 
-    constructor(
-        @Column('simple-array') public steps : string[],
-        @Column('simple-json') public price : PricePerUnit,
-        @Column('simple-json') public costs : Costs,
-        @Column('simple-json') public quantities : UnitQt[],
-        @ManyToMany(type => Ingredient) @JoinTable() public ingredients : Ingredient[],
-        @ManyToMany(type => Recipe) @JoinTable() public subRecipes : Recipe[],
-        @ManyToOne(type => User, user => user.recipes) public author : User
-    ){}
+    constructor(recipe : Partial<Recipe>){
+        Object.assign(this, recipe);
+    }
 
 }

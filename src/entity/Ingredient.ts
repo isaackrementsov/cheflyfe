@@ -10,9 +10,29 @@ export default class Ingredient {
     @PrimaryGeneratedColumn()
     id : number;
 
+    @Column()
+    name : string;
+    @Column()
+    brand : string;
+    @Column()
+    wastage : number;
+    @Column('simple-json')
+    price : PricePerUnit;
+    @Column('simple-json')
+    conversions : UnitQt[];
+    @Column('simple-array')
+    allergens : string[];
+
     @ManyToMany(type => Recipe)
     @JoinTable()
     recipes : Recipe[];
+
+    @OneToOne(type => NutritionalInfo)
+    @JoinColumn()
+    nutritionalInfo : NutritionalInfo;
+
+    @ManyToOne(type => User, user => user.ingredients)
+    author : User;
 
     unitConvert(initial : UnitQt) : number {
         let factor = this.conversions.find(c => c.unit == initial.unit);
@@ -20,15 +40,8 @@ export default class Ingredient {
         if(factor) return factor.qt * initial.qt;
     }
 
-    constructor(
-        @Column() public name : string,
-        @Column() public brand : string,
-        @Column() public wastage : number,
-        @Column('simple-json') public price : PricePerUnit,
-        @Column('simple-json') public conversions : UnitQt[],
-        @Column('simple-array') public allergens : string[],
-        @OneToOne(type => NutritionalInfo) @JoinColumn() public nutritionalInfo : NutritionalInfo,
-        @ManyToOne(type => User, user => user.ingredients) public author : User
-    ){}
+    constructor(ingredients : Partial<Ingredient>){
+        Object.assign(this, ingredients);
+    }
 
 }

@@ -3,19 +3,34 @@ import {Info} from '../util/typeDefs';
 import Recipe from './Recipe';
 import User from './User';
 
-//TODO: Add menu/recipe sharing
+//TODO: Add menu/recipe sharing, change constructors in controllers
 @Entity()
 export default class Menu {
 
     @PrimaryGeneratedColumn()
     id : number;
 
-    constructor(
-        @Column() public logo : string,
-        @Column() public text : string,
-        @Column() public info : Info,
-        @ManyToMany(type => Recipe) @JoinTable() public recipes : Recipe[],
-        @ManyToOne(type => User, user => user.menus) public author : User
-    ){}
+    @Column()
+    logo : string;
+    @Column()
+    header : string;
+    @Column('simple-json')
+    info : Info;
+    @Column('simple-json')
+    sharingPermissions : Info;
+
+    @ManyToMany(type => User)
+    @JoinTable()
+    sharedUsers : User[];
+    @ManyToMany(type => Recipe)
+    @JoinTable()
+    recipes : Recipe[];
+
+    @ManyToOne(type => User, user => user.menus)
+    author : User;
+
+    constructor(menu : Partial<Menu>){
+        Object.assign(this, menu);
+    }
 
 }

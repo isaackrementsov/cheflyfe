@@ -8,14 +8,21 @@ export default class Post {
     @PrimaryGeneratedColumn()
     id : number;
 
+    @Column()
+    name : string;
+    @Column()
+    content : string;
+    @Column('simple-array')
+    filePaths : string[];
+
     @OneToMany(type => Comment, comment => comment.post)
     comments : Comment[];
 
-    constructor(
-        @Column() public title : string,
-        @Column() public text : string,
-        @Column('simple-array') public filePaths : string[],
-        @ManyToOne(type => User, user => user.posts) public author : User
-    ){}
+    @ManyToOne(type => User, user => user.posts)
+    author : User;
+
+    constructor(post : Partial<Post>){
+        Object.assign(this, post);
+    }
 
 }

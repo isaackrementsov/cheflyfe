@@ -1,64 +1,89 @@
 import {Request, Response} from 'express';
 import {Repository, getRepository} from 'typeorm';
 import Recipe from '../entity/Recipe';
-import Ingredient from '../entity/Ingredient';
 import User from '../entity/User';
+import Middleware from '../util/Middleware';
 
-//TODO: Add recipe sharing, user security
+//TODO: maybe fix create method?
 export default class RecipeController {
 
     private recipeRepo : Repository<Recipe>;
-    private ingredientRepo : Repository<Ingredient>;
     private userRepo : Repository<User>;
 
     getIndex = async (req: Request, res: Response) => {
-        let recipe : Recipe = await this.recipeRepo.findOne(req.params.id, {
-            relations: ['ingredients', 'subRecipes', 'menus', 'author']
-        });
+        let recipe : Recipe = await this.recipeRepo.createQueryBuilder()
+            .select()
+            .innerJoinAndSelect('recipe.ingredients', 'ingredients')
+            .innerJoinAndSelect('recipe.subRecipes', 'subRecipes')
+            .innerJoinAndSelect('recipe.menus', 'menus')
+            .innerJoinAndSelect('recipe.author', 'author')
+            .innerJoin('recipe.sharedUsers', 'shared')
+            .where('shared.id = :userID OR authorId = :userID', {userID: req.session.userID})
+            .andWhere('id = :id', {id: parseInt(req.params.id)})
+            .execute();
 
-        res.render('recipe', {recipe: recipe, session: req.session});
+        res.render(recipe ? 'recipe' : 'notFound', {recipe: recipe, session: req.session});
     }
 
     getAll = async (req: Request, res: Response) => {
         let recipes : Recipe[] = await this.recipeRepo.find({
-            where: {'author.username': req.session.username},
-            relations: ['author']
+            where: {'authorId': req.session.userID},
         });
 
         res.render('recipes', {recipes: recipes, session: req.session});
     }
 
-    getCreate = async (req: Request, res: Response) => {
+    getCreate = (req: Request, res: Response) => {
         res.render('createRecipe', {session: req.session});
     }
 
     postCreate = async (req: Request, res: Response) => {
-        let recipe : Recipe = new Recipe(
-            JSON.parse(req.body.steps),
-            {val: req.body.val, qt: req.body.qt, units: req.body.units},
-            {labor: req.body.labor, overhead: req.body.overhead, misc: req.body.misc},
-            JSON.parse(req.body.quantities),
-            await this.ingredientRepo.findByIds(JSON.parse(req.body.ids)),
-            await this.recipeRepo.findByIds(JSON.parse(req.body.recipeIds)),
-            await this.userRepo.findOne({'username': req.session.username})
-        )
+        let recipe : Recipe = new Recipe({
+            name: req.body.name,
+            description: req.body.descriptionOptional,
+            steps: req.body.stepsJSON,
+            images: req.files['recipeUplMulti6'].map(f => f.path),
+            price: {val: req.body.val, qt: req.body.qt, units: req.body.units},
+            costs: {labor: req.body.labor, overhead: req.body.overhead, misc: req.body.misc},
+            quantities: req.body.quantitiesJSON,
+            ingredients: req.body.ingredientRelJSON,
+            subRecipes: req.body.recipeRelJSON,
+            author: await this.userRepo.findOne(req.session.userID)
+        });
+
+        await this.recipeRepo.save(recipe);
+
+        res.redirect('/recipes/' + this.recipeRepo.getId(recipe));
     }
 
     patchUpdate = async (req: Request, res: Response) => {
-        await this.recipeRepo.update(req.params.id, req.body);
+        let updates = Middleware.decodeBody(req.body, req.files);
+
+        await this.recipeRepo.createQueryBuilder()
+            .update().set(updates)
+            .where('authorId = :userID AND id = :id', {
+                userID: req.session.userID,
+                id: parseInt(req.params.id)
+            })
+            .execute();
 
         res.redirect('/recipes/' + req.params.id);
     }
 
     delete = async (req: Request, res: Response) => {
-        await this.recipeRepo.delete(req.params.id);
+        await this.recipeRepo.createQueryBuilder()
+            .delete()
+            .where('authorId = :userID AND id = :id', {
+                userID: req.session.userID,
+                id: parseInt(req.params.id)
+            })
+            .execute();
 
         res.redirect('/recipes');
     }
 
     constructor(){
         this.recipeRepo = getRepository(Recipe);
-        this.ingredientRepo = getRepository(Ingredient);
         this.userRepo = getRepository(User);
     }
 

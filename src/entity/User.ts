@@ -11,6 +11,21 @@ export default class User {
     @PrimaryGeneratedColumn()
     id : number;
 
+    @Column()
+    admin : boolean;
+    @Column()
+    password : string;
+    @Column()
+    email : string;
+    @Column()
+    avatar : string;
+    @Column('simple-json')
+    name : {first: string, last: string};
+
+    @Index({unique: true})
+    @Column()
+    username : string
+
     @OneToMany(type => Ingredient, ingredient => ingredient.author)
     ingredients : Ingredient[];
     @OneToMany(type => Recipe, recipe => recipe.author)
@@ -22,12 +37,8 @@ export default class User {
     @OneToMany(type => Comment, comment => comment.author)
     comments : Comment[];
 
-    constructor(
-        @Column() public admin : boolean,
-        @Column() public password : string,
-        @Column() public email : string,
-        @Column('simple-json') public name : {first: string, last: string},
-        @Column() @Index({unique: true}) public username : string
-    ){}
+    constructor(user : Partial<User>){
+        Object.assign(this, user);
+    }
 
 }

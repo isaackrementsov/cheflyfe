@@ -3,6 +3,7 @@ import {Repository, getRepository} from 'typeorm';
 import Post from '../entity/Post';
 import User from '../entity/User';
 import Comment from '../entity/Comment';
+import Middleware from '../util/Middleware';
 
 export default class PostController {
 
@@ -10,37 +11,38 @@ export default class PostController {
     private userRepo : Repository<User>;
     private commentRepo : Repository<Comment>;
 
-    getIndex = async (req: Request, res: Response) => {
-        let user : User = await this.userRepo.findOne({
-            where: {'username': req.params.username},
+    getAll = async (req: Request, res: Response) => {
+        let user : User = await this.userRepo.findOne(parseInt(req.params.id), {
             relations: ['recipes', 'ingredients', 'menus']
         });
 
         let posts : Post[] = await this.postRepo.find({
-            where: {'author.username': req.params.username},
+            where: {'authorId': parseInt(req.params.id)},
             relations: ['author', 'comments']
         });
+
+        res.render('user', {user: user, posts: posts});
     }
 
     postCreate = async (req: Request, res: Response) => {
-        let post : Post = new Post(
-            req.body.title,
-            req.body.text,
-            [],
-            await this.userRepo.findOne({'username': req.session.username})
-        );
+        let post : Post = new Post({
+            name: req.body.name,
+            content: req.body.contentOptional,
+            filePaths: req.files['postUplMulti'].map(f => f.path),
+            author: await this.userRepo.findOne(req.session.userID)
+        });
 
         await this.postRepo.save(post);
 
-        res.redirect('/users/' + req.session.username);
+        res.redirect('/users/' + req.session.userID);
     }
 
     postCreateComment = async (req: Request, res: Response) => {
-        let comment : Comment = new Comment(
-            req.body.text,
-            await this.postRepo.findOne(JSON.parse(req.body.id)),
-            await this.userRepo.findOne(req.session.userID)
-        );
+        let comment : Comment = new Comment({
+            content: req.body.content,
+            post: req.body.postRel,
+            author: await this.userRepo.findOne(req.session.userID)
+        });
 
         await this.commentRepo.save(comment);
 
@@ -48,15 +50,29 @@ export default class PostController {
     }
 
     patchUpdate = async (req: Request, res: Response) => {
-        await this.postRepo.update(req.params.id, req.body);
+        let update = Middleware.decodeBody(req.body, req.files);
 
-        res.redirect('/users/' + req.session.username);
+        await this.postRepo.createQueryBuilder()
+            .update().set(update)
+            .where('authorId = :userID AND id = :id', {
+                userID: req.session.userID,
+                id: parseInt(req.params.id)
+            })
+            .execute();
+
+        res.redirect('/users/' + req.session.userID);
     }
 
     delete = async (req: Request, res: Response) => {
-        await this.postRepo.delete(req.params.id);
+        await this.postRepo.createQueryBuilder()
+            .delete()
+            .where('authorId = :userID AND id = :id', {
+                userID: req.session.userID,
+                id: parseInt(req.params.id)
+            })
+            .execute();
 
-        res.redirect('/users/' + req.session.username);
+        res.redirect('/users/' + req.session.userID);
     }
 
     constructor(){

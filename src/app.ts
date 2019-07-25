@@ -1,3 +1,4 @@
+import * as reflect from 'reflect-metadata';
 import * as express from 'express';
 import * as bodyParser from 'body-parser';
 import * as path from 'path';

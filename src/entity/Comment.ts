@@ -9,10 +9,16 @@ export default class Comment {
     @PrimaryGeneratedColumn()
     id : number;
 
-    constructor(
-        @Column() public text : string,
-        @ManyToOne(type => Post, post => post.comments) public post : Post,
-        @ManyToOne(type => User, user => user.comments) public author : User
-    ){}
+    @Column()
+    content : string;
+
+    @ManyToOne(type => Post, post => post.comments)
+    post : Post;
+    @ManyToOne(type => User, user => user.comments)
+    author : User;
+
+    constructor(comment : Partial<Comment>){
+        Object.assign(this, comment);
+    }
 
 }

@@ -1,11 +1,10 @@
 import {Request, Response} from 'express';
 import {Repository, getRepository} from 'typeorm';
 import User from '../entity/User';
+import Middleware from '../util/Middleware';
 
 /*TODO:
     * Add payment & subscription
-    * remove unecessary asyncs
-    * replace `req.session.username` with `req.session.userID` for faster relational queries
 */
 export default class UserController {
 
@@ -35,33 +34,41 @@ export default class UserController {
         }
     }
 
-    postSignup = (req: Request, res: Response) => {
-        let user : User = new User(
-            JSON.parse(req.body.admin),
-            req.body.password,
-            req.body.email,
-            {first: req.body.first, last: req.body.last},
-            req.body.username
-        );
+    postSignup = async (req: Request, res: Response) => {
+        let user : User = new User({
+            admin: req.body.adminJSON,
+            password: req.body.password,
+            email: req.body.email,
+            avatar: req.files['avatar'].path,
+            name: {first: req.body.first, last: req.body.last},
+            username: req.body.username
+        });
 
-        this.userRepo.save(user).then(() => {
+        try {
+            await this.userRepo.save(user);
             req.session.error = null;
             this.postLogin(req, res);
-        }).catch(e => {
+        }catch(e){
             req.session.error = 'Username must be unique';
             res.redirect('/login');
-        });
+        }
 
     }
 
-    postLogout = (req: Request, res: Response) => {
-        req.session.destroy();
+    postLogout = async (req: Request, res: Response) => {
+        await req.session.destroy(() => {});
 
         res.redirect('/login');
     }
 
     patchUpdate = async (req: Request, res: Response) => {
-        await this.userRepo.update(req.session.id, req.body);
+        let update = Middleware.decodeBody(req.body, req.files);
+
+        if(req.files){
+            req.body.avatar = req.files['logo'].path;
+        }
+
+        await this.userRepo.update(req.session.id, update);
 
         res.redirect('/user/' + req.session.id);
     }

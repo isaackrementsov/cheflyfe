@@ -7,8 +7,11 @@ export default class NutritionalInfo {
     @PrimaryGeneratedColumn()
     id : number;
 
-    constructor(
-        @Column('simple-json') public info
-    ){}
+    @Column('simple-json')
+    info;
+
+    constructor(nutritionalInfo : Partial<NutritionalInfo>){
+        Object.assign(this, nutritionalInfo);
+    }
 
 }

@@ -4,6 +4,8 @@ import app from './app';
 import routes from './server/routes';
 
 import Middleware from './util/Middleware';
+import Recipe from './entity/Recipe';
+import User from './entity/User';
 
 createConnection().then(async connection => {
     if(app.get('env') == 'development'){
@@ -11,7 +13,11 @@ createConnection().then(async connection => {
     }
 
     let middleware : Middleware = new Middleware(); //Middleware (and anything that might deal with DB) should be initialized after DB connects
+
     app.use(middleware.auth);
+    app.use(middleware.multipart);
+    app.use(middleware.checkBody);
+    app.use(middleware.checkParams);
 
     app.listen(app.get('port'), () => {
         console.log('App is running on localhost:%d in %s mode', app.get('port'), app.get('env'));
