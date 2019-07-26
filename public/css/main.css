@@ -1,0 +1,42 @@
+@import url('https://fonts.googleapis.com/css?family=Roboto:100,300,400,700,900&display=swap');
+@import 'forms.css';
+@import 'nav.css';
+@import 'scroll.css';
+
+html, body {
+    margin: 0;
+    color: rgb(90, 90, 90);
+    font-family: 'Roboto', arial, sans-serif;
+}
+span {
+    padding: 0;
+    display: inline;
+}
+a {
+    text-decoration: none;
+    color: inherit;
+    padding: 0;
+    margin: 0;
+}
+a:visited {
+    color: inherit;
+}
+button:focus {
+    outline: none;
+}
+
+#content {
+    position: relative;
+    padding-bottom: 20px;
+    width: 100%;
+    z-index: -1;
+}
+#half {
+    top: -20px;
+    height: 80%;
+    width: 100%;
+    position: fixed;
+    background-size: 100%;
+    background-repeat: no-repeat !important;
+    background-image: url('/img/static/login.jpg');
+}

@@ -11,6 +11,12 @@ export default class UserController {
     private userRepo : Repository<User>;
 
     getLogin = (req: Request, res: Response) => {
+        req.session.page = 'login';
+        res.render('login', {session: req.session});
+    }
+
+    getSignup = (req: Request, res: Response) => {
+        req.session.page = 'signup';
         res.render('login', {session: req.session});
     }
 
@@ -25,21 +31,19 @@ export default class UserController {
             req.session.userID = user.id;
             req.session.admin = user.admin;
 
-            res.redirect('/user/' + user.id);
+            res.redirect('/users/' + user.id);
         }else{
             req.session.error = 'Invalid credentials';
-            req.session.page = 'login';
-
             res.redirect('/login');
         }
     }
 
     postSignup = async (req: Request, res: Response) => {
         let user : User = new User({
-            admin: req.body.adminJSON,
+            admin: false,
             password: req.body.password,
             email: req.body.email,
-            avatar: req.files['avatar'].path,
+            avatar: req.files['avatarUpl'].path,
             name: {first: req.body.first, last: req.body.last},
             username: req.body.username
         });
@@ -50,7 +54,7 @@ export default class UserController {
             this.postLogin(req, res);
         }catch(e){
             req.session.error = 'Username must be unique';
-            res.redirect('/login');
+            res.redirect('/signup');
         }
 
     }
@@ -64,13 +68,9 @@ export default class UserController {
     patchUpdate = async (req: Request, res: Response) => {
         let update = Middleware.decodeBody(req.body, req.files);
 
-        if(req.files){
-            req.body.avatar = req.files['logo'].path;
-        }
-
         await this.userRepo.update(req.session.id, update);
 
-        res.redirect('/user/' + req.session.id);
+        res.redirect('/users/' + req.session.id);
     }
 
     delete = async (req: Request, res: Response) => {

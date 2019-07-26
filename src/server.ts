@@ -14,8 +14,8 @@ createConnection().then(async connection => {
 
     let middleware : Middleware = new Middleware(); //Middleware (and anything that might deal with DB) should be initialized after DB connects
 
-    app.use(middleware.auth);
     app.use(middleware.multipart);
+    app.use(middleware.auth);
     app.use(middleware.checkBody);
     app.use(middleware.checkParams);
 

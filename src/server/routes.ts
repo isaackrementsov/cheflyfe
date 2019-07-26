@@ -16,6 +16,7 @@ let routes = app => {
 
     app.get('/', homeController.getIndex);
     app.get('/login', userController.getLogin);
+    app.get('/signup', userController.getSignup)
     app.get('/ingredients', ingredientController.getAll);
     app.get('/menus', menuController.getAll);
     app.get('/menus/:id', menuController.getIndex);

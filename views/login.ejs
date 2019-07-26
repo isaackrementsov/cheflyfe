@@ -1,0 +1,56 @@
+    <% include partials/header %>
+<div id="half"></div>
+<form class="login-form" method="POST" action="/<%= session.page %>" enctype="multipart/form-data">
+    <div class="login-form-header">
+        <a href="/signup" class="<%= session.page == 'signup' ? 'selected' : '' %>">Sign up</a>
+        <a href="/login" class="<%= session.page == 'login' ? 'selected' : '' %>">Log in</a>
+    </div>
+    <div class="login-form-wrapper">
+        <% include partials/forms/error %>
+        <% if(session.page == 'signup'){ %>
+            <h3>Basic info</h3>
+            <div class="form-inline">
+                <div class="login-form-input">
+                    <label for="first">First name</label>
+                    <input type="text" name="first">
+                </div>
+                <div class="login-form-input">
+                    <label for="last">Last name</label>
+                    <input type="text" name="last">
+                </div>
+            </div>
+            <h3>Account credientials</h3>
+            <div class="form-inline">
+                <div class="login-form-input">
+                    <label for="username">Username</label>
+                    <input type="text" name="username">
+                </div>
+                <div class="login-form-input">
+                    <label for="last">Email</label>
+                    <input type="email" name="email">
+                </div>
+            </div>
+            <div class="login-form-input">
+                <label for="last">Password</label>
+                <input type="password" name="password">
+            </div>
+            <div class="form-upl-wrapper">
+                <input type="file" name="avatarUpl">
+                <button class="form-upl">Upload avatar</button>
+            </div>
+            <input type="submit" value="Let's go!">
+        <% }else{ %>
+            <h3>Enter your credientials</h3>
+            <div class="login-form-input">
+                <label for="username">Username</label>
+                <input type="text" name="username">
+            </div>
+            <div class="login-form-input">
+                <label for="password">Password</label>
+                <input type="password" name="password">
+            </div>
+            <input type="submit" value="Login">
+        <% } %>
+    </div>
+</form>
+<% include partials/footer %>

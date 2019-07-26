@@ -1,6 +1,9 @@
 import {Request, Response, NextFunction} from 'express';
 import { Repository, getRepository } from 'typeorm';
-import * as multer from 'multer';
+import * as path from 'path';
+import * as shortId from 'shortid';
+import * as fs from 'fs';
+import * as Busboy from 'busboy';
 import Comment from '../entity/Comment';
 import Ingredient from '../entity/Ingredient';
 import Menu from '../entity/Menu';
@@ -9,8 +12,7 @@ import Post from '../entity/Post';
 import Recipe from '../entity/Recipe';
 import User from '../entity/User';
 
-//TODO: Add Opt to optional req.body params, JSON to parsible, Rel to relational
-//Check for errors when converting params, JSON, relational
+//Check for errors when converting params, JSON, relational, file delete
 export default class Middleware {
 
     commentRepo : Repository<Comment>;
@@ -20,29 +22,50 @@ export default class Middleware {
     postRepo : Repository<Post>;
     recipeRepo : Repository<Recipe>;
     userRepo : Repository<User>;
-    upload : multer.Instance;
 
     multipart = (req: Request, res: Response, next: NextFunction) => {
-        let fields = [];
+        if(req.headers['content-type']){
+            if(req.headers['content-type'].indexOf('multipart/form-data') != -1){
+                let fields = {};
+                let maxFiles = 1;
+                let fileCount = 0;
 
-        for(let key in req.body){
-            if(key.indexOf('Upl') != -1){
-                if(key.indexOf('Multi') == -1){
-                    fields.push({name: key, maxCount: 1});
-                }else{
-                    let max = key[key.indexOf('Multi') + 5];
-                    let f = {name: key};
+                let busboy = new Busboy({headers: req.headers});
+                req.pipe(busboy);
 
-                    if(max) f['maxCount'] = parseInt(max);
-                    fields.push(f);
-                }
-            }
+                busboy.on('field', (key, val) => {
+                    req.body[key] = val;
+                });
 
-            if(fields.length > 0){
-                this.upload.fields(fields)(req, res, next);
+                busboy.on('file', (fieldname, file, filename, encoding, mimetype) => {
+                    if(fieldname.indexOf('Multi')){
+                        if(maxFiles == 1){
+                            let max = fieldname[fieldname.indexOf('Multi') + 5];
+                            if(!isNaN(parseInt(max))) maxFiles = parseInt(max);
+                        }
+
+                        if(fileCount <= maxFiles){
+                            let ext = filename.split('.')[filename.split('.').length - 1];
+                            let saveTo = path.join(__dirname, '../../public/img/upload/' + (req.body.username || shortId.generate()) + '.' + ext);
+                            fields[fieldname] = {path: saveTo};
+
+                            file.pipe(fs.createWriteStream(saveTo));
+                        }
+                    }
+                });
+
+                busboy.on('finish', function(){
+                    if(Object.keys(fields).length > 0){
+                        req.files = fields;
+                    }
+
+                    next();
+                });
             }else{
                 next();
             }
+        }else{
+            next();
         }
     }
 
@@ -62,7 +85,6 @@ export default class Middleware {
     //Checks empty fields, auto parses and populates special fields
     checkBody = async (req: Request, res: Response, next: NextFunction) => {
         let invalid = false;
-
         for(let key in req.body){
             if(key.indexOf('Opt') == -1 && req.body[key] == ''){
                 invalid = true;
@@ -128,8 +150,10 @@ export default class Middleware {
     }
 
     sendBack(req: Request, res: Response, next: NextFunction, condition: boolean){
-        if(condition) res.redirect(req.header('Referer') || '/');
-        else next();
+        if(condition){
+            req.session.error = 'Invalid input'
+            res.redirect(req.header('Referer') || '/');
+        }else next();
     }
 
     static decodeBody(body: object, files?: object | undefined) : object {
@@ -160,6 +184,5 @@ export default class Middleware {
         this.postRepo = getRepository(Post);
         this.recipeRepo = getRepository(Recipe);
         this.userRepo = getRepository(User);
-        this.upload = multer({dest: 'public/img/upload/'});
     }
 }

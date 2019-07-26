@@ -3,7 +3,6 @@ import {Info} from '../util/typeDefs';
 import Recipe from './Recipe';
 import User from './User';
 
-//TODO: Add menu/recipe sharing, change constructors in controllers
 @Entity()
 export default class Menu {
 

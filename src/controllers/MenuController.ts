@@ -5,12 +5,7 @@ import User from '../entity/User';
 import Middleware from '../util/Middleware';
 
 /*TODO:
-    * Add user verification security
-    * 404 not found
-    * check relation queries
     * add basic views
-    * update relational fields
-    * req.body & url checks in middleware
 */
 export default class MenuController {
 

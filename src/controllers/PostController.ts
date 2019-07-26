@@ -28,7 +28,7 @@ export default class PostController {
         let post : Post = new Post({
             name: req.body.name,
             content: req.body.contentOptional,
-            filePaths: req.files['postUplMulti'].map(f => f.path),
+            filePaths: req.files['postUplMulti8'].map(f => f.path),
             author: await this.userRepo.findOne(req.session.userID)
         });
 

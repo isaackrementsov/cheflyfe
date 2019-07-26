@@ -1,0 +1,27 @@
+#navbar {
+    z-index: 3;
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    position: fixed;
+    top: 0;
+    background-color: white;
+    width: 100%;
+}
+#navbar li {
+    display: inline;
+    float: right;
+}
+#navbar li.first {
+    float: left;
+    font-size: 25px;
+    font-weight: 300;
+    color: #3D5AFE;
+}
+#navbar li a {
+    display: block;
+    padding: 15px;
+}
+li p {
+    margin: 0;
+}
