@@ -1,10 +1,11 @@
-import {Entity, Column, PrimaryGeneratedColumn, Index, OneToMany} from 'typeorm';
+import {Entity, Column, PrimaryGeneratedColumn, Index, OneToMany, ManyToMany, JoinTable} from 'typeorm';
 import Ingredient from './Ingredient';
 import Recipe from './Recipe';
 import Menu from './Menu';
 import Post from './Post';
 import Comment from './Comment';
 
+//TODO: Add timestamps for admin analytics
 @Entity()
 export default class User {
 
@@ -17,8 +18,12 @@ export default class User {
     password : string;
     @Column()
     email : string;
+    @Column('text')
+    bio : string = "I'm a new user to ChefLyfe!";
     @Column()
     avatar : string;
+    @Column()
+    background : string = '';
     @Column('simple-json')
     name : {first: string, last: string};
 
@@ -36,6 +41,13 @@ export default class User {
     posts : Post[];
     @OneToMany(type => Comment, comment => comment.author)
     comments : Comment[];
+
+    @ManyToMany(type => User)
+    @JoinTable()
+    brigade : User[];
+    @ManyToMany(type => User)
+    @JoinTable()
+    requested : User[];
 
     constructor(user : Partial<User>){
         Object.assign(this, user);

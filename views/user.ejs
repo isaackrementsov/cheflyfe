@@ -1,0 +1,249 @@
+<% include partials/header %>
+    <% let auth = session.userID == user.id %>
+    <form class="profile-header-container" method="POST" action="/users/update?_method=PATCH" enctype="multipart/form-data">
+        <% if(auth){ %>
+            <div class="profile-header-overlay">
+                <div class="center-inline">
+                    <div class="form-upl-wrapper" onclick="toggleEdit('background-edit', '', '', 'inline-block')">
+                        <input type="file" name="backgroundUpl" accept=".jpg,.png,.svg,.bmp">
+                        <button class="form-upl"><i class="material-icons">camera_alt</i></button>
+                    </div>
+                    <div id="background-edit" style="display:none">
+                        <button type="button"onclick="cancelEdit()" style="display: inline-block"><i class="material-icons">cancel</i></button>
+                        <button style="display: inline-block"><i class="material-icons">check</i></button>
+                    </div>
+                </div>
+            </div>
+        <% } %>
+        <div class="profile-header"
+         style="background: <% if(user.background != ''){ %> url(<%= user.background %>) <% }else{ %> linear-gradient(45deg, #8C9EFF, #304FFE) <% } %>;background-size: cover !important;
+"></div>
+    </form>
+    <div class="profile-nav" id="profile-nav-uq">
+        <button class="profile-nav-button active" id="posts" onclick="toggleActivate('profile-feed-feed', 'profile-feed-brigade')">
+            Posts
+        </button>
+        <button class="profile-nav-button" id="brigade" onclick="toggleActivate('profile-feed-brigade', 'profile-feed-feed')">
+            Brigade
+        </button>
+    </div>
+    <div class="profile-main">
+        <form class="profile-card" method="POST" action="/users/update?_method=PATCH&id=<%= user.id %>" enctype="multipart/form-data">
+            <div class="avatar-container">
+                <% if(auth){ %>
+                    <div class="avatar-overlay">
+                        <div class="form-upl-wrapper" onclick="toggleEdit('user-edit')">
+                            <input type="file" name="avatarUpl" accept=".jpg,.png,.svg,.bmp">
+                            <button class="form-upl"><i class="material-icons">camera_alt</i></button>
+                        </div>
+                    </div>
+                <% } %>
+                <div class="img" style="background-image: url(<%= user.avatar %>)"></div>
+            </div>
+            <div class="card-heading">
+                <h1><%= user.name.first %> <%= user.name.last %></h1>
+                <% if(!auth){ %>
+                    <% let b = (user.brigade && user.brigade.map(u => u.id)) || [] %>
+                    <% let r = (user.requested && user.requested.map(u => u.id)) || [] %>
+                    <% let following = b.indexOf(session.userID) != -1 %>
+                    <% let requested = r.indexOf(session.userID) != -1 %>
+                    <% if(following){ %>
+                        <button class="add-button" disabled>Following <i class="material-icons">done</i></button>
+                    <% }else if(requested) { %>
+                        <button class="add-button" disabled>Requested <i class="material-icons">person</i></button>
+                    <% }else{ %>
+                        <% r.push(session.userID) %>
+                        <input type="hidden" name="requestedRelJSON" value="[<%= r %>]">
+                        <button class="add-button">Add <i class="material-icons">add</i></button>
+                    <% } %>
+                <% } %>
+            </div>
+            <p>
+                <span id="bio" onclick="toggleEdit('user-edit', 'bio', 'bio-edit')"><%= user.bio %></span>
+                <% if(auth){ %><textarea id="bio-edit" name="bio" style="display: none"><%= user.bio %></textarea><% } %>
+            </p>
+            <% if(auth){ %>
+                <p class="inline-center" id="user-edit" style="display: none">
+                    <input type="submit" value="Save">
+                    <button onclick="cancelEdit()" type="button">Cancel</button>
+                </p>
+            <% } %>
+        </form>
+        <div class="profile-feed" id="profile-feed-feed">
+            <% if(auth){ %>
+                <button class="add-post" id="add-post-button" onclick="toggle('add-post-button', 'new-post')">
+                    <i class="material-icons">add</i> Add Post
+                </button>
+            <% } %>
+            <form class="post-card" id="new-post" style="display: none" method="POST" action="/posts/create" enctype="multipart/form-data">
+                <div class="post-header"><input type="text" name="name" placeholder="Title"></div>
+                <div class="post-content">
+                    <textarea placeholder="Text" name="contentOptional"></textarea><br>
+                </div>
+                <div class="post-content">
+                    <div class="form-upl-wrapper">
+                        <input type="file" name="postUplMulti8" accept=".jpg,.png,.svg,.bmp,.mp4" multiple>
+                        <button class="form-upl">Add photos and videos</button>
+                    </div><br>
+                    <input type="submit" value="Post">
+                    <button type="button" onclick="toggle('new-post', 'add-post-button')">Cancel</button>
+                </div>
+            </form>
+            <% for(let i = posts.length - 1; i >= 0; i--){ %>
+                <form method="POST" action="/posts/update/<%= posts[i].id %>?_method=PATCH" class="post-card" enctype="multipart/form-data">
+                    <div class="post-header">
+                        <span id="post-title" onclick="toggleEdit('post-update', 'post-title', 'post-title-update')"><%= posts[i].name %></span>
+                        <% if(auth){ %>
+                            <span id="post-title-update" style="display: none">
+                                <input type="text" placeholder="Title" value="<%= posts[i].name %>" name="name">
+                            </span>
+                        <% } %>
+                        <time class="timeago" datetime="<%= new Date(posts[i].timestamp).toISOString() %>"></time>
+                    </div>
+                    <div class="post-content" id="post-text" onclick="toggleEdit('post-update', 'post-text', 'post-text-edit')">
+                        <%= posts[i].content %>
+                    </div>
+                    <% if(auth){ %>
+                        <div class="post-content" id="post-text-edit" style="display: none">
+                            <textarea name="content"><%= posts[i].content %></textarea>
+                        </div>
+                    <% } %>
+                    <input type="hidden" name="filePathsJSON" id="filePaths<%= posts[i].id %>"
+                    value="<%= JSON.stringify(posts[i].filePaths) %>">
+                    <input type="hidden" name="deletedMeta" id="deleted<%= posts[i].id %>" value="">
+                    <div class="post-content media">
+                        <% for(let k = 0; k < posts[i].filePaths.length; k++) { %>
+                            <% let src = posts[i].filePaths[k] %>
+                            <% let path = src.split('.') %>
+                            <% let ext = path[path.length - 1].toLowerCase() %>
+                            <div class="media-container">
+                                <% if(ext == 'png' || ext == 'jpg' || ext == 'bmp' || ext == 'svg'){ %>
+                                    <img src="<%= src %>">
+                                <% }else{ %>
+                                    <video controls><source src="<%= src %>"></video>
+                                <% } %>
+                                <% if(auth){ %>
+                                    <div class="media-overlay">
+                                        <div class="center-inline">
+                                            <button onclick="deleteImg(<%= posts[i].id %>, '<%= src %>')"><i class="material-icons">delete</i></button>
+                                        </div>
+                                    </div>
+                                <% } %>
+                            </div>
+                        <% } %>
+                        <% if(auth){ %>
+                            <div class="form-upl-wrapper" onclick="toggleEdit('post-update', '', '')">
+                                <input type="file" name="filePathsUpl" accept=".jpg,.png,.svg,.bmp,.mp4">
+                                <button class="form-upl"><i class="material-icons">add</i> Add file</button>
+                            </div>
+                        <% } %>
+                    </div>
+                    <% if(auth){ %>
+                        <div class="post-content" id="post-update" style="display: none">
+                            <input type="submit" value="Save">
+                            <button type="button" onclick="cancelEdit()">Cancel</button>
+                        </div>
+                    <% } %>
+                </form>
+            <% } %>
+        </div>
+        <form class="profile-feed" id="profile-feed-brigade" style="display: none" method="POST" action="/users/update?_method=PATCH">
+            <h3>Requests</h3>
+            <% if(user.requested.length == 0){ %>
+                <p>None</p>
+            <% } %>
+            <input type="hidden" name="requestedRelJSON" id="requestedInput"
+                value="<%= user.requested ? JSON.stringify(user.requested.map(r => r.id)) : "[]" %>"
+            >
+            <% for(let i = 0; i < user.requested.length; i++){ %>
+                <div class="post-card brigade">
+                    <a href="/users/<%= user.requested[i].id %>">
+                        <img src="<%= user.requested[i].avatar %>">
+                        <span><%= user.requested[i].name.first %> <%= user.requested[i].name.last %></span>
+                    </a>
+                    <% if(auth){ %><button class="cta" onclick="addBrigade(<%= user.requested[i].id %>)">Accept</button><% } %>
+                </div>
+            <% } %>
+            <h3>Brigade</h3>
+            <% if(user.brigade.length == 0){ %>
+                <p>None</p>
+            <% } %>
+            <input type="hidden" name="brigadeRelJSON" id="brigadeInput"
+                value="<%= user.brigade ? JSON.stringify(user.brigade.map(r => r.id)) : "[]" %>"
+            >
+            <% for(let i = 0; i < user.brigade.length; i++){ %>
+                <div class="post-card brigade">
+                    <a href="/users/<%= user.brigade[i].id %>">
+                        <img src="<%= user.brigade[i].avatar %>">
+                        <span><%= user.brigade[i].name.first %> <%= user.brigade[i].name.last %></span>
+                    </a>
+                    <% if(auth){ %><button onclick="removeBrigade(<%= user.brigade[i].id %>)">Unfollow</button><% } %>
+                </div>
+            <% } %>
+        </form>
+    </div>
+    <script>
+        let profileNav = document.getElementById('profile-nav-uq');
+        let profileFeed = document.getElementById('profile-feed-feed');
+        let brigade = document.getElementById('brigadeInput');
+        let requested = document.getElementById('requestedInput');
+        let deleted = false;
+        profileNav.style.paddingLeft = profileFeed.offsetLeft + 'px';
+        $('time.timeago').timeago();
+
+        $(window).keydown(function(event){
+            if(event.keyCode == 13) {
+                event.preventDefault();
+                return false;
+            }
+        });
+
+
+        function toggleActivate(id1, id2){
+            toggle(id1, id2);
+            let posts = document.getElementById('posts');
+            let brigade = document.getElementById('brigade');
+
+            let temp = posts.className;
+            posts.setAttribute('class', brigade.className);
+            brigade.setAttribute('class', temp);
+        }
+
+        function toggleEdit(editId, id1, id2, display){
+            if(id1 && id2){
+                toggle(id1, id2);
+            }
+
+            let edit = document.getElementById(editId);
+            edit.style.display = display || 'block';
+        }
+
+        function cancelEdit(){
+            location.reload();
+        }
+
+        function deleteImg(postId, filePath){
+            if(!deleted){
+                let paths = document.getElementById(`filePaths${postId}`);
+                let arr = JSON.parse(paths.value);
+                paths.setAttribute('value', JSON.stringify(arr.filter(p => p != filePath)));
+
+                document.getElementById(`deleted${postId}`).setAttribute('value', filePath);
+
+                deleted = true;
+            }
+        }
+
+        function addBrigade(userId){
+            let arr = JSON.parse(brigade.value);
+            arr.push(userId);
+
+            requested.setAttribute('value', JSON.stringify(JSON.parse(requested.value).filter(r => r != userId)));
+            brigade.setAttribute('value', JSON.stringify(arr));
+        }
+
+        function removeBrigade(userId){
+            brigade.setAttribute('value', JSON.stringify(JSON.parse(brigade.value).filter(b => b != userId)));
+        }
+    </script>
+<% include partials/footer %>

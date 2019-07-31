@@ -1,4 +1,4 @@
-    <% include partials/header %>
+<% include partials/header %>
 <div id="half"></div>
 <form class="login-form" method="POST" action="/<%= session.page %>" enctype="multipart/form-data">
     <div class="login-form-header">
@@ -35,7 +35,7 @@
                 <input type="password" name="password">
             </div>
             <div class="form-upl-wrapper">
-                <input type="file" name="avatarUpl">
+                <input type="file" name="avatarUpl" accept=".jpg,.png,.svg,.bmp">
                 <button class="form-upl">Upload avatar</button>
             </div>
             <input type="submit" value="Let's go!">

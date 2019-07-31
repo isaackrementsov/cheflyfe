@@ -29,6 +29,7 @@ export default class Middleware {
                 let fields = {};
                 let maxFiles = 1;
                 let fileCount = 0;
+                let currentField = '';
 
                 let busboy = new Busboy({headers: req.headers});
                 req.pipe(busboy);
@@ -37,20 +38,30 @@ export default class Middleware {
                     req.body[key] = val;
                 });
 
-                busboy.on('file', (fieldname, file, filename, encoding, mimetype) => {
-                    if(fieldname.indexOf('Multi')){
-                        if(maxFiles == 1){
+                busboy.on('file', (fieldname, file, filename, encoding, mimetype) => { //TODO: Add mime check
+                    if(fieldname.indexOf('Multi') != -1){
+                        if(currentField != fieldname){
                             let max = fieldname[fieldname.indexOf('Multi') + 5];
+                            fileCount = 0;
                             if(!isNaN(parseInt(max))) maxFiles = parseInt(max);
+                            else maxFiles = -1;
+                        }
+                    }
+                    if((fileCount <= maxFiles || maxFiles == -1) && filename){
+                        fileCount++;
+                        let ext = filename.split('.')[filename.split('.').length - 1];
+                        let saveTo = path.join(__dirname, '../../public/img/upload/' + (req.body.username || shortId.generate()) + '.' + ext);
+                        let obj = {path: saveTo.replace(/\\/g, '/').split('/public')[1]};
+                        if(maxFiles != 1){
+                            fields[fieldname] ? fields[fieldname].push(obj) : fields[fieldname] = [obj];
+                        }else{
+                            fields[fieldname] = obj;
                         }
 
-                        if(fileCount <= maxFiles){
-                            let ext = filename.split('.')[filename.split('.').length - 1];
-                            let saveTo = path.join(__dirname, '../../public/img/upload/' + (req.body.username || shortId.generate()) + '.' + ext);
-                            fields[fieldname] = {path: saveTo};
-
-                            file.pipe(fs.createWriteStream(saveTo));
-                        }
+                        file.pipe(fs.createWriteStream(saveTo));
+                    }else{
+                        file.emit('close');
+                        file.emit('end');
                     }
                 });
 
@@ -87,8 +98,12 @@ export default class Middleware {
         let invalid = false;
         for(let key in req.body){
             if(key.indexOf('Opt') == -1 && req.body[key] == ''){
-                invalid = true;
-                break;
+                if(req.method == 'PATCH'){
+                    delete req.body[key];
+                }else{
+                    invalid = true;
+                    break;
+                }
             }
 
             if(key.indexOf('JSON') != -1){
@@ -101,11 +116,11 @@ export default class Middleware {
             if(key.indexOf('Rel') != -1){
                 let id = req.body[key];
 
-                if(typeof id == 'string'){
-                    id = parseInt(id);
+                if(typeof id == 'number' || typeof id == 'string'){
+                    if(typeof id == 'string') id = parseInt(id);
                     let obj;
 
-                    if(key.indexOf('comment') != -1) obj = await this.commentRepo.findOne(id);
+                    if(key.indexOf('comment') != -1) obj = await this.commentRepo.find(id);
                     else if(key.indexOf('ingredient')) obj = await this.ingredientRepo.findOne(id);
                     else if(key.indexOf('menu')) obj = await this.menuRepo.findOne(id);
                     else if(key.indexOf('nutritionalInfo')) obj = await this.nutritionalInfoRepo.findOne(id);
@@ -118,13 +133,13 @@ export default class Middleware {
                 }else if (id.constructor == Array){
                     let objs;
 
-                    if(key.indexOf('comment') != -1) objs = await this.commentRepo.find(id);
-                    else if(key.indexOf('ingredient')) objs = await this.ingredientRepo.find(id);
-                    else if(key.indexOf('menu')) objs = await this.menuRepo.find(id);
-                    else if(key.indexOf('nutritionalInfo')) objs = await this.nutritionalInfoRepo.find(id);
-                    else if(key.indexOf('post')) objs = await this.postRepo.find(id);
-                    else if(key.indexOf('recipe')) objs = await this.recipeRepo.find(id);
-                    else if(key.indexOf('user')) objs = await this.userRepo.find(id);
+                    if(key.indexOf('comment') != -1) objs = await this.commentRepo.findByIds(id);
+                    else if(key.indexOf('ingredient') != -1) objs = await this.ingredientRepo.findByIds(id);
+                    else if(key.indexOf('menu') != -1) objs = await this.menuRepo.findByIds(id);
+                    else if(key.indexOf('nutritionalInfo') != -1) objs = await this.nutritionalInfoRepo.findByIds(id);
+                    else if(key.indexOf('post') != -1) objs = await this.postRepo.findByIds(id);
+                    else if(key.indexOf('recipe') != -1) objs = await this.recipeRepo.findByIds(id);
+                    else if(key.indexOf('user') != -1 || key.indexOf('requested') != -1 || key.indexOf('brigade') != -1) objs = await this.userRepo.findByIds(id);
 
                     req.body[key] = objs;
                 }else{
@@ -138,20 +153,24 @@ export default class Middleware {
 
     auth = (req: Request, res: Response, next: NextFunction) => {
         let adminRestricted : boolean = req.url.indexOf('/admin') != -1;
-        let userRestricted : boolean = !(req.url == '/' || req.url == '/login' || req.url == '/signup');
+        let userRestricted : boolean = !(req.url == '/' || req.url == '/login' || req.url == '/signup' || req.url.indexOf('/css/') != -1 || req.url.indexOf('/js/') != -1 ||  req.url.indexOf('/img/') != -1 );
 
-        if(adminRestricted && req.session.admin || userRestricted && req.session.userID || !adminRestricted && !req.session.admin || !userRestricted && !req.session.userID){
+        if((adminRestricted && req.session.admin) || (userRestricted && req.session.userID) || (!userRestricted && !req.session.userID)){
             next();
-        }else if(adminRestricted && !req.session.admin || userRestricted && !req.session.userID){
+        }else if((adminRestricted && !req.session.admin) || (userRestricted && !req.session.userID)){
             res.redirect('/login');
-        }else if(!userRestricted && req.session.user){
+        }else if(!userRestricted && req.session.userID){
             res.redirect('/users/' + req.session.userID);
         }
     }
 
-    sendBack(req: Request, res: Response, next: NextFunction, condition: boolean){
+    errorHandler = (err: Error, req: Request, res: Response, next: NextFunction) => {
+        this.sendBack(req, res, next, true, err);
+    }
+
+    sendBack(req: Request, res: Response, next: NextFunction, condition: boolean, err? : Error){
         if(condition){
-            req.session.error = 'Invalid input'
+            req.session.error = err ? err.stack : 'Invalid input'
             res.redirect(req.header('Referer') || '/');
         }else next();
     }
@@ -160,16 +179,17 @@ export default class Middleware {
         let decoded = {};
 
         for(let key in body){
-            let finalKey = key.replace('Opt', '').replace('Rel', '').replace('JSON', '');
+            if(key.indexOf('Meta') == -1){
+                let finalKey = key.replace('Opt', '').replace('Rel', '').replace('JSON', '');
 
-            decoded[finalKey] = body[key];
+                decoded[finalKey] = body[key];
+            }
         }
 
         if(files){
             for(let key in files){
                 let finalKey = key.replace('Multi', '').replace('Upl', '').replace(/\d+/, '');
-
-                decoded[finalKey] = typeof files[key] == 'string' ? files[key].path : files[key].map(f => f.path);
+                decoded[finalKey] = files[key].length ? files[key].map(f => f.path) : files[key].path;
             }
         }
 

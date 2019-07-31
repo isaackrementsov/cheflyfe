@@ -11,6 +11,8 @@
 #navbar li {
     display: inline;
     float: right;
+    vertical-align:middle;
+    line-height:35px;
 }
 #navbar li.first {
     float: left;
@@ -18,10 +20,61 @@
     font-weight: 300;
     color: #3D5AFE;
 }
-#navbar li a {
+#navbar li a:not(.first), #navbar li #avatar-link {
     display: block;
     padding: 15px;
+    transition: 0.5s ease-in-out;
+    font-weight: 300;
+}
+#navbar li a:not(.first):hover {
+    color: #3D5AFE;
+}
+#navbar li #avatar-link .img {
+    height: 35px;
+    width: 35px;
+    background-size: cover;
+    vertical-align: middle;
+    border-style: hidden;
+    border-radius: 100vw;
+}
+#navbar #menu {
+    position: absolute;
+    background-color: whitesmoke;
+    padding: 10px 25px;
+    top: 68px;
+    right: 0;
+    border-style: hidden;
+    border-bottom-left-radius: 5px;
+}
+#menu li {
+    display: block;
+    margin: 0 auto;
+    width: 100%;
+    text-align: center;
+}
+#menu li input, #menu li a {
+    color: inherit;
+    font-weight: normal !important;
+    background-color: transparent;
+    border-style: hidden;
+    font-family: inherit !important;
+    font-size: 15px;
+    cursor: pointer;
+}
+#menu li form, #menu li a {
+    padding: 5px 10px !important;
+}
+#menu li form:hover, #menu li a:hover {
+    color: #3D5AFE;
+}
+#menu li input[type=submit] {
+    padding: 0;
+    margin: 0;
 }
 li p {
     margin: 0;
+}
+.search {
+    width: 220px;
+    max-width: 20vw;
 }

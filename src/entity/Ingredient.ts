@@ -13,6 +13,8 @@ export default class Ingredient {
     @Column()
     name : string;
     @Column()
+    description : string;
+    @Column()
     brand : string;
     @Column()
     wastage : number;

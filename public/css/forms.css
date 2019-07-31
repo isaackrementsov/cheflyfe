@@ -42,6 +42,16 @@
     border-color: #8C9EFF;
     color: #8C9EFF;
 }
+input[type=text], input[type=password], input[type=email], textarea {
+    padding: 10px;
+    border: 1px grey solid;
+    border-radius: 3px;
+}
+input:focus, textarea:focus {
+    outline: none;
+    border-color: #8C9EFF;
+    color: #8C9EFF;
+}
 .login-form-header {
     background-color: whitesmoke;
     border-style: hidden;

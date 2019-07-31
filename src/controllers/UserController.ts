@@ -2,6 +2,7 @@ import {Request, Response} from 'express';
 import {Repository, getRepository} from 'typeorm';
 import User from '../entity/User';
 import Middleware from '../util/Middleware';
+import * as fs from 'fs';
 
 /*TODO:
     * Add payment & subscription
@@ -30,6 +31,8 @@ export default class UserController {
             req.session.username = user.username;
             req.session.userID = user.id;
             req.session.admin = user.admin;
+            req.session.avatar = user.avatar;
+            req.session.error = null;
 
             res.redirect('/users/' + user.id);
         }else{
@@ -68,13 +71,34 @@ export default class UserController {
     patchUpdate = async (req: Request, res: Response) => {
         let update = Middleware.decodeBody(req.body, req.files);
 
-        await this.userRepo.update(req.session.id, update);
+        if(update['requested'] || update['brigade']){
+            let toUpdate : User = await this.userRepo.findOne(req.query.id ? parseInt(req.query.id) : req.session.userID);
 
-        res.redirect('/users/' + req.session.id);
+            if(update['requested']) toUpdate.requested = update['requested'];
+            if(update['brigade']) toUpdate.brigade = update['brigade'];
+
+             await this.userRepo.save(toUpdate);
+        }else{
+            if(req.files){
+                let toUpdate : User = await this.userRepo.findOne(req.session.userID, {select: ['background', 'avatar']});
+                try{
+                    if(update['avatar']){
+                        fs.unlinkSync(__dirname + '/../../public' + toUpdate.avatar);
+                    }
+                    if(update['background']){
+                        fs.unlinkSync(__dirname + '/../../public' + toUpdate.background);
+                    }
+                }catch(e){}
+            }
+
+            await this.userRepo.update(req.session.userID, update);
+        }
+
+        res.redirect('/users/' + (req.query.id || req.session.userID));
     }
 
     delete = async (req: Request, res: Response) => {
-        await this.userRepo.delete(req.session.id);
+        await this.userRepo.delete(req.session.userID);
 
         res.redirect('/login');
     }

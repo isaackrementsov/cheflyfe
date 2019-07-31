@@ -1,3 +1,20 @@
 <ul id="navbar">
     <li class="first"><a href="/"><p>Chef<span style="font-weight: bold">Lyfe</span></p></a></li>
+    <% if(locals.session){ %>
+        <% if(session.userID){ %>
+            <li>
+                <div id="avatar-link">
+                    <div class="img" style="background-image: url(<%= session.avatar %>)" onclick="openDiv('menu')"></div>
+                    <ul id="menu" style="display: none">
+                        <li><a href="/">Home</a></li><br>
+                        <li><form method="POST" action="/logout"><input type="submit" value="Logout"></form></li>
+                    </ul>
+                </div>
+            </li>
+            <li><a href="/ingredients">Ingredients</a></li>
+            <li><a href="/recipes">Recipes</a></li>
+            <li><a href="/menus">Menus</a></li>
+            <li><a><input type="text" class="search" placeholder="Search users"></a></li>
+        <% } %>
+    <% } %>
 </ul>

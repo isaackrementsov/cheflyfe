@@ -5,7 +5,7 @@ import User from '../entity/User';
 import NutritionalInfo from '../entity/NutritionalInfo';
 import Middleware from '../util/Middleware';
 
-//TODO: add CSV ingredient batch uplaod
+//TODO: add CSV ingredient batch uplaod, keywords, prep time, video?
 export default class IngredientController {
 
     private ingredientRepo : Repository<Ingredient>;
@@ -24,6 +24,7 @@ export default class IngredientController {
         let n : NutritionalInfo = new NutritionalInfo({info: req.body.nutritionalInfoJSON});
         let ingredient : Ingredient = new Ingredient({
             name: req.body.name,
+            description: req.body.descriptionOptional || '',
             brand: req.body.brandOptional || 'none',
             wastage: req.body.wastage,
             price: {val: req.body.val, qt: req.body.qt, units: req.body.unit},

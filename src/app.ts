@@ -1,4 +1,5 @@
 import * as reflect from 'reflect-metadata';
+import * as methodOverride from 'method-override';
 import * as express from 'express';
 import * as bodyParser from 'body-parser';
 import * as path from 'path';
@@ -31,6 +32,6 @@ app.use(session({
     })
 }));
 app.use(express.static(path.join(__dirname, "../public")));
-
+app.use(methodOverride('_method'));
 
 export default app;

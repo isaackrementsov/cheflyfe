@@ -18,6 +18,9 @@ a {
     padding: 0;
     margin: 0;
 }
+i {
+    font-size: inherit !important;
+}
 a:visited {
     color: inherit;
 }
@@ -27,16 +30,365 @@ button:focus {
 
 #content {
     position: relative;
-    padding-bottom: 20px;
     width: 100%;
-    z-index: -1;
+    z-index: 1;
 }
 #half {
     top: -20px;
-    height: 80%;
+    height: 100%;
     width: 100%;
     position: fixed;
-    background-size: 100%;
+    background-size: cover;
     background-repeat: no-repeat !important;
     background-image: url('/img/static/login.jpg');
+}
+.profile-header-container {
+    position: relative;
+}
+.profile-header {
+    height: 30vh;
+    background-size: cover;
+}
+.profile-header-overlay {
+    height: 30vh;
+}
+.profile-header-overlay, .media-overlay {
+    position: absolute;
+    width: 100%;
+    background-color: rgba(90,90,90,0.5);
+    opacity: 0;
+    transition: 0.5s ease-in-out;
+}
+.profile-header-overlay .form-upl-wrapper, .media-overlay .form-upl-wrapper {
+    height: 100%;
+    width: 100%;
+}
+.profile-header-overlay:hover, .media-overlay:hover {
+    opacity: 1;
+}
+.center-inline {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+.center-inline > * {
+    display: inline-block;
+    vertical-align: middle;
+}
+.profile-header-overlay .form-upl-wrapper {
+    width: auto;
+}
+.profile-header-overlay .form-upl, .profile-header-overlay button {
+    padding: 0;
+    margin: 0 10px;
+    background-color: transparent;
+    color: whitesmoke;
+    font-size: 55px;
+    border-style: hidden;
+}
+.profile-main {
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+    align-items: flex-start;
+}
+.profile-card {
+    position: relative;
+    margin: 0 50px;
+    top: -10vh;
+    width: 220px;
+    padding: 25px 24px;
+    box-shadow: 0 0px 8px 0 rgba(0,0,0,0.2);
+    background-color: white;
+    border-style: hidden;
+    border-radius: 5px;
+    text-align: center;
+}
+.profile-card * {
+    display: block;
+}
+.profile-card .img, .avatar-overlay {
+    width: 110px;
+    height: 110px;
+    margin-right: auto;
+    margin-left: auto;
+    border-style: hidden;
+    border-radius: 100vw;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+.avatar-container {
+    position: relative;
+    margin: 21px 0;
+}
+.avatar-overlay {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 100%;
+    opacity: 0;
+    transition: .5s ease-in-out;
+    background-color: rgba(90, 90, 90, 0.5);
+}
+.avatar-overlay:hover {
+    opacity: 1;
+}
+.avatar-overlay .form-upl-wrapper {
+    position: relative;
+    margin: 30% auto;
+}
+.avatar-overlay .form-upl-wrapper .form-upl {
+    color: whitesmoke;
+    font-size: 45px;
+    margin: 0 auto;
+    padding: 0;
+    border-style: hidden;
+    background-color: transparent;
+}
+.profile-card h1 {
+    font-size: 25px;
+    font-weight: 300;
+    color: #8C9EFF;
+}
+.card-heading {
+    margin: 29px 0;
+}
+.profile-card p {
+    font-size: 20px;
+    margin: 21px 0;
+}
+.profile-card textarea {
+    margin: 0 auto;
+    font-size: inherit;
+    font-family: inherit;
+    text-align: center;
+}
+.profile-card .inline-center * {
+    display: inline;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 0;
+}
+.add-button * {
+    vertical-align: middle;
+}
+.add-button {
+    border-style: hidden;
+    background-color: #536DFE;
+    padding: 7px 12px;
+    border-radius: 2px;
+    color: white;
+    font-size: 16px;
+    margin: 0 auto;
+    transition: 0.2s ease-in-out;
+}
+.add-button[disabled] {
+    background-color: grey;
+}
+.add-button:hover {
+    box-shadow: 0 0px 8px 0 rgba(0,0,0,0.2);
+}
+.profile-nav {
+    width: 100%;
+    background-color: #536DFE;
+    box-sizing: border-box;
+}
+.profile-nav-button {
+    font-size: 15px;
+    padding: 15px;
+    margin-right: 1vw;
+    background-color: transparent;
+    color: whitesmoke;
+    border-style: hidden;
+    transition: 0.2s ease-in-out;
+}
+.profile-nav-button:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+.profile-nav-button.active {
+    color: white;
+    border-bottom: 2px whitesmoke solid;
+}
+.profile-feed {
+    padding: 15px 10px;
+    flex: 0.9;
+    min-width: 300px;
+    max-width: 95%;
+}
+.profile-feed > * {
+    margin: 10px 0;
+}
+.add-post {
+    font-size: 20px;
+    vertical-align: middle;
+    background-color: whitesmoke;
+    color: inherit;
+    transition: 0.2s ease-in-out;
+    padding: 10px 20px;
+}
+.add-post:hover {
+    background-color: rgb(240, 240, 240);
+}
+.post-card, .add-post {
+    border-style: hidden;
+    border-radius: 5px;
+    width: 100%;
+    text-align: left;
+    box-sizing: border-box;
+}
+.post-card {
+    box-shadow: 0 0px 8px 0 rgba(0,0,0,0.1);
+}
+.post-card input[type=text], textarea {
+    position: relative;
+    border-style: hidden;
+    padding: 0;
+    color: inherit;
+}
+.post-card input[type=text]:focus, textarea:focus {
+    color: #8C9EFF;
+}
+.post-card input[type=text] {
+    width: 100%;
+    font-size: 18px;
+    font-weight: bold;
+}
+.post-card textarea {
+    font-family: inherit;
+    letter-spacing: 1px;
+    font-size: 16px;
+    width: 95%;
+}
+.post-card input[type=submit], .post-card button, .profile-card .inline-center * {
+    padding: 5px 10px !important;
+    border-radius: 3px;
+    font-family: inherit;
+    font-size: 15px;
+    transition: 0.2s ease-in-out;
+}
+.post-card input[type=submit], .profile-card .inline-center input {
+    border: 1px solid #536DFE;
+    font-weight: normal;
+}
+.post-card button:last-child, .profile-card .inline-center button {
+    border: 1px solid grey;
+    background-color: white;
+    color: grey;
+}
+.post-card button:last-child:hover, .profile-card .inline-center button:hover {
+    color: white;
+    background-color: grey;
+}
+.post-card button.form-upl {
+    margin: 0;
+    color: inherit;
+    border-style: hidden;
+    background-color: whitesmoke;
+    font-weight: normal;
+}
+.post-card > * {
+    box-sizing: border-box;
+}
+.post-header {
+    font-size: 18px;
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    font-weight: bold;
+    border-bottom: 1.5px solid rgb(240, 240, 240);
+    padding: 10px 20px;
+    width: 100%;
+    letter-spacing: 0.5px;
+    vertical-align: middle;
+}
+.post-header time {
+    display: inline;
+    float: right;
+    font-size: 16px;
+    font-weight: 300;
+    color: #8C9EFF;
+}
+.post-content {
+    font-size: 17px;
+    padding: 10px 20px;
+    letter-spacing: 1px;
+}
+.post-content.media {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+}
+.media-container {
+    height: 200px;
+    max-width: 100%;
+    margin: 5px;
+}
+.media-overlay button:last-child {
+    background-color: transparent;
+    color: white;
+    font-size: 44px;
+    border-style: hidden;
+}
+.media-overlay button:last-child:hover {
+    color: white !important;
+    background-color: transparent !important;
+}
+.post-content img, video {
+    max-width: 100%;
+    height: 200px;
+    vertical-align: top;
+}
+.media-overlay {
+    position: relative;
+    top: -100%;
+    height: 100%;
+    width: 100%;
+}
+.brigade {
+    padding: 10px 0;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    box-shadow: none;
+    font-weight: 300;
+    border-top: 1px solid lightgrey;
+    border-bottom: 1px solid lightgrey;
+    border-radius: 0;
+}
+.brigade * {
+    vertical-align: middle;
+}
+.brigade a {
+    padding: 0;
+}
+.brigade a * {
+    vertical-align: middle;
+}
+.brigade img {
+    height: 30px;
+    width: 30px;
+    border-style: hidden;
+    border-radius: 100vw;
+    margin-right: 10px;
+}
+#profile-feed-brigade h3 {
+    margin: 20px 0;
+}
+.brigade button:last-child {
+    position: relative;
+    left: 0;
+}
+.brigade button.cta:last-child {
+    border: 1px solid #536DFE;
+    color: #536DFE;
+}
+.brigade button.cta:last-child:hover {
+    background-color: #536DFE;
+    color: white;
 }
