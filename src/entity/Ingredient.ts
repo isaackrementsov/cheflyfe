@@ -13,9 +13,9 @@ export default class Ingredient {
     @Column()
     name : string;
     @Column()
-    description : string;
-    @Column()
     brand : string;
+    @Column('text')
+    description : string;
     @Column()
     wastage : number;
     @Column('simple-json')
@@ -29,7 +29,7 @@ export default class Ingredient {
     @JoinTable()
     recipes : Recipe[];
 
-    @OneToOne(type => NutritionalInfo)
+    @OneToOne(type => NutritionalInfo, {cascade: true, nullable: true})
     @JoinColumn()
     nutritionalInfo : NutritionalInfo;
 
@@ -37,7 +37,7 @@ export default class Ingredient {
     author : User;
 
     unitConvert(initial : UnitQt) : number {
-        let factor = this.conversions.find(c => c.unit == initial.unit);
+        let factor = this.conversions.find(c => c.units == initial.units);
 
         if(factor) return factor.qt * initial.qt;
     }

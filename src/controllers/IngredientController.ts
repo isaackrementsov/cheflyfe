@@ -5,7 +5,7 @@ import User from '../entity/User';
 import NutritionalInfo from '../entity/NutritionalInfo';
 import Middleware from '../util/Middleware';
 
-//TODO: add CSV ingredient batch uplaod, keywords, prep time, video?
+//TODO: add CSV ingredient batch uplaod, keywords, prep time, video?, add required to all non-optional inputs
 export default class IngredientController {
 
     private ingredientRepo : Repository<Ingredient>;
@@ -21,13 +21,46 @@ export default class IngredientController {
     }
 
     postCreate = async (req: Request, res: Response) => {
-        let n : NutritionalInfo = new NutritionalInfo({info: req.body.nutritionalInfoJSON});
+        let n;
+        let obj = {
+            calories: {total: req.body.calsOptJSON, fromFat: req.body.fatCalsOptJSON},
+            fat: {total: req.body.fatOptJSON, saturated: req.body.satFatOptJSON, trans: req.body.transFatOptJSON},
+            cholesterol: req.body.cholOptJSON,
+            sodium: req.body.sodOptJSON,
+            carbohydrates: {total: req.body.carbsOptJSON, fiber: req.body.fibOptJSON, sugar: req.body.sugOptJSON},
+            protein: req.body.protOptJSON
+        };
+        let invalid = Object.keys(obj).filter(k => {
+            if(typeof obj[k] == 'object'){
+                let nestedInvalid = Object.keys(obj[k]).filter(j => {
+                    return (obj[k][j] == '' || obj[k][j] == undefined);
+                });
+
+                if(nestedInvalid.length > 0) return obj[k];
+            }else{
+                return (obj[k] == '' || obj[k] == undefined);
+            }
+        });
+
+        if(invalid.length == 0){
+            n = new NutritionalInfo({
+                calories: {total: req.body.calsOptJSON, fromFat: req.body.fatCalsOptJSON},
+                fat: {total: req.body.fatOptJSON, saturated: req.body.satFatOptJSON, trans: req.body.transFatOptJSON},
+                cholesterol: req.body.cholOptJSON,
+                sodium: req.body.sodOptJSON,
+                carbohydrates: {total: req.body.carbsOptJSON, fiber: req.body.fibOptJSON, sugar: req.body.sugOptJSON},
+                protein: req.body.protOptJSON
+            });
+        }else{
+            n = null;
+        }
+
         let ingredient : Ingredient = new Ingredient({
             name: req.body.name,
-            description: req.body.descriptionOptional || '',
-            brand: req.body.brandOptional || 'none',
-            wastage: req.body.wastage,
-            price: {val: req.body.val, qt: req.body.qt, units: req.body.unit},
+            description: req.body.descriptionOptional || 'no description',
+            brand: req.body.brandOptional || 'no brand',
+            wastage: req.body.wastageJSON,
+            price: {val: req.body.valJSON, qt: req.body.qtJSON, units: req.body.units},
             conversions: req.body.conversionsJSON,
             allergens: req.body.allergensJSON,
             nutritionalInfo: n,

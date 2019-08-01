@@ -7,8 +7,18 @@ export default class NutritionalInfo {
     @PrimaryGeneratedColumn()
     id : number;
 
+    @Column()
+    cholesterol : number;
+    @Column()
+    sodium : number;
+    @Column()
+    protein : number;
     @Column('simple-json')
-    info;
+    carbohydrates : {total: number, fiber: number, sugar: number};
+    @Column('simple-json')
+    calories : {total: number, fromFat: number};
+    @Column('simple-json')
+    fat : {total: number, saturated: number, trans: number};
 
     constructor(nutritionalInfo : Partial<NutritionalInfo>){
         Object.assign(this, nutritionalInfo);

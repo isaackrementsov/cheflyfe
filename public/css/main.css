@@ -87,7 +87,7 @@ button:focus {
     font-size: 55px;
     border-style: hidden;
 }
-.profile-main {
+.profile-main, .flex-container {
     display: flex;
     flex-wrap: wrap;
     flex-direction: row;
@@ -306,7 +306,7 @@ button:focus {
     letter-spacing: 0.5px;
     vertical-align: middle;
 }
-.post-header time {
+.post-header time, .post-header h4 {
     display: inline;
     float: right;
     font-size: 16px;
@@ -391,4 +391,164 @@ button:focus {
 .brigade button.cta:last-child:hover {
     background-color: #536DFE;
     color: white;
+}
+
+
+.ingredients-header {
+    margin: 0;
+    text-align: center;
+    color: white;
+    background: linear-gradient(45deg, #8C9EFF, #304FFE);
+}
+.ingredients-header h1 {
+    margin: 0;
+    padding: 30px 0;
+    font-weight: normal;
+}
+.ingredient {
+    box-shadow: 0 0px 8px 0 rgba(0,0,0,0.2);
+    width: auto;
+    display: inline-block;
+    margin: 10px;
+    max-width: 500px;
+}
+.ingredient .post-header * {
+    margin: 5px 0;
+}
+.ingredient .post-content:not(:last-child) {
+    padding: 0 20px;
+    margin: 0;
+}
+.allergen {
+    color: white;
+    background-color: coral;
+    padding: 5px 10px;
+    margin: 3px 5px;
+    border-style: hidden;
+    border-radius: 100vw;
+    font-size: 15px;
+    transition: 0.5s ease-in-out;
+    cursor: default;
+}
+.allergen * {
+    vertical-align: middle;
+}
+.allergen:hover {
+    box-shadow: 0 0px 8px 0 rgba(0,0,0,0.2);
+}
+.allergens {
+    margin: 0;
+    margin-bottom: 20px;
+}
+.ingredient .post-content.icons {
+    background-color: whitesmoke;
+}
+.ingredient .post-content.icons input {
+    color: grey;
+    font-weight: bold;
+    margin: 0;
+    padding: 0 !important;
+}
+.ingredient .post-content.icons > span {
+    margin: 4px 10px;
+    letter-spacing: 0;
+    color: rgb(200,200,200);
+    font-weight: bold;
+}
+.ingredient .post-content.icons span i {
+    font-size: 20px !important;
+    vertical-align: -3.5px;
+    padding: 0 2px;
+    color: #8C9EFF;
+}
+.add-ingredient {
+    cursor: pointer;
+    box-shadow: none;
+    padding: 20px 25px;
+    background-color: whitesmoke;
+    text-align: center;
+    color: grey;
+}
+.add-ingredient i {
+    font-size: 50px !important;
+    margin: 10px 0;
+}
+.add-ingredient p {
+    margin: 5px 0;
+    font-size: 17px;
+}
+.ingredient .post-header input {
+    font-family: inherit;
+    display: inline-block;
+    width: 60%;
+}
+.ingredient .post-header input:last-child {
+    width: 40%;
+    font-weight: 300;
+    font-size: 16px;
+}
+.ingredient .add-allergen {
+    width: 100%;
+    margin-bottom: 10px;
+}
+.ingredient .add-allergen > * {
+    display: inline;
+    vertical-align: middle;
+}
+.ingredient .add-conversion input:focus {
+    color: #536DFE !important;
+}
+.ingredient .add-allergen input {
+    font-size: 15px;
+    font-weight: normal;
+    width: 40%;
+    background-color: whitesmoke;
+    padding: 8px;
+}
+.ingredient .add-allergen input:focus {
+    color: coral;
+}
+.ingredient .add-allergen button, .small-input button {
+    color: coral;
+    font-size: 18px;
+    padding: 6px 9px !important;
+    padding-top: 7px !important;
+    padding-bottom: 4px !important;
+    margin: 0 5px;
+    border-radius: 100vw;
+    border: 1px solid coral;
+}
+.small-input button:last-child {
+    border-color: #536DFE;
+    color: #536DFE;
+}
+.small-input button:last-child:hover {
+    background-color: #536DFE !important;
+}
+.ingredient .add-allergen button:hover {
+    background-color: coral;
+    box-shadow: 0 0px 8px 0 rgba(0,0,0,0.2);
+}
+.small-input input, .small-input input[type=text] {
+    background-color: whitesmoke;
+    border-style: hidden;
+    padding: 10px !important;
+    margin: 0 5px;
+    width: 12%;
+    font-size: 15px;
+    font-weight: normal;
+}
+.small-input input[type=text]{
+    width: 20%;
+}
+.smaller-input input[type=number] {
+    width: 8%;
+}
+.smaller-input input[type=text] {
+    width: 12%;
+}
+.normal-button {
+    background-color: whitesmoke;
+    border-style: hidden;
+    color: grey;
 }

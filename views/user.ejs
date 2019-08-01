@@ -78,7 +78,7 @@
             <form class="post-card" id="new-post" style="display: none" method="POST" action="/posts/create" enctype="multipart/form-data">
                 <div class="post-header"><input type="text" name="name" placeholder="Title"></div>
                 <div class="post-content">
-                    <textarea placeholder="Text" name="contentOptional"></textarea><br>
+                    <textarea placeholder="Text" name="contentOpt"></textarea><br>
                 </div>
                 <div class="post-content">
                     <div class="form-upl-wrapper">
@@ -92,19 +92,22 @@
             <% for(let i = posts.length - 1; i >= 0; i--){ %>
                 <form method="POST" action="/posts/update/<%= posts[i].id %>?_method=PATCH" class="post-card" enctype="multipart/form-data">
                     <div class="post-header">
-                        <span id="post-title" onclick="toggleEdit('post-update', 'post-title', 'post-title-update')"><%= posts[i].name %></span>
+                        <span id="post-title<%= posts[i].id %>"
+                        onclick="toggleEdit('post-update<%= posts[i].id %>', 'post-title<%= posts[i].id %>', 'post-title-update<%= posts[i].id %>')">
+                            <%= posts[i].name %>
+                        </span>
                         <% if(auth){ %>
-                            <span id="post-title-update" style="display: none">
+                            <span id="post-title-update<%= posts[i].id %>" style="display: none">
                                 <input type="text" placeholder="Title" value="<%= posts[i].name %>" name="name">
                             </span>
                         <% } %>
                         <time class="timeago" datetime="<%= new Date(posts[i].timestamp).toISOString() %>"></time>
                     </div>
-                    <div class="post-content" id="post-text" onclick="toggleEdit('post-update', 'post-text', 'post-text-edit')">
+                    <div class="post-content" id="post-text<%= posts[i].id %>" onclick="toggleEdit('post-update<%= posts[i].id %>', 'post-text<%= posts[i].id %>', 'post-text-edit<%= posts[i].id %>')">
                         <%= posts[i].content %>
                     </div>
                     <% if(auth){ %>
-                        <div class="post-content" id="post-text-edit" style="display: none">
+                        <div class="post-content" id="post-text-edit<%= posts[i].id %>" style="display: none">
                             <textarea name="content"><%= posts[i].content %></textarea>
                         </div>
                     <% } %>
@@ -132,14 +135,14 @@
                             </div>
                         <% } %>
                         <% if(auth){ %>
-                            <div class="form-upl-wrapper" onclick="toggleEdit('post-update', '', '')">
+                            <div class="form-upl-wrapper" onclick="toggleEdit('post-update<%= posts[i].id %>', '', '')">
                                 <input type="file" name="filePathsUpl" accept=".jpg,.png,.svg,.bmp,.mp4">
                                 <button class="form-upl"><i class="material-icons">add</i> Add file</button>
                             </div>
                         <% } %>
                     </div>
                     <% if(auth){ %>
-                        <div class="post-content" id="post-update" style="display: none">
+                        <div class="post-content" id="post-update<%= posts[i].id %>" style="display: none">
                             <input type="submit" value="Save">
                             <button type="button" onclick="cancelEdit()">Cancel</button>
                         </div>
@@ -191,14 +194,6 @@
         profileNav.style.paddingLeft = profileFeed.offsetLeft + 'px';
         $('time.timeago').timeago();
 
-        $(window).keydown(function(event){
-            if(event.keyCode == 13) {
-                event.preventDefault();
-                return false;
-            }
-        });
-
-
         function toggleActivate(id1, id2){
             toggle(id1, id2);
             let posts = document.getElementById('posts');
@@ -207,19 +202,6 @@
             let temp = posts.className;
             posts.setAttribute('class', brigade.className);
             brigade.setAttribute('class', temp);
-        }
-
-        function toggleEdit(editId, id1, id2, display){
-            if(id1 && id2){
-                toggle(id1, id2);
-            }
-
-            let edit = document.getElementById(editId);
-            edit.style.display = display || 'block';
-        }
-
-        function cancelEdit(){
-            location.reload();
         }
 
         function deleteImg(postId, filePath){

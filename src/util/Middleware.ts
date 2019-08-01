@@ -106,7 +106,7 @@ export default class Middleware {
                 }
             }
 
-            if(key.indexOf('JSON') != -1){
+            if(key.indexOf('JSON') != -1 && req.body[key] != ''){
                 try {
                     req.body[key] = JSON.parse(req.body[key]);
                 }

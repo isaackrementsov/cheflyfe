@@ -42,7 +42,7 @@
     border-color: #8C9EFF;
     color: #8C9EFF;
 }
-input[type=text], input[type=password], input[type=email], textarea {
+input[type=text], input[type=password], input[type=email], textarea, input[type=number] {
     padding: 10px;
     border: 1px grey solid;
     border-radius: 3px;
