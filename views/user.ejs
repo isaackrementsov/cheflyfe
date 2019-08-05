@@ -90,7 +90,7 @@
                 </div>
             </form>
             <% for(let i = posts.length - 1; i >= 0; i--){ %>
-                <form method="POST" action="/posts/update/<%= posts[i].id %>?_method=PATCH" class="post-card" enctype="multipart/form-data">
+                <form method="POST" action="/posts/update/<%= posts[i].id %>?_method=PATCH" class="post-card" enctype="multipart/form-data" id="post-form-<%= posts[i].id %>">
                     <div class="post-header">
                         <span id="post-title<%= posts[i].id %>"
                         onclick="toggleEdit('post-update<%= posts[i].id %>', 'post-title<%= posts[i].id %>', 'post-title-update<%= posts[i].id %>')">
@@ -136,7 +136,7 @@
                         <% } %>
                         <% if(auth){ %>
                             <div class="form-upl-wrapper" onclick="toggleEdit('post-update<%= posts[i].id %>', '', '')">
-                                <input type="file" name="filePathsUpl" accept=".jpg,.png,.svg,.bmp,.mp4">
+                                <input type="file" name="filePathsUpl" accept=".jpg,.png,.svg,.bmp,.mp4" oninput="submitForm('post-form-<%= posts[i].id %>')">
                                 <button class="form-upl"><i class="material-icons">add</i> Add file</button>
                             </div>
                         <% } %>
@@ -192,7 +192,6 @@
         let requested = document.getElementById('requestedInput');
         let deleted = false;
         profileNav.style.paddingLeft = profileFeed.offsetLeft + 'px';
-        $('time.timeago').timeago();
 
         function toggleActivate(id1, id2){
             toggle(id1, id2);

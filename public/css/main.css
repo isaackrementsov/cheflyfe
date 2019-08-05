@@ -174,6 +174,7 @@ button:focus {
 }
 .add-button * {
     vertical-align: middle;
+    display: inline;
 }
 .add-button {
     border-style: hidden;
@@ -242,7 +243,7 @@ button:focus {
 .post-card {
     box-shadow: 0 0px 8px 0 rgba(0,0,0,0.1);
 }
-.post-card input[type=text], textarea {
+.post-card input[type=text], .profile-card input[type=text], textarea {
     position: relative;
     border-style: hidden;
     padding: 0;
@@ -360,6 +361,14 @@ button:focus {
     border-top: 1px solid lightgrey;
     border-bottom: 1px solid lightgrey;
     border-radius: 0;
+    margin-bottom: 0;
+}
+.brigade + .brigade {
+    margin-top: 0;
+    border-top-style: hidden;
+}
+.brigade ~ .brigade {
+    margin-bottom: 0;
 }
 .brigade * {
     vertical-align: middle;
@@ -487,18 +496,18 @@ button:focus {
     font-weight: 300;
     font-size: 16px;
 }
-.ingredient .add-allergen {
+.add-allergen {
     width: 100%;
     margin-bottom: 10px;
 }
-.ingredient .add-allergen > * {
+ .add-allergen > * {
     display: inline;
     vertical-align: middle;
 }
-.ingredient .add-conversion input:focus {
+ .add-conversion input:focus {
     color: #536DFE !important;
 }
-.ingredient .add-allergen input {
+ .add-allergen input[type=text], .add-allergen input[type=number] {
     font-size: 15px;
     font-weight: normal;
     width: 40%;
@@ -508,7 +517,8 @@ button:focus {
 .ingredient .add-allergen input:focus {
     color: coral;
 }
-.ingredient .add-allergen button, .small-input button {
+.ingredient .allergens button, .small-input button {
+    background-color: white;
     color: coral;
     font-size: 18px;
     padding: 6px 9px !important;
@@ -518,15 +528,18 @@ button:focus {
     border-radius: 100vw;
     border: 1px solid coral;
 }
-.small-input button:last-child {
-    border-color: #536DFE;
-    color: #536DFE;
+.small-input button:last-child, button.edit-conversions {
+    border-color: #536DFE !important;
+    color: #536DFE !important;
+    background-color: white !important;
 }
-.small-input button:last-child:hover {
+.small-input button:last-child:hover, button.edit-conversions:hover {
     background-color: #536DFE !important;
+    color: white !important;
 }
-.ingredient .add-allergen button:hover {
+.ingredient .allergens button:hover {
     background-color: coral;
+    color: white;
     box-shadow: 0 0px 8px 0 rgba(0,0,0,0.2);
 }
 .small-input input, .small-input input[type=text] {
@@ -551,4 +564,169 @@ button:focus {
     background-color: whitesmoke;
     border-style: hidden;
     color: grey;
+}
+.recipe-main {
+    justify-content: center;
+}
+.recipe-main .profile-feed {
+    display: block !important;
+    flex-direction: column;
+    min-width: 0;
+    flex: 0 0 800px;
+    width: 800px;
+    max-width: 95%;
+    padding: 0;
+    padding-top: 20px;
+}
+.recipe-main .post-card {
+    padding-bottom: 10px;
+}
+a.cta {
+    padding: 10px;
+    background-color: #536DFE;
+    color: white;
+    border-radius: 5px;
+    transition: 0.5s ease-in-out;
+}
+a.cta:hover {
+    box-shadow: 0 0px 8px 0 rgba(0,0,0,0.2);
+}
+.recipe-main img, .recipe-main .media-container, .media-overlay {
+    height: 200px;
+}
+.recipe-main .post-content:last-child {
+    margin: 10px 0;
+}
+.recipe-main .heading-icons {
+    padding-bottom: 5px;
+    padding-top: 17px;
+    font-size: 20px;
+    font-weight: bold;
+    color: #8C9EFF;
+}
+.recipe-main .heading-icons > span {
+    margin-right: 30px;
+    cursor: default;
+}
+.recipe-main .heading-icons i {
+    vertical-align: -3px;
+    padding-right: 10px;
+}
+.add-recipe .profile-card {
+    top: -30px;
+    text-align: left;
+    padding: 10px 40px;
+}
+.profile-card .flex-container {
+    display: flex;
+}
+.profile-card .add-allergen {
+    justify-content: space-between;
+}
+.profile-card .add-allergen input {
+    flex: 0.9;
+}
+.add-recipe .profile-card h1 i {
+    font-size: 60px !important;
+    font-weight: bold;
+}
+.add-recipe .profile-card h1 {
+    text-align: center;
+}
+.add-recipe .profile-card h3 {
+    color: grey;
+    font-weight: 300;
+}
+.add-recipe .profile-card button {
+    color: #536DFE;
+    border: 1px solid #536DFE;
+    border-radius: 100vw;
+    background-color: white;
+    padding: 9px 9px;
+    transition: 0.5s ease-in-out;
+}
+.add-recipe .profile-card button:hover {
+    background-color: #536DFE;
+    color: white;
+}
+.profile-card input:focus {
+    color: #8C9EFF;
+}
+.checkbox {
+    display: flex;
+    width: 100%;
+    margin: 15px 0;
+    justify-content: space-between;
+}
+.checkbox div:first-child {
+    max-width: 160px;
+    text-align: left;
+}
+.profile-card .checkbox input[type=number] {
+    color: grey;
+    display: inline;
+    width: 25%;
+    padding: 5px;
+    border-style: hidden;
+    background-color: whitesmoke;
+}
+.plus-button {
+    font-size: 20px;
+    font-weight: 300;
+    color: grey;
+}
+.plus-button button:last-child {
+    color: #536DFE;
+    border: 1px solid #536DFE;
+    border-radius: 100vw;
+    padding: 4px 7px !important;
+    padding-top: 6px !important;
+    margin-right: 10px;
+}
+.plus-button button:last-child:hover {
+    background-color: #536DFE;
+}
+.step span {
+    flex: 1;
+}
+.grey-inputs input[type=text], .grey-inputs input[type=number], .grey-inputs select {
+    background-color: whitesmoke;
+    padding: 10px;
+    width: 70px;
+    border-style: hidden;
+    font-size: 15px;
+    color: grey;
+    font-weight: normal;
+}
+.grey-inputs input[type=text]:focus, .grey-inputs input[type=number]:focus, .grey-inputs select:focus {
+    outline: none;
+    color: #536DFE;
+}
+.grey-inputs select {
+    width: 90px;
+}
+#add-ingredient-input input:first-child {
+    width: 220px;
+}
+.add-recipe .post-card {
+    box-shadow: none;
+}
+.add-recipe .post-card .post-header input, .add-recipe .post-card .post-header span {
+    font-size: 35px;
+}
+.add-recipe .post-card textarea:not(#add-step-input), p#description {
+    font-size: 20px;
+    margin-bottom: 40px;
+}
+.add-recipe .post-card input[type=submit], #edit-recipe button {
+    margin: 40px 0;
+    font-size: 20px;
+    padding: 10px 15px !important;
+}
+.add-recipe .post-card input[type=submit] {
+    color: white;
+    background-color: #536DFE;
+}
+.add-recipe .post-card input[type=submit]:hover {
+    box-shadow: 0 0px 8px 0 rgba(0,0,0,0.2);
 }

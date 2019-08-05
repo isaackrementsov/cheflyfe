@@ -1,2 +1,335 @@
 <% include partials/header %>
+<% include partials/lists/units %> <!-- TODO: add ingredient brands -->
+<% let user = recipe.author %>
+<% let auth = recipe.author.id == session.userID %>
+<div class="profile-nav ingredients-header">
+    <h1>View Recipe</h1>
+</div>
+<form class="profile-main add-recipe" method="POST" action="/recipes/update/<%= recipe.id %>?_method=PATCH" enctype="multipart/form-data"
+onclick="toggleEdit('edit-recipe', '', '')" onsubmit="packageJSON()" id="recipe-form">
+    <div class="profile-card">
+        <h1><i class="material-icons">people</i><% if(auth){ %>Sharing Settings<% }else{ %>Recipe Info<% } %></h1>
+        <% if(auth){ %>
+            <div class="allergens flex-container" id="add-viewer-container" style="margin-bottom: 0">
+                <input type="hidden" id="viewer-input" value="<%= JSON.stringify(recipe.sharedUsers.map(u => u.id)) %>" name="sharedUsersRelJSON">
+                <div class="flex-container add-allergen" style="display: none" id="add-viewer">
+                    <input type="text" list="user-datalist" placeholder="Add viewer" id="add-viewer-input">
+                    <button type="button" onclick="addViewer()"><i class="material-icons">done</i></button>
+                </div>
+                <button type="button" class="edit-allergens"
+                onclick="toggleArr(['viewer-close', 'add-viewer'], ['viewer-edit'])">
+                    <i class="material-icons" id="viewer-edit">edit</i>
+                    <i class="material-icons" id="viewer-close" style="display: none">minimize</i>
+                </button>
+                <% for(let i  = 0; i < recipe.sharedUsers.length; i++){ %>
+                    <span class="allergen" id="user-${id}" style="background-color: #536DFE">
+                        <%= recipe.sharedUsers[i].username %>
+                        <i class="material-icons" onclick="removeViewer('${id}', '${username}')" style="display: inline">close</i>
+                    </span>
+                <% } %>
+            </div>
+        <% } %>
+        <% if(auth){ %>
+            <h2>Display to Viewers</h2>
+        <% } %>
+        <% if(auth || recipe.sharingPermissions.food || recipe.sharingPermissions.labor || recipe.sharingPermissions.misc || recipe.sharingPermissions.overhead){ %>
+            <h3>Costs</h3>
+        <% } %>
+        <% if(auth || recipe.sharingPermissions.food){ %>
+            <div class="checkbox flex-container">
+                <div>Food - $<input type="number" step="0.01" id="food-input" value="<%= recipe.foodCost %>" disabled
+                <% if(!auth){ %>disabled<% } %>>
+                </div>
+                <% if(auth){ %>
+                    <label class="switch">
+                        <input type="checkbox"
+                        id="food-share" <% if(recipe.sharingPermissions.food){ %> checked <% } %>><span class="slider"></span>
+                    </label>
+                <% } %>
+            </div>
+        <% } %>
+        <% if(auth || recipe.sharingPermissions.labor){ %>
+            <div class="checkbox flex-container">
+                <div>Labour - $<input type="number" step="0.01" value="<%= recipe.costs.labor %>" id="labour-input"
+                oninput="changeCost('labour-input', 'labour')" <% if(!auth){ %>disabled<% } %>></div>
+                <% if(auth){ %>
+                    <label class="switch"><input type="checkbox"
+                    id="labor-share" <% if(recipe.sharingPermissions.labor){ %> checked <% } %>>
+                        <span class="slider"></span>
+                    </label>
+                <% } %>
+            </div>
+        <% } %>
+        <% if(auth || recipe.sharingPermissions.misc){ %>
+            <div class="checkbox flex-container">
+                <div>Misc - $
+                    <input type="number" step="0.01" value="<%= recipe.costs.misc %>" id="misc-input" oninput="changeCost('misc-input', 'misc')"
+                    <% if(!auth){ %>disabled<% } %>>
+                </div>
+                <% if(auth){ %>
+                    <label class="switch"><input type="checkbox"
+                    id="misc-share" <% if(recipe.sharingPermissions.misc){ %> checked <% } %>>
+                        <span class="slider"></span>
+                    </label>
+                <% } %>
+            </div>
+        <% } %>
+        <% if(auth || recipe.sharingPermissions.overhead){ %>
+            <div class="checkbox flex-container">
+                <div>Overhead - $<input type="number" step="0.01" value="<%= recipe.costs.overhead %>" id="overhead-input"
+                oninput="changeCost('overhead-input', 'food')" <% if(!auth){ %>disabled<% } %>></div>
+                <% if(auth){ %>
+                    <label class="switch"><input type="checkbox"
+                    id="overhead-share" <% if(recipe.sharingPermissions.overhead){ %> checked <% } %>>
+                        <span class="slider"></span>
+                    </label>
+                <% } %>
+            </div>
+        <% } %>
+        <% if(auth || recipe.sharingPermissions.profitMargin || recipe.sharingPermissions.profit || recipe.sharingPermissions.price){ %>
+            <h3>Profit</h3>
+        <% } %>
+        <% let color = recipe.profit < 0 ? 'coral' : '#00E676' %>
+        <% if(recipe.profit == 0) color = 'inherit' %>
+        <% if(auth || recipe.sharingPermissions.profitMargin){ %>
+            <div class="checkbox flex-container">
+                <div>Profit -
+                    <input type="number" step="0.01" value="<%= recipe.profitMargin %>" id="profit-margin"
+                    style="color: <%= color %>" disabled>%
+                </div>
+                <% if(auth){ %>
+                    <label class="switch"><input type="checkbox"
+                    id="profit-margin-share" <% if(recipe.sharingPermissions.profitMargin){ %> checked <% } %>>
+                        <span class="slider"></span>
+                    </label>
+                <% } %>
+            </div>
+        <% } %>
+        <% if(auth || recipe.sharingPermissions.profit){ %>
+            <div class="checkbox flex-container">
+                <div>Profit - $
+                    <input type="number" step="0.01" value="<%= recipe.profit %>" id="profit" style="color: <%= color %>" disabled>
+                </div>
+                <% if(auth){ %>
+                    <label class="switch"><input type="checkbox"
+                    id="profit-share" <% if(recipe.sharingPermissions.profit){ %> checked <% } %>>
+                        <span class="slider"></span>
+                    </label>
+                <% } %>
+            </div>
+        <% } %>
+        <% if(auth || recipe.sharingPermissions.price){ %>
+            <div class="checkbox flex-container">
+                <div>Price - $<input type="number" step="0.01" value="<%= recipe.price.val %>" id="price" oninput="changePrice()"
+                <% if(!auth){ %>disabled<% } %>></div>
+                <% if(auth){ %>
+                    <label class="switch"><input type="checkbox"
+                    id="price-share" <% if(recipe.sharingPermissions.price){ %> checked <% } %>>
+                        <span class="slider"></span>
+                    </label>
+                <% } %>
+            </div>
+        <% } %>
+        <% if(auth){ %>
+            <h3>Other</h3>
+            <div class="checkbox flex-container">
+                <div>Allergens</div>
+                <% if(auth){ %>
+                    <label class="switch"><input type="checkbox"
+                    id="allergens-share" <% if(recipe.sharingPermissions.allergens){ %> checked <% } %>>
+                        <span class="slider"></span>
+                    </label>
+                <% } %>
+            </div>
+        <% } %>
+        <% if(auth){ %>
+            <h2>Public</h2>
+            <div class="checkbox flex-container">
+                <div>Display in feed</div>
+                <% if(auth){ %>
+                    <label class="switch"><input type="checkbox" name="feedJSON" <% if(recipe.feed){ %> checked <% } %>>
+                        <span class="slider"></span>
+                    </label>
+                <% } %>
+            </div>
+        <% } %>
+    </div>
+    <div class="profile-feed">
+        <div class="post-card">
+            <div class="post-header">
+                <span onclick="toggle('name', 'update-name')" id="name"><%= recipe.name %></span>
+                <% if(auth){ %><input type="text" value="<%= recipe.name %>" name="name" style="display: none" id="update-name"><% } %>
+            </div>
+            <div class="post-content media">
+                <input type="hidden" name="filePathsJSON" value="<%= JSON.stringify(recipe.filePaths) %>" id="file-list">
+                <input type="hidden" name="deletedMeta" id="deleted">
+                <% for(let i = 0; i < recipe.filePaths.length; i++) { %>
+                    <% let src = recipe.filePaths[i] %>
+                    <% let path = src.split('.') %>
+                    <% let ext = path[path.length - 1].toLowerCase() %>
+                    <div class="media-container">
+                        <% if(ext == 'png' || ext == 'jpg' || ext == 'bmp' || ext == 'svg'){ %>
+                            <img src="<%= src %>">
+                        <% }else{ %>
+                            <video controls><source src="<%= src %>"></video>
+                        <% } %>
+                        <% if(auth){ %>
+                            <div class="media-overlay">
+                                <div class="center-inline">
+                                    <button onclick="deleteImg('<%= src %>')"><i class="material-icons">delete</i></button>
+                                </div>
+                            </div>
+                        <% } %>
+                    </div>
+                <% } %>
+            </div>
+            <% if(auth){ %>
+                <div class="post-content" style="margin-bottom: 0">
+                    <div class="form-upl-wrapper">
+                        <input type="file" name="recipeUpl" accept=".jpg,.png,.svg,.bmp,.mp4" oninput="submitForm('recipe-form')">
+                        <button class="form-upl" type="button">Add photos and videos</button>
+                    </div>
+                </div>
+            <% } %>
+            <div class="post-content">
+                <p id="description" onclick="toggle('description', 'update-description')"><%= recipe.description %></p>
+                <p id="update-description" style="display: none">
+                    <textarea name="descriptionOpt"><%= recipe.description %></textarea>
+                </p>
+                <h3>Ingredients</h3>
+                <% if((auth || recipe.sharingPermissions.allergens) && recipe.allergens.length > 0){ %>
+                    <div class="allergens flex-container">
+                        <% for(let i = 0; i < recipe.allergens.length; i++){ %>
+                            <span class="allergen">
+                                <i class="material-icons">warning</i>
+                                <%= recipe.allergens[i] %>
+                            </span>
+                        <% } %>
+                    </div>
+                <% } %>
+                <div id="add-ingredient-container">
+                    <input type="hidden" value="<%= JSON.stringify(recipe.ingredients.map(i => i.id)) %>" name="ingredientsRelJSON" id="ingredient-input">
+                    <input type="hidden" value="<%= JSON.stringify(recipe.subRecipes.map(r => r.id)) %>" name="subRecipesRelJSON" id="subrecipe-input">
+                    <input type="hidden" value="<%= JSON.stringify(recipe.quantities) %>" name="quantitiesJSON" id="quantity-input">
+                    <input type="hidden" value="<%= JSON.stringify(recipe.recipeQuantities) %>" name="recipeQuantitiesJSON" id="recipe-quantity-input">
+                    <% if(auth){ %>
+                        <p class="plus-button"><button onclick="toggleArr(['add-ingredient'], ['add-ingredient-input', 'save-ingredient'])" type="button">
+                            <i class="material-icons" id="add-ingredient">add</i>
+                            <i class="material-icons" id="save-ingredient" style="display: none" onclick="addIngredient()">done</i>
+                        </button> Add ingredient</p>
+                        <div id="add-ingredient-input" style="display: none" class="grey-inputs">
+                            <input type="text" placeholder="Ingredient or subrecipe name" oninput="getUnits()" list="ingredient-datalist">
+                            <input type="number" placeholder="# of">
+                            <select>
+                            </select>
+                        </div>
+                    <% } %>
+                    <% for(let i = 0; i < recipe.ingredients.length; i++){ %>
+                        <% let total = recipe.ingredients[i].price.val * recipe.ingredients[i].unitConvert(recipe.quantities[i]) %>
+                        <p id="ingredient-<%= recipe.ingredients[i].id %>" class="step flex-container brigade">
+                            <span><%= recipe.quantities[i].qt %> <%= recipe.quantities[i].units %> <%= recipe.ingredients[i].name %></span>
+                            <% if(auth){ %>
+                                <i class="material-icons"
+                                onclick="removeIngredient(<%= recipe.ingredients[i].id %>, <%= total %>, '<%= recipe.ingredients[i].name %>', false)">
+                                    close
+                                </i>
+                            <% } %>
+                        </p>
+                    <% } %>
+                </div>
+                <p>
+                    <button type="button" class="form-upl" onclick="openDiv('nutrition-label')">Show nutritional label</button>
+                </p>
+                <div class="post-content" id="nutrition-label" style="display: none">
+                    <% if(!recipe.nutritionalInfo){ %>
+                        <span style="color: coral">Not all of the ingredients have nutritional info</span>
+                    <% } %>
+                </div>
+                <h3>Steps</h3>
+                <div id="add-step-container">
+                    <input type="hidden" value="<%= JSON.stringify(recipe.steps) %>" name="stepsJSON" id="step-input">
+                    <% if(auth){ %>
+                        <p class="plus-button"><button onclick="toggleArr(['add-step'], ['add-step-input', 'save-step'])" type="button">
+                            <i class="material-icons" id="add-step">add</i>
+                            <i class="material-icons" id="save-step" style="display: none" onclick="addStep()">done</i>
+                        </button> Add steps</p>
+                        <textarea id="add-step-input" placeholder="Describe recipe step" style="display: none"></textarea>
+                    <% } %>
+                    <% for(let i = 0; i < recipe.steps.length; i++){ %>
+                        <p id="step-<%= i %>" class="flex-container step brigade">
+                            <span><%= recipe.steps[i] %></span>
+                            <% if(auth){ %>
+                                <i class="material-icons" onclick="removeStep(<%= i %>)">close</i>
+                            <% } %>
+                        </p>
+                    <% } %>
+                </div>
+                <div class="grey-inputs small-inputs">
+                    <h3>Yield</h3>
+                    <p id="yield" onclick="toggle('yield', 'update-yield')" style="font-weight: bold; color: #8C9EFF"><%= recipe.price.qt %> <%= recipe.price.units %></p>
+                    <% if(auth){ %>
+                        <span id="update-yield" style="display: none">
+                            <input type="number" value="<%= recipe.price.qt %>" id="qt">
+                            <input type="text" list="units-datalist" value="<%= recipe.price.units %>" id="units" disabled>
+                        </span>
+                    <% } %>
+                </div>
+            </div>
+            <% if(auth){ %>
+                <div class="post-content">
+                    <span id="edit-recipe" style="display: none">
+                        <input type="submit" class="cta" value="Save">
+                        <button type="button" onclick="cancelEdit()">Cancel</button>
+                    </span>
+                </div>
+            <% } %>
+        </div>
+    </div>
+    <input type="hidden" id="sharing-input" name="sharingPermissionsJSON">
+    <input type="hidden" id="costs-input" name="costsJSON">
+    <input type="hidden" id="price-input" name="priceJSON">
+</form>
+<% include partials/js/nutritionJs %>
+<% include partials/js/recipeJs %>
+<script>
+    function getShare(){
+        let obj = {
+            allergens: document.getElementById('allergens-share').value,
+            profitMargin: document.getElementById('profit-margin-share').value,
+            profit: document.getElementById('profit-share').value,
+            price: document.getElementById('price-share').value,
+            labor: document.getElementById('labor-share').value,
+            overhead: document.getElementById('overhead-share').value,
+            misc: document.getElementById('misc-share').value,
+            food: document.getElementById('food-share').value
+        }
+
+        Object.keys(obj).map(key => {
+            obj[key] = JSON.parse(obj[key]);
+        });
+
+        return obj;
+    }
+    function getPrice(){
+        return {
+            val: price,
+            qt: JSON.parse(document.getElementById('qt').value),
+            units: document.getElementById('units').value
+        };
+    }
+    function packageJSON(){
+        let share = getShare();
+        let prices = getPrice();
+
+        delete cost.food;
+
+        let shareInput = document.getElementById('sharing-input');
+        let costsInput = document.getElementById('costs-input');
+        let priceInput = document.getElementById('price-input');
+
+        shareInput.setAttribute('value', JSON.stringify(share));
+        costsInput.setAttribute('value', JSON.stringify(cost));
+        priceInput.setAttribute('value', JSON.stringify(prices));
+    }
+</script>
 <% include partials/footer %>

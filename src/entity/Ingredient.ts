@@ -29,7 +29,7 @@ export default class Ingredient {
     @JoinTable()
     recipes : Recipe[];
 
-    @OneToOne(type => NutritionalInfo, {cascade: true, nullable: true})
+    @OneToOne(type => NutritionalInfo, n => n.ingredient, {cascade: true, nullable: true})
     @JoinColumn()
     nutritionalInfo : NutritionalInfo;
 
@@ -37,9 +37,9 @@ export default class Ingredient {
     author : User;
 
     unitConvert(initial : UnitQt) : number {
-        let factor = this.conversions.find(c => c.units == initial.units);
+        let factor = this.conversions.concat([this.price]).find(c => c.units == initial.units);
 
-        if(factor) return factor.qt * initial.qt;
+        if(factor) return initial.qt / factor.qt;
     }
 
     constructor(ingredients : Partial<Ingredient>){

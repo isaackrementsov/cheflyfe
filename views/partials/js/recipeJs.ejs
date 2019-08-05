@@ -1,0 +1,269 @@
+<datalist id="user-datalist">
+    <% for(let i = 0; i < user.brigade.length; i++){ %>
+        <option id="user-datalist-<%= user.brigade[i].id %>" value="<%= user.brigade[i].username %>">
+    <% } %>
+</datalist>
+<datalist id="ingredient-datalist">
+    <% for(let i = 0; i < user.ingredients.length; i++){ %>
+        <option id="ingredient-datalist-<%= user.ingredients[i].id %>" value="<%= user.ingredients[i].name %>">
+    <% } %>
+
+    <% for(let i = 0; i < user.recipes.length; i++){ %>
+        <% let allowed = true %>
+        <% if(locals.recipe){ if(recipe.id == user.recipes[i].id){ allowed = false } } %>
+        <% if(allowed){ %><option id="recipe-datalist-<%= user.recipes[i].id %>" value="<%= user.recipes[i].name %> (recipe)"><% } %>
+    <% } %>
+</datalist>
+<script>
+    //TODO: Add max/min to num and file inputs
+    let priceInput = document.getElementById('price');
+    let profitMargin = document.getElementById('profit-margin');
+    let profit = document.getElementById('profit');
+    let foodInput = document.getElementById('food-input');
+    let price = <% if(locals.recipe){ %><%= recipe.price.val %><% }else{ %>0<% } %>;
+    let cost = <% if(locals.recipe){ %><%- JSON.stringify({...recipe.costs, ...{food: recipe.foodCost}}) %><% }else{ %>{food: 0, labour: 0, overhead: 0, misc: 0}<% } %>;
+    let ids = <%= JSON.stringify(user.ingredients.map(i => i.id)) %>;
+    let names = <%- JSON.stringify(user.ingredients.map(i => i.name)) %>;
+    let prices = <%= JSON.stringify(user.ingredients.map(i => i.price.val)) %>;
+    let units =  <%- JSON.stringify(user.ingredients.map(i => [i.price.units].concat(i.conversions.map(c => c.units)))) %>;
+    let factors = <%= JSON.stringify(user.ingredients.map(i => [i.price.qt].concat(i.conversions.map(c => c.qt)))) %>;
+    let recipeIds = <%= JSON.stringify(user.recipes.map(r => r.id)) %>;
+    let recipeNames = <%- JSON.stringify(user.recipes.map(r => r.name + ' (recipe)')) %>;
+    let recipePrices = <%= JSON.stringify(user.recipes.map(r => r.price.val)) %>;
+    let recipeUnits =  <%- JSON.stringify(user.recipes.map(r => [r.price.units])) %>;
+    let recipeFactors = <%= JSON.stringify(user.recipes.map(r => [r.price.qt])) %>;
+    let userIds = <%= JSON.stringify(user.brigade.map(u => u.id)) %>;
+    let users = <%- JSON.stringify(user.brigade.map(u => u.username)) %>;
+
+    preventDuplicates();
+
+    function money(num){
+        return Math.round(num*100)/100;
+    }
+
+    function changePrice(){
+        let num = parseFloat(priceInput.value)
+        price = isNaN(num) ? 0 : num;
+
+        updateProfit();
+    }
+
+    function changeCost(val, key){
+        if(key){
+            let num = parseFloat(document.getElementById(val).value);
+            cost[key] = isNaN(num) ? 0 : num;
+        }else{
+            cost.food += money(val);
+            foodInput.setAttribute('value', cost.food);
+        }
+
+        updateProfit();
+    }
+
+    function total(c){
+        let sum = 0;
+
+        for(key in c){
+            sum += c[key];
+        }
+
+        return sum;
+    }
+
+    function updateProfit(){
+        let income = price - total(cost);
+        let margin = price == 0 ? 0 : money(100*income/price);
+
+        profit.value = income;
+        profitMargin.value = margin;
+
+        if(income < 0){
+            profit.style.color = 'coral';
+            profitMargin.style.color = 'coral';
+        }else if(income == 0){
+            profit.style.color = 'inherit';
+            profitMargin.style.color = 'inherit';
+        }else{
+            profit.style.color = '#00E676';
+            profitMargin.style.color = '#00E676';
+        }
+    }
+
+    function preventDuplicates(){
+        let arrs = {
+            user: JSON.parse(document.getElementById('viewer-input').value),
+            recipe:  JSON.parse(document.getElementById('subrecipe-input').value),
+            ingredient:  JSON.parse(document.getElementById('ingredient-input').value)
+        }
+
+        for(key in arrs){
+            let arr = arrs[key];
+
+            for(id of arr){
+                document.getElementById(`${key}-datalist-${id}`).remove();
+            }
+        }
+    }
+
+    function addStep(){
+        let stepList = document.getElementById('step-input');
+        let stepContainer = document.getElementById('add-step-container');
+        let addStepInput = document.getElementById('add-step-input');
+        let step = addStepInput.value;
+        let arr = JSON.parse(stepList.value);
+
+        if(step != ''){
+            arr.push(step);
+
+            stepList.setAttribute('value', JSON.stringify(arr));
+
+            stepContainer.innerHTML += `
+            <p id="step-${arr.length - 1}" class="flex-container step brigade">
+                <span>${step}</span>
+                <i class="material-icons" onclick="removeStep(${arr.length - 1})">close</i>
+            </p>`;
+
+            addStepInput.setAttribute('value', '');
+        }
+    }
+
+    function removeStep(id){
+        let stepList = document.getElementById('step-input');
+        let arr = JSON.parse(stepList.value);
+        arr.splice(id, 1);
+
+        stepList.setAttribute('value', JSON.stringify(arr));
+
+        document.getElementById('step-' + id).remove();
+    }
+
+    function getUnits(){
+        let ingredientInfo = document.querySelectorAll('#add-ingredient-input input, #add-ingredient-input select');
+        let name = ingredientInfo[0].value;
+        let select = ingredientInfo[2];
+        let i = names.indexOf(names.find(n => clean(n) == clean(name)));
+
+        if(i != -1){
+            select.innerHTML = '';
+            let u = units[i];
+
+            for(let j = 0; j < u.length; j++){
+                select.innerHTML += `<option value="${u[j]}">${u[j]}</option>`
+            }
+        }
+    }
+
+    function addIngredient(){
+        let ingredientInfo = document.querySelectorAll('#add-ingredient-input input, #add-ingredient-input select');
+        let n = ingredientInfo[0];
+        let name = n.value;
+        let isRecipe = name.indexOf('(recipe)') != -1;
+        let ingredientList =  document.getElementById(isRecipe ? 'subrecipe-input' : 'ingredient-input');
+        let quantityList = document.getElementById(isRecipe ? 'recipe-quantity-input' : 'quantity-input');
+        let ingredientContainer = document.getElementById('add-ingredient-container');
+        let q = ingredientInfo[1];
+        let u = ingredientInfo[2];
+        let qt = parseFloat(q.value);
+        let un = u.value;
+        let ingredientArr = JSON.parse(ingredientList.value);
+        let quantityArr = JSON.parse(quantityList.value);
+        let iNames = isRecipe ? recipeNames : names;
+        let iIds = isRecipe ? recipeIds : ids;
+        let iFactors = isRecipe ? recipeFactors : factors;
+        let i = iNames.indexOf(iNames.find(n => clean(n) == clean(name)));
+        let id = iIds[i];
+        let ingPrice = isRecipe ? recipePrices[i] : prices[i];
+        if(id) id = parseInt(id);
+        let matched = id ? ingredientArr.filter(i => i == id).length : 1;
+        let token = isRecipe ? 'recipe' : 'ingredient';
+
+        if(qt != '' && un != '' && matched == 0){
+            let total = qt * ingPrice / iFactors[i][units[i].indexOf(un)];
+
+            changeCost(total);
+
+            let s = ingredientArr.pushSorted(id) - 1;
+            quantityArr.pushToIndex({units: un, qt: qt}, s);
+
+            ingredientList.setAttribute('value', JSON.stringify(ingredientArr));
+            quantityList.setAttribute('value', JSON.stringify(quantityArr));
+
+            ingredientContainer.innerHTML += `
+                <p id="${token}-${id}" class="step flex-container brigade">
+                    <span>${qt} ${un} ${names[i]}</span>
+                    <i class="material-icons" onclick="removeIngredient(${id}, ${total}, '${name}', ${isRecipe})">close</i>
+                </p>
+            `;
+
+            q.setAttribute('value', '');
+            u.setAttribute('value', '');
+            n.setAttribute('value', '');
+
+            document.getElementById((isRecipe ? 'recipe-datalist-' : 'ingredient-datalist-') + id).remove();
+        }
+    }
+
+    function removeIngredient(id, foodPrice, name, isRecipe){
+        let ingredientList = document.getElementById(isRecipe ? 'recipe-input' : 'ingredient-input');
+        let quantityList = document.getElementById(isRecipe ? 'recipe-quantity-input' : 'quantity-input');
+        let token = isRecipe ? 'recipe' : 'ingredient';
+        let ingredientArr = JSON.parse(ingredientList.value);
+        let quantityArr = JSON.parse(quantityList.value);
+        let i = ingredientArr.indexOf(id);
+
+        changeCost(0 - foodPrice);
+
+        ingredientArr.splice(i, 1);
+        quantityArr.splice(i, 1);
+
+        ingredientList.setAttribute('value', JSON.stringify(ingredientArr));
+        quantityList.setAttribute('value', JSON.stringify(quantityArr));
+
+        document.getElementById(`${token}-` + id).remove();
+        document.getElementById('ingredient-datalist').innerHTML += `<option id="${token}-datalist-${id}" value="${name}">`;
+    }
+
+    function addViewer(){
+        let viewerList = document.getElementById('viewer-input');
+        let viewerContainer = document.getElementById('add-viewer-container');
+        let v = document.getElementById('add-viewer-input');
+        let username = v.value;
+        let i = users.indexOf(users.find(u => clean(u) == clean(username)));
+        let id = userIds[i];
+        let arr = JSON.parse(viewerList.value);
+        if(id) id = parseInt(id);
+        let matched = id ? arr.filter(userId => userId == id) : 1;
+
+        if(matched == 0){
+            arr.push(id);
+
+            viewerList.setAttribute('value', JSON.stringify(arr));
+
+            viewerContainer.innerHTML += `
+            <span class="allergen" id="user-${id}" style="background-color: #536DFE">
+                ${username}
+                <i class="material-icons" onclick="removeViewer('${id}', '${username}')" style="display: inline">close</i>
+            </span>`;
+
+            v.setAttribute('value', '');
+            document.getElementById('user-datalist-' + id).remove();
+        }
+    }
+
+    function removeViewer(id, username){
+        let viewerList = document.getElementById('viewer-input');
+
+        viewerList.setAttribute('value', JSON.stringify(JSON.parse(viewerList.value).filter(userId => userId != id)));
+
+        document.getElementById('user-' + id).remove();
+        document.getElementById('user-datalist').innerHTML += `<option id="user-datalist-${id}" value="${username}">`;
+    }
+
+    function deleteImg(src){
+        let fileList = document.getElementById('file-list');
+        let deleted = document.getElementById('deleted');
+
+        deleted.setAttribute('value', src);
+        fileList.setAttribute('value', JSON.stringify(JSON.parse(fileList.value).filter(p => p != src)));
+    }
+</script>

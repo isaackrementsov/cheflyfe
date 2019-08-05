@@ -1,2 +1,43 @@
 <% include partials/header %>
+<div class="profile-nav ingredients-header">
+    <h1>Recipes</h1>
+</div>
+<div class="profile-main recipe-main">
+    <div class="profile-feed">
+        <button class="add-post" id="add-post-button" onclick="toggle('add-post-button', 'new-post')">
+            <a href="/recipes/create" style="width: 100%"><i class="material-icons">add</i> Add Recipe</a>
+        </button>
+        <% for(let i = recipes.length - 1; i >= 0; i--){ %>
+            <div class="post-card">
+                <div class="post-header">
+                    <span><%= recipes[i].name %></span>
+                    <time class="timeago" datetime="<%= new Date(recipes[i].timestamp).toISOString() %>"></time>
+                </div>
+                <div class="post-content flex-container heading-icons">
+                    <span><i class="material-icons">people</i><% if(recipes[i].sharedUsers.filter(s => s.id == session.userID).length == 0){ %>Author<% }else{ %>Viewer<% } %></span>
+                </div>
+                <div class="post-content">
+                    <%= recipes[i].description %>
+                </div>
+                <div class="post-content media">
+                    <% for(let k = 0; k < recipes[i].filePaths.length; k++) { %>
+                        <% let src = recipes[i].filePaths[k] %>
+                        <% let path = src.split('.') %>
+                        <% let ext = path[path.length - 1].toLowerCase() %>
+                        <div class="media-container">
+                            <% if(ext == 'png' || ext == 'jpg' || ext == 'bmp' || ext == 'svg'){ %>
+                                <img src="<%= src %>">
+                            <% }else{ %>
+                                <video controls><source src="<%= src %>"></video>
+                            <% } %>
+                        </div>
+                    <% } %>
+                </div>
+                <div class="post-content">
+                    <a class="cta" href="/recipes/<%= recipes[i].id %>">View</a>
+                </div>
+            </div>
+        <% } %>
+    </div>
+</div>
 <% include partials/footer %>

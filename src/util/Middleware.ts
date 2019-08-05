@@ -96,6 +96,7 @@ export default class Middleware {
     //Checks empty fields, auto parses and populates special fields
     checkBody = async (req: Request, res: Response, next: NextFunction) => {
         let invalid = false;
+
         for(let key in req.body){
             if(key.indexOf('Opt') == -1 && req.body[key] == ''){
                 if(req.method == 'PATCH'){
@@ -115,31 +116,32 @@ export default class Middleware {
 
             if(key.indexOf('Rel') != -1){
                 let id = req.body[key];
+                let cleanKey = key.trim().toLowerCase();
 
                 if(typeof id == 'number' || typeof id == 'string'){
                     if(typeof id == 'string') id = parseInt(id);
                     let obj;
 
-                    if(key.indexOf('comment') != -1) obj = await this.commentRepo.find(id);
-                    else if(key.indexOf('ingredient')) obj = await this.ingredientRepo.findOne(id);
-                    else if(key.indexOf('menu')) obj = await this.menuRepo.findOne(id);
-                    else if(key.indexOf('nutritionalInfo')) obj = await this.nutritionalInfoRepo.findOne(id);
-                    else if(key.indexOf('post')) obj = await this.postRepo.findOne(id);
-                    else if(key.indexOf('recipe')) obj = await this.recipeRepo.findOne(id);
-                    else if(key.indexOf('user')) obj = await this.userRepo.findOne(id);
+                    if(cleanKey.indexOf('comment') != -1) obj = await this.commentRepo.find(id);
+                    else if(cleanKey.indexOf('ingredient')) obj = await this.ingredientRepo.findOne(id);
+                    else if(cleanKey.indexOf('menu')) obj = await this.menuRepo.findOne(id);
+                    else if(cleanKey.indexOf('nutritionalInfo')) obj = await this.nutritionalInfoRepo.findOne(id);
+                    else if(cleanKey.indexOf('post')) obj = await this.postRepo.findOne(id);
+                    else if(cleanKey.indexOf('recipe')) obj = await this.recipeRepo.findOne(id);
+                    else if(cleanKey.indexOf('user')) obj = await this.userRepo.findOne(id);
 
                     req.body[key] = obj;
 
                 }else if (id.constructor == Array){
                     let objs;
 
-                    if(key.indexOf('comment') != -1) objs = await this.commentRepo.findByIds(id);
-                    else if(key.indexOf('ingredient') != -1) objs = await this.ingredientRepo.findByIds(id);
-                    else if(key.indexOf('menu') != -1) objs = await this.menuRepo.findByIds(id);
-                    else if(key.indexOf('nutritionalInfo') != -1) objs = await this.nutritionalInfoRepo.findByIds(id);
-                    else if(key.indexOf('post') != -1) objs = await this.postRepo.findByIds(id);
-                    else if(key.indexOf('recipe') != -1) objs = await this.recipeRepo.findByIds(id);
-                    else if(key.indexOf('user') != -1 || key.indexOf('requested') != -1 || key.indexOf('brigade') != -1) objs = await this.userRepo.findByIds(id);
+                    if(cleanKey.indexOf('comment') != -1) objs = await this.commentRepo.findByIds(id);
+                    else if(cleanKey.indexOf('ingredient') != -1) objs = await this.ingredientRepo.findByIds(id);
+                    else if(cleanKey.indexOf('menu') != -1) objs = await this.menuRepo.findByIds(id);
+                    else if(cleanKey.indexOf('nutritionalInfo') != -1) objs = await this.nutritionalInfoRepo.findByIds(id);
+                    else if(cleanKey.indexOf('post') != -1) objs = await this.postRepo.findByIds(id);
+                    else if(cleanKey.indexOf('recipe') != -1) objs = await this.recipeRepo.findByIds(id);
+                    else if(cleanKey.indexOf('user') != -1 || key.indexOf('requested') != -1 || key.indexOf('brigade') != -1) objs = await this.userRepo.findByIds(id);
 
                     req.body[key] = objs;
                 }else{

@@ -1,0 +1,34 @@
+<link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Archivo+Black" />
+<link rel="stylesheet" type="text/css" href="/css/nutritionLabel-min.css">
+<script src="/js/nutritionLabel-min.js"></script>
+<% if(recipe.nutritionalInfo){ %>
+    <script>
+        $('#nutrition-label').nutritionLabel({
+            showServingUnitQuantity: true,
+            itemName: '<%= recipe.name %>',
+            ingredientList : <%- JSON.stringify(recipe.ingredients.map(i => i.name).concat(recipe.subRecipes.map(s => s.name))) %>,
+
+        	decimalPlacesForQuantityTextbox : 2,
+        	valueServingUnitQuantity : 1,
+
+        	allowFDARounding : true,
+        	decimalPlacesForNutrition : 2,
+
+        	showPolyFat : false,
+        	showMonoFat : false,
+
+        	valueCalories : <%= recipe.nutritionalInfo.calories.total %>,
+        	valueFatCalories : <%= recipe.nutritionalInfo.calories.fromFat %>,
+        	valueTotalFat : <%= recipe.nutritionalInfo.fat.total %>,
+        	valueSatFat : <%= recipe.nutritionalInfo.fat.saturated %>,
+        	valueTransFat : <%= recipe.nutritionalInfo.fat.trans %>,
+        	valueCholesterol : <%= recipe.nutritionalInfo.cholesterol %>,
+        	valueSodium : <%= recipe.nutritionalInfo.sodium %>,
+        	valueTotalCarb : <%= recipe.nutritionalInfo.carbohydrates.total %>,
+        	valueFibers : <%= recipe.nutritionalInfo.carbohydrates.fiber %>,
+        	valueSugars : <%= recipe.nutritionalInfo.carbohydrates.sugar %>,
+        	valueProteins : <%= recipe.nutritionalInfo.protein %>,
+        });
+    </script>
+
+<% } %>

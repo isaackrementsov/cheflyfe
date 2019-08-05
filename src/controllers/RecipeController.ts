@@ -3,6 +3,7 @@ import {Repository, getRepository} from 'typeorm';
 import Recipe from '../entity/Recipe';
 import User from '../entity/User';
 import Middleware from '../util/Middleware';
+import * as fs from 'fs';
 
 //TODO: maybe fix create method?
 export default class RecipeController {
@@ -11,43 +12,66 @@ export default class RecipeController {
     private userRepo : Repository<User>;
 
     getIndex = async (req: Request, res: Response) => {
-        let recipe : Recipe = await this.recipeRepo.createQueryBuilder()
-            .select()
-            .innerJoinAndSelect('recipe.ingredients', 'ingredients')
-            .innerJoinAndSelect('recipe.subRecipes', 'subRecipes')
-            .innerJoinAndSelect('recipe.menus', 'menus')
-            .innerJoinAndSelect('recipe.author', 'author')
-            .innerJoin('recipe.sharedUsers', 'shared')
-            .where('shared.id = :userID OR authorId = :userID', {userID: req.session.userID})
-            .andWhere('id = :id', {id: parseInt(req.params.id)})
-            .execute();
+        let recipe : Recipe = await this.recipeRepo.createQueryBuilder('recipe')
+            .leftJoinAndSelect('recipe.ingredients', 'ingredients')
+            .leftJoinAndSelect('ingredients.nutritionalInfo', 'ingredients_nutritionalInfo')
+            .leftJoinAndSelect('recipe.subRecipes', 'subRecipes')
+            .leftJoinAndSelect('recipe.menus', 'menus')
+            .leftJoinAndSelect('recipe.author', 'author')
+            .leftJoinAndSelect('author.ingredients','author_ingredients')
+            .leftJoinAndSelect('author.recipes','author_recipes')
+            .leftJoinAndSelect('author.brigade','author_brigade')
+            .leftJoinAndSelect('recipe.sharedUsers', 'shared')
+            .where('shared.id = :userID OR author.id = :userID', {userID: req.session.userID})
+            .andWhere('recipe.id = :id', {id: parseInt(req.params.id)})
+            .getOne();
+
+        if(recipe) await recipe.populateInfo();
 
         res.render(recipe ? 'recipe' : 'notFound', {recipe: recipe, session: req.session});
     }
 
     getAll = async (req: Request, res: Response) => {
-        let recipes : Recipe[] = await this.recipeRepo.find({
-            where: {'authorId': req.session.userID},
-        });
+        let recipes : Recipe[] = await this.recipeRepo.createQueryBuilder('recipe')
+            .leftJoinAndSelect('recipe.sharedUsers', 'sharedUsers')
+            .where('authorId = :userID OR sharedUsers.id = :userID', {userID: req.session.userID})
+            .getMany()
 
         res.render('recipes', {recipes: recipes, session: req.session});
     }
 
-    getCreate = (req: Request, res: Response) => {
-        res.render('createRecipe', {session: req.session});
+    getCreate = async (req: Request, res: Response) => {
+        let user : User = await this.userRepo.findOne(req.session.userID, {
+            relations: ['ingredients', 'recipes', 'brigade']
+        });
+
+        res.render('createRecipe', {session: req.session, user: user});
     }
 
     postCreate = async (req: Request, res: Response) => {
         let recipe : Recipe = new Recipe({
             name: req.body.name,
-            description: req.body.descriptionOptional,
+            description: req.body.descriptionOpt || 'no description',
             steps: req.body.stepsJSON,
-            images: req.files['recipeUplMulti6'].map(f => f.path),
-            price: {val: req.body.val, qt: req.body.qt, units: req.body.units},
-            costs: {labor: req.body.labor, overhead: req.body.overhead, misc: req.body.misc},
+            filePaths: req.files['recipeUplMulti6'].map(f => f.path),
+            price: {val: req.body.priceJSON, qt: req.body.qtJSON, units: req.body.units},
+            costs: {labor: req.body.laborJSON, overhead: req.body.overheadJSON, misc: req.body.miscJSON},
             quantities: req.body.quantitiesJSON,
-            ingredients: req.body.ingredientRelJSON,
-            subRecipes: req.body.recipeRelJSON,
+            recipeQuantities: req.body.recipeQuantitiesJSON,
+            ingredients: req.body.ingredientsRelJSON,
+            subRecipes: req.body.recipesRelJSON,
+            sharedUsers: req.body.sharedUsersRelJSON,
+            sharingPermissions: {
+                allergens: req.body.allergensShareJSON || false,
+                profitMargin: req.body.profitMarginShareJSON || false,
+                profit: req.body.profitShareJSON || false,
+                price: req.body.priceShareJSON || false,
+                labor: req.body.laborShareJSON || false,
+                misc: req.body.miscShareJSON || false,
+                food: req.body.foodShareJSON || false,
+                overhead: req.body.overheadShareJSON || false
+            },
+            feed: req.body.postShareJSON || false,
             author: await this.userRepo.findOne(req.session.userID)
         });
 
@@ -57,15 +81,30 @@ export default class RecipeController {
     }
 
     patchUpdate = async (req: Request, res: Response) => {
-        let updates = Middleware.decodeBody(req.body, req.files);
-
-        await this.recipeRepo.createQueryBuilder()
-            .update().set(updates)
+        let update = Middleware.decodeBody(req.body, req.files);
+        let toUpdate : Recipe = await this.recipeRepo.createQueryBuilder()
+            .select()
             .where('authorId = :userID AND id = :id', {
                 userID: req.session.userID,
                 id: parseInt(req.params.id)
             })
-            .execute();
+            .getOne();
+
+        if(toUpdate){
+            if(update['recipe']){
+                toUpdate.filePaths.push(update['recipe']);
+            }else{
+                Object.assign(toUpdate, update);
+
+                if(req.body.deletedMeta != '' && req.body.deletedMeta){
+                    try{
+                        fs.unlinkSync(req.body.deletedMeta);
+                    }catch(e){}
+                }
+            }
+
+            await this.recipeRepo.save(toUpdate);
+        }
 
         res.redirect('/recipes/' + req.params.id);
     }

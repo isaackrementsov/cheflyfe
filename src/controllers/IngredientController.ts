@@ -14,7 +14,7 @@ export default class IngredientController {
     getAll = async (req: Request, res: Response) => {
         let ingredients : Ingredient[] = await this.ingredientRepo.find({
             where: {'authorId': req.session.userID},
-            relations: ['author', 'recipes'],
+            relations: ['author', 'recipes', 'nutritionalInfo'],
         });
 
         res.render('ingredients', {ingredients: ingredients, session: req.session});
@@ -30,6 +30,7 @@ export default class IngredientController {
             carbohydrates: {total: req.body.carbsOptJSON, fiber: req.body.fibOptJSON, sugar: req.body.sugOptJSON},
             protein: req.body.protOptJSON
         };
+
         let invalid = Object.keys(obj).filter(k => {
             if(typeof obj[k] == 'object'){
                 let nestedInvalid = Object.keys(obj[k]).filter(j => {
@@ -57,8 +58,8 @@ export default class IngredientController {
 
         let ingredient : Ingredient = new Ingredient({
             name: req.body.name,
-            description: req.body.descriptionOptional || 'no description',
-            brand: req.body.brandOptional || 'no brand',
+            description: req.body.descriptionOpt || 'no description',
+            brand: req.body.brandOpt || 'no brand',
             wastage: req.body.wastageJSON,
             price: {val: req.body.valJSON, qt: req.body.qtJSON, units: req.body.units},
             conversions: req.body.conversionsJSON,
