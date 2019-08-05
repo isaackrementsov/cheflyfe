@@ -6,6 +6,7 @@ import Comment from '../entity/Comment';
 import Middleware from '../util/Middleware';
 import * as fs from 'fs';
 
+//TODO: set page for errors, make error messages more common, handle promise rejection
 export default class PostController {
 
     private postRepo : Repository<Post>;
@@ -14,7 +15,7 @@ export default class PostController {
 
     getAll = async (req: Request, res: Response) => {
         let user : User = await this.userRepo.findOne(parseInt(req.params.id), {
-            relations: ['brigade', 'requested', 'posts', 'posts.author', 'posts.comments'],
+            relations: ['brigade', 'requested', 'posts', 'posts.author', 'posts.comments', 'posts.comments.author', 'recipes', 'recipes.sharedUsers'],
         });
 
         res.render(user ? 'user' : 'notFound', {user: user, posts: user.posts, session: req.session});
@@ -25,7 +26,8 @@ export default class PostController {
             name: req.body.name,
             content: req.body.contentOptional,
             filePaths: req.files ? req.files['postUplMulti8'].map(p => p.path) : [],
-            author: await this.userRepo.findOne(req.session.userID)
+            author: await this.userRepo.findOne(req.session.userID),
+            comments: []
         });
 
         await this.postRepo.save(post);
@@ -33,32 +35,30 @@ export default class PostController {
         res.redirect('/users/' + req.session.userID);
     }
 
-    postCreateComment = async (req: Request, res: Response) => {
-        let comment : Comment = new Comment({
-            content: req.body.content,
-            post: req.body.postRel,
-            author: await this.userRepo.findOne(req.session.userID)
-        });
-
-        await this.commentRepo.save(comment);
-
-        res.redirect('/users/' + req.body.userID);
-    }
-
     patchUpdate = async (req: Request, res: Response) => {
         let update = Middleware.decodeBody(req.body, req.files);
 
-        if(typeof update['filePaths'] == 'string'){
-            let toUpdate : Post = await this.postRepo.createQueryBuilder()
+        if(typeof update['filePaths'] == 'string' || update['addedComment'] != ''){
+            let toUpdate : Post = await this.postRepo.createQueryBuilder('post')
                 .select()
-                .where('authorId = :userID AND id = :id', {
-                    userID: req.session.userID,
+                .leftJoinAndSelect('post.comments', 'comment')
+                .where('post.authorId = :userID AND post.id = :id', {
+                    userID: typeof update['filePaths'] == 'string' ? req.session.userID : parseInt(req.query.userID),
                     id: parseInt(req.params.id)
                 })
                 .getOne();
 
             if(toUpdate){
-                toUpdate.filePaths.push(update['filePaths']);
+                if(typeof update['filePaths'] == 'string'){
+                    toUpdate.filePaths.push(update['filePaths']);
+                }else{
+                    let comment = new Comment({
+                        author: await this.userRepo.findOne(req.session.userID),
+                        content: update['addedComment']
+                    });
+
+                    toUpdate.comments ? toUpdate.comments.push(comment) : toUpdate.comments = [comment];
+                }
                 await this.postRepo.save(toUpdate);
             }
         }else{
@@ -77,7 +77,7 @@ export default class PostController {
             }catch(e){}
         }
 
-        res.redirect('/users/' + req.session.userID);
+        res.redirect('/users/' + req.query.userID);
     }
 
     delete = async (req: Request, res: Response) => {

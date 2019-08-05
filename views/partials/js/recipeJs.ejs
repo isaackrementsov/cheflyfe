@@ -1,4 +1,4 @@
-<datalist id="user-datalist">
+<datalist id="user-datalist"> <!-- TODO: alphabetically sort ingredients -->
     <% for(let i = 0; i < user.brigade.length; i++){ %>
         <option id="user-datalist-<%= user.brigade[i].id %>" value="<%= user.brigade[i].username %>">
     <% } %>
@@ -71,7 +71,7 @@
     }
 
     function updateProfit(){
-        let income = price - total(cost);
+        let income = money(price - total(cost));
         let margin = price == 0 ? 0 : money(100*income/price);
 
         profit.value = income;

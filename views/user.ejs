@@ -89,65 +89,130 @@
                     <button type="button" onclick="toggle('new-post', 'add-post-button')">Cancel</button>
                 </div>
             </form>
+            <% posts = posts.concat(user.recipes.filter(r => r.feed)).sort((a, b) => {
+                return new Date(a.timestamp) - new Date(b.timestamp)
+            }) %>
             <% for(let i = posts.length - 1; i >= 0; i--){ %>
-                <form method="POST" action="/posts/update/<%= posts[i].id %>?_method=PATCH" class="post-card" enctype="multipart/form-data" id="post-form-<%= posts[i].id %>">
-                    <div class="post-header">
-                        <span id="post-title<%= posts[i].id %>"
-                        onclick="toggleEdit('post-update<%= posts[i].id %>', 'post-title<%= posts[i].id %>', 'post-title-update<%= posts[i].id %>')">
-                            <%= posts[i].name %>
-                        </span>
-                        <% if(auth){ %>
-                            <span id="post-title-update<%= posts[i].id %>" style="display: none">
-                                <input type="text" placeholder="Title" value="<%= posts[i].name %>" name="name">
-                            </span>
-                        <% } %>
-                        <time class="timeago" datetime="<%= new Date(posts[i].timestamp).toISOString() %>"></time>
-                    </div>
-                    <div class="post-content" id="post-text<%= posts[i].id %>" onclick="toggleEdit('post-update<%= posts[i].id %>', 'post-text<%= posts[i].id %>', 'post-text-edit<%= posts[i].id %>')">
-                        <%= posts[i].content %>
-                    </div>
-                    <% if(auth){ %>
-                        <div class="post-content" id="post-text-edit<%= posts[i].id %>" style="display: none">
-                            <textarea name="content"><%= posts[i].content %></textarea>
-                        </div>
-                    <% } %>
-                    <input type="hidden" name="filePathsJSON" id="filePaths<%= posts[i].id %>"
-                    value="<%= JSON.stringify(posts[i].filePaths) %>">
-                    <input type="hidden" name="deletedMeta" id="deleted<%= posts[i].id %>" value="">
-                    <div class="post-content media">
-                        <% for(let k = 0; k < posts[i].filePaths.length; k++) { %>
-                            <% let src = posts[i].filePaths[k] %>
-                            <% let path = src.split('.') %>
-                            <% let ext = path[path.length - 1].toLowerCase() %>
-                            <div class="media-container">
-                                <% if(ext == 'png' || ext == 'jpg' || ext == 'bmp' || ext == 'svg'){ %>
-                                    <img src="<%= src %>">
-                                <% }else{ %>
-                                    <video controls><source src="<%= src %>"></video>
-                                <% } %>
-                                <% if(auth){ %>
-                                    <div class="media-overlay">
-                                        <div class="center-inline">
-                                            <button onclick="deleteImg(<%= posts[i].id %>, '<%= src %>')"><i class="material-icons">delete</i></button>
-                                        </div>
+                <% if(posts[i].feed){ %>
+                        <div class="post-card">
+                            <div class="post-header">
+                                <span><%= posts[i].name %></span>
+                                <time class="timeago" datetime="<%= new Date(posts[i].timestamp).toISOString() %>"></time>
+                            </div>
+                            <div class="post-content">
+                                <%= posts[i].description %>
+                            </div>
+                            <div class="post-content media">
+                                <% for(let k = 0; k < posts[i].filePaths.length; k++) { %>
+                                    <% let src = posts[i].filePaths[k] %>
+                                    <% let path = src.split('.') %>
+                                    <% let ext = path[path.length - 1].toLowerCase() %>
+                                    <div class="media-container">
+                                        <% if(ext == 'png' || ext == 'jpg' || ext == 'bmp' || ext == 'svg'){ %>
+                                            <img src="<%= src %>">
+                                        <% }else{ %>
+                                            <video controls><source src="<%= src %>"></video>
+                                        <% } %>
                                     </div>
                                 <% } %>
                             </div>
-                        <% } %>
-                        <% if(auth){ %>
-                            <div class="form-upl-wrapper" onclick="toggleEdit('post-update<%= posts[i].id %>', '', '')">
-                                <input type="file" name="filePathsUpl" accept=".jpg,.png,.svg,.bmp,.mp4" oninput="submitForm('post-form-<%= posts[i].id %>')">
-                                <button class="form-upl"><i class="material-icons">add</i> Add file</button>
-                            </div>
-                        <% } %>
-                    </div>
-                    <% if(auth){ %>
-                        <div class="post-content" id="post-update<%= posts[i].id %>" style="display: none">
-                            <input type="submit" value="Save">
-                            <button type="button" onclick="cancelEdit()">Cancel</button>
+                            <% if(auth || posts[i].sharedUsers.filter(u => u.id == session.userID).length > 0){ %>
+                                <div class="post-content" style="padding-bottom: 20px">
+                                    <a class="cta" href="/recipes/<%= posts[i].id %>">View</a>
+                                </div>
+                            <% } %>
                         </div>
+                    <% }else{ %>
+                        <form method="POST"
+                        action="/posts/update/<%= posts[i].id %>?_method=PATCH&userID=<%= user.id %>" class="post-card" enctype="multipart/form-data" id="post-form-<%= posts[i].id %>">
+                            <div class="post-header">
+                                <span id="post-title<%= posts[i].id %>"
+                                onclick="toggleEdit('post-update<%= posts[i].id %>', 'post-title<%= posts[i].id %>', 'post-title-update<%= posts[i].id %>')">
+                                    <%= posts[i].name %>
+                                </span>
+                                <% if(auth){ %>
+                                    <span id="post-title-update<%= posts[i].id %>" style="display: none">
+                                        <input type="text" placeholder="Title" value="<%= posts[i].name %>" name="name">
+                                    </span>
+                                <% } %>
+                                <time class="timeago" datetime="<%= new Date(posts[i].timestamp).toISOString() %>"></time>
+                            </div>
+                            <div class="post-content" id="post-text<%= posts[i].id %>" onclick="toggleEdit('post-update<%= posts[i].id %>', 'post-text<%= posts[i].id %>', 'post-text-edit<%= posts[i].id %>')">
+                                <%= posts[i].content %>
+                            </div>
+                            <% if(auth){ %>
+                                <div class="post-content" id="post-text-edit<%= posts[i].id %>" style="display: none">
+                                    <textarea name="content"><%= posts[i].content %></textarea>
+                                </div>
+                            <% } %>
+                            <input type="hidden" name="filePathsJSON" id="filePaths<%= posts[i].id %>"
+                            value="<%= JSON.stringify(posts[i].filePaths) %>">
+                            <input type="hidden" name="deletedMeta" id="deleted<%= posts[i].id %>" value="">
+                            <div class="post-content media">
+                                <% for(let k = 0; k < posts[i].filePaths.length; k++) { %>
+                                    <% let src = posts[i].filePaths[k] %>
+                                    <% let path = src.split('.') %>
+                                    <% let ext = path[path.length - 1].toLowerCase() %>
+                                    <div class="media-container">
+                                        <% if(ext == 'png' || ext == 'jpg' || ext == 'bmp' || ext == 'svg'){ %>
+                                            <img src="<%= src %>">
+                                        <% }else{ %>
+                                            <video controls><source src="<%= src %>"></video>
+                                        <% } %>
+                                        <% if(auth){ %>
+                                            <div class="media-overlay">
+                                                <div class="center-inline">
+                                                    <button onclick="deleteImg(<%= posts[i].id %>, '<%= src %>')"><i class="material-icons">delete</i></button>
+                                                </div>
+                                            </div>
+                                        <% } %>
+                                    </div>
+                                <% } %>
+                                <% if(auth){ %>
+                                    <div class="form-upl-wrapper" onclick="toggleEdit('post-update<%= posts[i].id %>', '', '')">
+                                        <input type="file" name="filePathsUpl" accept=".jpg,.png,.svg,.bmp,.mp4" oninput="submitForm('post-form-<%= posts[i].id %>')">
+                                        <button class="form-upl"><i class="material-icons">add</i> Add file</button>
+                                    </div>
+                                <% } %>
+                            </div>
+                            <div class="post-content">
+                                <div style="margin-bottom: 20px">
+                                    <button class="form-upl" type="button" onclick="openDiv('comments')">View comments</button>
+                                    <div id="comments" style="display: none; margin-top: 20px">
+                                        <% for(let k = 0; k < posts[i].comments.length; k++){ %>
+                                            <div class="brigade">
+                                                <span>
+                                                    <a href="/users/<%= posts[i].comments[k].author.id %>" style="margin-right: 10px">
+                                                        <img src="<%= posts[i].comments[k].author.avatar %>" style="margin-right: 0">
+                                                        <b style="letter-spacing: 0"><%= posts[i].comments[k].author.username %></b>
+                                                    </a>
+                                                    <a><span><%= posts[i].comments[k].content %></span></a>
+                                                </span>
+                                            </div>
+                                        <% } %>
+                                    </div>
+                                </div>
+                                <div>
+                                    <span>
+                                        <input type="hidden" id="comment-input" name="addedCommentOpt">
+                                        <a class="grey-inputs small-input">
+                                            <input type="text" placeholder="Add comment" style="width: 300px" id="add-comment-input">
+                                            <button class="edit-allergens" onclick="sendComment()"
+                                            style="font-size: 16px;margin: 0;padding: 7px 9px !important;">
+                                                <i class="material-icons" style="vertical-align: -2.5px">send</i>
+                                            </button>
+                                        </a>
+                                    </span>
+                                </div>
+                            </div>
+                            <% if(auth){ %>
+                                <div class="post-content" id="post-update<%= posts[i].id %>" style="display: none">
+                                    <input type="submit" value="Save">
+                                    <button type="button" onclick="cancelEdit()">Cancel</button>
+                                </div>
+                            <% } %>
+                        </form>
                     <% } %>
-                </form>
             <% } %>
         </div>
         <form class="profile-feed" id="profile-feed-brigade" style="display: none" method="POST" action="/users/update?_method=PATCH">
@@ -225,6 +290,13 @@
 
         function removeBrigade(userId){
             brigade.setAttribute('value', JSON.stringify(JSON.parse(brigade.value).filter(b => b != userId)));
+        }
+
+        function sendComment(){
+            let comment = document.getElementById('add-comment-input').value;
+            let commentInput = document.getElementById('comment-input');
+
+            commentInput.setAttribute('value', comment);
         }
     </script>
 <% include partials/footer %>

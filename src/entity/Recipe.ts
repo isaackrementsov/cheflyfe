@@ -15,7 +15,7 @@ export default class Recipe {
 
     @Column()
     name : string;
-    @Column()
+    @Column('text')
     description : string;
     @Column()
     feed : boolean;

@@ -31,7 +31,6 @@ let routes = app => {
     app.post('/ingredients/create', ingredientController.postCreate);
     app.post('/menus/create', menuController.postCreate);
     app.post('/posts/create', postController.postCreate);
-    app.post('/posts/comments/create', postController.postCreateComment);
     app.post('/recipes/create', recipeController.postCreate);
 
     app.patch('/users/update', userController.patchUpdate);

@@ -20,7 +20,7 @@ export default class Post {
     @Column()
     timestamp : Date = new Date();
 
-    @OneToMany(type => Comment, comment => comment.post)
+    @OneToMany(type => Comment, comment => comment.post, {cascade: true})
     comments : Comment[];
 
     @ManyToOne(type => User, user => user.posts)

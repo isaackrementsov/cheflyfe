@@ -7,11 +7,11 @@ export default class NutritionalInfo {
     @PrimaryGeneratedColumn()
     id : number;
 
-    @Column()
+    @Column('float')
     cholesterol : number;
-    @Column()
+    @Column('float')
     sodium : number;
-    @Column()
+    @Column('float')
     protein : number;
     @Column('simple-json')
     carbohydrates : {total: number, fiber: number, sugar: number};
