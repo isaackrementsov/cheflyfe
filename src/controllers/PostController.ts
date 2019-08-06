@@ -62,7 +62,7 @@ export default class PostController {
                 await this.postRepo.save(toUpdate);
             }
         }else{
-            if(update['filePaths']) delete update['filePaths'];
+            if(update['addedComment']) delete update['addedComment'];
 
             await this.postRepo.createQueryBuilder()
                 .update().set(update)
