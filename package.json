@@ -5,7 +5,8 @@
   "main": "src/server.ts",
   "scripts": {
     "test": "ts-node src/test/server.ts",
-    "start": "ts-node src/server.ts"
+    "start": "ts-node src/server.ts",
+    "pull": "git stash && git stash drop && git pull origin master && ts-node local/config.ts"
   },
   "repository": {
     "type": "git",

@@ -24,7 +24,7 @@ export default class PostController {
     postCreate = async (req: Request, res: Response) => {
         let post : Post = new Post({
             name: req.body.name,
-            content: req.body.contentOptional,
+            content: req.body.contentOpt || '',
             filePaths: req.files ? req.files['postUplMulti8'].map(p => p.path) : [],
             author: await this.userRepo.findOne(req.session.userID),
             comments: []
