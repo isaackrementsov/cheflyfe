@@ -1,6 +1,6 @@
 <% include partials/header %>
 <div class="profile-nav ingredients-header">
-    <h1>View Menu</h1>
+    <h1>Create Menu</h1>
 </div>
 <form class="profile-main add-recipe" method="POST" action="/menus/create" enctype="multipart/form-data">
     <div class="profile-card">
@@ -11,13 +11,6 @@
                 <input type="text" list="user-datalist" placeholder="Add viewer" id="add-viewer-input">
                 <button type="button" onclick="addViewer()"><i class="material-icons">done</i></button>
             </div>
-            <% for(let i = 0; i < menu.sharedUsers; i++){ %>
-                <span class="allergen" id="user-${id}" style="background-color: #536DFE">
-                    <%= menu.sharedUsers[i].username %>
-                    <i class="material-icons"
-                    onclick="removeViewer('<%= menu.sharedUsers[i].id %>', '<%= menu.sharedUsers[i].username %>')" style="display: inline">close</i>
-                </span>
-            <% } %>
         </div>
         <h2>Display to Viewers</h2>
         <h3>Recipe Costs</h3>
@@ -84,4 +77,5 @@
         </div>
     </div>
 </form>
+<% include partials/js/menuJs %>
 <% include partials/footer %>

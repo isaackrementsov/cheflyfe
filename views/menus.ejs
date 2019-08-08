@@ -1,2 +1,36 @@
 <% include partials/header %>
+<div class="profile-nav ingredients-header">
+    <h1>Menus</h1>
+</div>
+<div class="profile-main recipe-main">
+    <div class="profile-feed">
+        <button class="add-post" id="add-post-button" onclick="toggle('add-post-button', 'new-post')">
+            <a href="/menus/create" style="width: 100%"><i class="material-icons">add</i> Add Menu</a>
+        </button>
+        <div class="post-card">
+            <div class="post-header">
+                <span>Dinner Menu</span>
+                <time class="timeago">5 days ago</time>
+            </div>
+            <div class="post-content flex-container heading-icons">
+                <span><i class="material-icons">people</i>Viewer</span>
+            </div>
+            <div class="post-content">
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit,
+                sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                Turpis cursus in hac habitasse platea dictumst. Condimentum vitae
+                sapien pellentesque habitant morbi. Sollicitudin ac orci phasellus
+                egestas.
+            </div>
+            <div class="post-content media">
+                <div class="media-container">
+                    <img src="img/static/login.jpg">
+                </div>
+            </div>
+            <div class="post-content">
+                <a class="cta" href="/menus/">View</a>
+            </div>
+        </div>
+    </div>
+</div>
 <% include partials/footer %>

@@ -2,6 +2,7 @@ import {Entity, Column, PrimaryGeneratedColumn, ManyToMany, ManyToOne, JoinTable
 import {Info} from '../util/typeDefs';
 import Recipe from './Recipe';
 import User from './User';
+import Ingredient from './Ingredient';
 
 @Entity()
 export default class Menu {
@@ -10,11 +11,9 @@ export default class Menu {
     id : number;
 
     @Column()
-    logo : string;
+    name : string;
     @Column()
-    header : string;
-    @Column('simple-json')
-    info : Info;
+    logo : string;
     @Column('simple-json')
     sharingPermissions : Info;
 
@@ -27,6 +26,18 @@ export default class Menu {
 
     @ManyToOne(type => User, user => user.menus)
     author : User;
+
+    ingredients : Ingredient[];
+
+    async getAllIngredients(){
+        this.ingredients = [];
+
+        for(let recipe of this.recipes){
+            recipe.getRelations();
+            recipe.getAllIngredients();
+            this.ingredients.concat(recipe.ingredients);
+        }
+    }
 
     constructor(menu : Partial<Menu>){
         Object.assign(this, menu);

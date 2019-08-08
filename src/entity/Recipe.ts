@@ -182,6 +182,16 @@ export default class Recipe {
         }
     }
 
+    async getAllIngredients(){
+        if(!this.ingredients) this.ingredients = [];
+
+        for(let recipe of this.subRecipes){
+            recipe.getRelations();
+            recipe.getAllIngredients();
+            this.ingredients.concat(recipe.ingredients);
+        }
+    }
+
     async populateInfo(){
         await this.getFoodCost();
         this.getSumCosts();

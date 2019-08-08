@@ -12,11 +12,19 @@ export default class MenuController {
     private menuRepo : Repository<Menu>;
     private userRepo : Repository<User>;
 
-    getIndex = async (req: Request, res: Response) => {
-        let menu : Menu = await this.menuRepo.findOne(parseInt(req.params.id), {
-            where: {'authorId': req.session.userID},
-            relations: ['recipes']
-        });
+    getIndex = async (req: Request, res: Response) => { //TODO: more descriptive errors, fix params issues, implement user search, admin, payment, exports, optimize relation loading in updates, don't send empty forms in req.body
+        let menu : Menu = await this.menuRepo.createQueryBuilder('menu')
+            .leftJoinAndSelect('menu.recipes', 'recipes')
+            .leftJoinAndSelect('recipes.ingredients', 'recipe_ingredients')
+            .leftJoinAndSelect('menu.author', 'author')
+            .leftJoinAndSelect('author.recipes','author_recipes')
+            .leftJoinAndSelect('author.brigade','author_brigade')
+            .leftJoinAndSelect('menu.sharedUsers', 'shared')
+            .where('shared.id = :userID OR author.id = :userID', {userID: req.session.userID})
+            .andWhere('menu.id = :id', {id: parseInt(req.params.id)})
+            .getOne();
+
+        await menu.getAllIngredients();
 
         res.render(menu ? 'menu' : 'notFound', {menu: menu, session: req.session});
     }
@@ -29,12 +37,30 @@ export default class MenuController {
         res.render('menus', {menus: menus, session: req.session});
     }
 
+    getCreate = async (req: Request, res: Response) => {
+        let user : User = await this.userRepo.findOne(req.session.userID, {
+            relations: ['recipes', 'brigade']
+        });
+
+        res.render('createMenu', {user: user, session: req.session});
+    }
+
     postCreate = async (req: Request, res: Response) => { //TODO: Add file upload for logo
         let menu : Menu = new Menu({
             logo: req.files['logoUpl'].path,
-            header: req.body.header,
-            info: req.body.infoJSON,
+            name: req.body.name,
             recipes: req.body.recipeRelJSON,
+            sharedUsers: req.body.sharedUsersRelJSON,
+            sharingPermissions: {
+                food: req.body.foodShareJSON || false,
+                labor: req.body.laborShareJSON || false,
+                misc: req.body.miscShareJSON || false,
+                overhead: req.body.overheadShareJSON || false,
+                price: req.body.priceShareJSON || false,
+                profit: req.body.profitShareJSON || false,
+                profitMargin: req.body.profitMarginShareJSON || false,
+                allergens: req.body.allergensShareJSON || false
+            },
             author: await this.userRepo.findOne(req.session.userID)
         });
 

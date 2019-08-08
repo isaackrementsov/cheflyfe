@@ -1,0 +1,94 @@
+<datalist id="user-datalist">
+    <% for(let i = 0; i < user.brigade.length; i++){ %>
+        <option id="user-datalist-<%= user.brigade[i].id %>" value="<%= user.brigade[i].username %>">
+    <% } %>
+</datalist>
+<datalist id="recipe-datalist">
+    <% for(let i = 0; i < user.recipes.length; i++){ %>
+        <option id="recipe-datalist-<%= user.recipes[i].id %>" value="<%= user.recipes[i].name %>">
+    <% } %>
+</datalist>
+<script>
+    let recipeIds = <%= JSON.stringify(user.recipes.map(r => r.id)) %>;
+    let recipeNames = <%- JSON.stringify(user.recipes.map(r => r.name)) %>;
+    let userIds = <%= JSON.stringify(user.brigade.map(u => u.id)) %>;
+    let users = <%- JSON.stringify(user.brigade.map(u => u.username)) %>;
+
+    function addViewer(){
+        let viewerList = document.getElementById('viewer-input');
+        let viewerContainer = document.getElementById('add-viewer-container');
+        let v = document.getElementById('add-viewer-input');
+        let username = v.value;
+        let i = users.indexOf(users.find(u => clean(u) == clean(username)));
+        let id = userIds[i];
+        let arr = JSON.parse(viewerList.value);
+        if(id) id = parseInt(id);
+        let matched = id ? arr.filter(userId => userId == id) : 1;
+
+        if(matched == 0){
+            arr.push(id);
+
+            viewerList.setAttribute('value', JSON.stringify(arr));
+
+            viewerContainer.innerHTML += `
+            <span class="allergen" id="user-${id}" style="background-color: #536DFE">
+                ${username}
+                <i class="material-icons" onclick="removeViewer('${id}', '${username}')" style="display: inline">close</i>
+            </span>`;
+
+            v.setAttribute('value', '');
+            document.getElementById('user-datalist-' + id).remove();
+        }
+    }
+
+    function removeViewer(id, username){
+        let viewerList = document.getElementById('viewer-input');
+
+        viewerList.setAttribute('value', JSON.stringify(JSON.parse(viewerList.value).filter(userId => userId != id)));
+
+        document.getElementById('user-' + id).remove();
+        document.getElementById('user-datalist').innerHTML += `<option id="user-datalist-${id}" value="${username}">`;
+    }
+
+    function addRecipe(){
+        let n = document.getElementById('add-recipe-input-text');
+        let name = n.value;
+        let recipeList =  document.getElementById('recipe-input');
+        let recipeContainer = document.getElementById('add-recipe-container');
+        let recipeArr = JSON.parse(recipeList.value);
+        let i = recipeNames.indexOf(recipeNames.find(n => clean(n) == clean(name)));
+        let id = recipeIds[i];
+        if(id) id = parseInt(id);
+        let matched = id ? recipeArr.filter(i => i == id).length : 1;
+
+        if(matched == 0){
+            recipeArr.push(id);
+
+            recipeList.setAttribute('value', JSON.stringify(recipeArr));
+
+            recipeContainer.innerHTML += `
+                <p id="recipe-${id}" class="step flex-container brigade">
+                    <span>${recipeNames[i]}</span>
+                    <i class="material-icons" onclick="removeRecipe(${id}, '${name}')">close</i>
+                </p>
+            `;
+
+            n.setAttribute('value', '');
+
+            document.getElementById(`recipe-datalist-${id}`).remove();
+        }
+    }
+
+    function removeRecipe(id, name){
+        let recipeList = document.getElementById('recipe-input');
+        let recipeArr = JSON.parse(recipeList.value);
+        let i = recipeArr.indexOf(id);
+
+        recipeArr.splice(i, 1);
+
+        recipeList.setAttribute('value', JSON.stringify(recipeArr));
+
+        document.getElementById(`recipe-${id}`).remove();
+        document.getElementById('recipe-datalist').innerHTML += `<option id="recipe-datalist-${id}" value="${name}">`;
+    }
+</script>
