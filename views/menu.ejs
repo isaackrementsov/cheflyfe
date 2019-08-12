@@ -71,12 +71,14 @@ onclick="toggleEdit('menu-edit')" onsubmit="packageJSON()" id="menu-update-form"
                 <label class="switch"><input type="checkbox" id="allergens-share"
                 <% if(menu.sharingPermissions.allergens){ %>checked<% } %>><span class="slider"></span></label>
             </div>
+            <h2>Export</h2>
+            <button type="button" onclick="genPDF()" style="border-radius: 5px; margin: 10px auto; padding: 10px">Get a PDF or print</button>
         <% }else{ %>
             <h3>Settings are not accessible to you</h3>
         <% } %>
     </div>
-    <div class="profile-feed">
-        <div class="post-card">
+    <div class="profile-feed" id="PDFContent">
+        <div class="post-card" style="box-shadow: none">
             <div class="post-header">
                 <div>
                     <div class="media" style="vertical-align: middle; height: 45px; display: inline-block; margin-right: 10px">
@@ -92,7 +94,7 @@ onclick="toggleEdit('menu-edit')" onsubmit="packageJSON()" id="menu-update-form"
                             </div>
                         <% } %>
                     </div>
-                    <span style="vertical-align: middle; display: inline"  onclick="toggle('name', 'update-name')" id="name"><%= menu.name %></span>
+                    <span style="vertical-align: middle; display: inline"  onclick="toggle('name', 'update-name')" id="name"  style="font-size: 35px"><%= menu.name %></span>
                 </div>
                 <% if(auth){ %>
                     <input type="text" placeholder="Title" value="<%= menu.name %>" name="name" id="update-name" style="display: none; flex: 1; margin-left: 5px">
@@ -100,7 +102,7 @@ onclick="toggleEdit('menu-edit')" onsubmit="packageJSON()" id="menu-update-form"
             </div>
             <div class="post-content">
                 <% if((auth || menu.sharingPermissions.allergens) && menu.allergens.length > 0){ %>
-                    <div class="allergens flex-container">
+                    <div class="allergens flex-container <% if(!menu.sharingPermissions.allergens){ %>PDFIgnore<% } %>">
                         <% for(let i = 0; i < menu.allergens.length; i++){ %>
                             <span class="allergen">
                                 <i class="material-icons">warning</i>
@@ -112,7 +114,7 @@ onclick="toggleEdit('menu-edit')" onsubmit="packageJSON()" id="menu-update-form"
                 <div id="add-recipe-container">
                     <input type="hidden" value="<%= JSON.stringify(menu.recipes.map(r => r.id)) %>" name="recipesRelJSON" id="recipe-input">
                     <% if(auth){ %>
-                        <p class="plus-button"><button onclick="toggleArr(['add-recipe'], ['add-recipe-input', 'save-recipe'])" type="button">
+                        <p class="plus-button PDFIgnore"><button onclick="toggleArr(['add-recipe'], ['add-recipe-input', 'save-recipe'])" type="button">
                             <i class="material-icons" id="add-recipe">add</i>
                             <i class="material-icons" id="save-recipe" style="display: none" onclick="addRecipe()">done</i>
                         </button> Add Recipes</p>
@@ -140,12 +142,24 @@ onclick="toggleEdit('menu-edit')" onsubmit="packageJSON()" id="menu-update-form"
                                     </p>
                                     <% let cost = menu.recipes[i].costs %>
                                     <b style="font-size: 13px; color: #8C9EFF">
-                                        <% if(auth || menu.sharingPermissions.misc){ %>$<%= cost.misc %> misc, <% } %>
-                                        <% if(auth || menu.sharingPermissions.overhead){ %>$<%= cost.overhead %> overhead, <% } %>
-                                        <% if(auth || menu.sharingPermissions.labor){ %>$<%= cost.labor %> labor, <% } %>
-                                        <% if(auth || menu.sharingPermissions.food){ %>$<%= menu.recipes[i].foodCost %> food, <% } %>
-                                        <% if(auth || menu.sharingPermissions.profit){ %>$<%= menu.recipes[i].profit %> profit, <% } %>
-                                        <% if(auth || menu.sharingPermissions.profitMargin){ %><%= menu.recipes[i].profitMargin %>% margin<% } %>
+                                        <% if(auth || menu.sharingPermissions.misc){ %>
+                                            <span class="<% if(!menu.sharingPermissions.misc){ %>PDFIgnore<% } %>">$<%= cost.misc %> misc, </span>
+                                        <% } %>
+                                        <% if(auth || menu.sharingPermissions.overhead){ %>
+                                            <span class="<% if(!menu.sharingPermissions.overhead){ %>PDFIgnore<% } %>">$<%= cost.overhead %> overhead, </span>
+                                        <% } %>
+                                        <% if(auth || menu.sharingPermissions.labor){ %>
+                                            <span class="<% if(!menu.sharingPermissions.labor){ %>PDFIgnore<% } %>">$<%= cost.labor %> labor, </span>
+                                        <% } %>
+                                        <% if(auth || menu.sharingPermissions.food){ %>
+                                            <span class="<% if(!menu.sharingPermissions.food){ %>PDFIgnore<% } %>">$<%= menu.recipes[i].foodCost %> food, </span>
+                                        <% } %>
+                                        <% if(auth || menu.sharingPermissions.profit){ %>
+                                            <span class="<% if(!menu.sharingPermissions.profit){ %>PDFIgnore<% } %>">$<%= menu.recipes[i].profit %> profit, </span>
+                                        <% } %>
+                                        <% if(auth || menu.sharingPermissions.profitMargin){ %>
+                                            <span class="<% if(!menu.sharingPermissions.profitMargin){ %>PDFIgnore<% } %>"><%= menu.recipes[i].profitMargin %>% margin</span>
+                                        <% } %>
                                     </b>
                                 </div>
                             </div>
@@ -161,11 +175,8 @@ onclick="toggleEdit('menu-edit')" onsubmit="packageJSON()" id="menu-update-form"
                         </div>
                     <% } %>
                 </div>
-                <p class="plus-button"><button onclick="toggleArr(['view-shopping'], ['shopping-list', 'close-shopping'])" type="button" style="padding-top: 8px !important">
-                    <i class="material-icons" id="view-shopping">remove_red_eye</i>
-                    <i class="material-icons" id="close-shopping" style="display: none">close</i>
-                </button> Shopping List (1 of each recipe)</p>
-                <div id="shopping-list" style="display: none">
+                <h3>Shopping List (1 of each recipe)</h3>
+                <div id="shopping-list" style="display: block">
                     <% for(let i = 0; i < menu.ingredients.length; i++){ %>
                         <div class="flex-container step brigade">
                             <span><%= menu.ingredients[i].name %></span>
@@ -178,7 +189,7 @@ onclick="toggleEdit('menu-edit')" onsubmit="packageJSON()" id="menu-update-form"
                 </div>
             </div>
             <% if(auth){ %>
-                <div class="post-content">
+                <div class="post-content" class="PDFIgnore">
                     <span id="menu-edit" style="display: none">
                         <input type="submit" class="cta" value="Save">
                         <button type="button" onclick="cancelEdit()">Cancel</button>
@@ -218,4 +229,5 @@ onclick="toggleEdit('menu-edit')" onsubmit="packageJSON()" id="menu-update-form"
 </script>
 <% let user = menu.author %>
 <% include partials/js/menuJs %>
+<% include partials/js/genPDF %>
 <% include partials/footer %>

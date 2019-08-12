@@ -1,7 +1,6 @@
 <% include partials/header %>
 <% include partials/lists/units %> <!-- TODO: add ingredient brands -->
-<% let user = recipe.author %>
-<% let auth = user.id == session.userID %>
+<% let auth = recipe.author.id == session.userID %>
 <div class="profile-nav ingredients-header">
     <h1>View Recipe</h1>
 </div>
@@ -10,7 +9,7 @@ onclick="toggleEdit('edit-recipe', '', '')" onsubmit="packageJSON()" id="recipe-
     <div class="profile-card">
         <h1><i class="material-icons">people</i><% if(auth){ %>Sharing Settings<% }else{ %>Recipe Info<% } %></h1>
         <% if(auth){ %>
-            <div class="allergens flex-container" id="add-viewer-container" style="margin-bottom: 0">
+            <div class="allergens flex-container <% if(!recipe.sharingPermissions.allergens){ %>PDFIgnore<% } %>" id="add-viewer-container" style="margin-bottom: 0">
                 <input type="hidden" id="viewer-input" value="<%= JSON.stringify(recipe.sharedUsers.map(u => u.id)) %>" name="sharedUsersRelJSON">
                 <div class="flex-container add-allergen" style="display: none" id="add-viewer">
                     <input type="text" list="user-datalist" placeholder="Add viewer" id="add-viewer-input">
@@ -152,14 +151,44 @@ onclick="toggleEdit('edit-recipe', '', '')" onsubmit="packageJSON()" id="recipe-
                     </label>
                 <% } %>
             </div>
+            <h2>Export</h2>
+            <button type="button" onclick="genPDF()" style="border-radius: 5px; margin: 10px auto; padding: 10px">Get a PDF or print</button>
         <% } %>
     </div>
-    <div class="profile-feed">
-        <div class="post-card">
+    <div class="profile-feed" id="PDFContent">
+        <div class="post-card" style="box-shadow: none">
             <div class="post-header">
-                <span onclick="toggle('name', 'update-name')" id="name"><%= recipe.name %></span>
+                <span onclick="toggle('name', 'update-name')" id="name" style="font-size: 35px"><%= recipe.name %></span>
                 <% if(auth){ %><input type="text" value="<%= recipe.name %>" name="name" style="display: none" id="update-name"><% } %>
             </div>
+            <p class="PDFShow" style="display: none">
+                <% let p = recipe.price %>
+                <% if(recipe.sharingPermissions.price){ %>
+                    Price: $<%= p.val %> / <% if(p.qt != 1){ %><%= p.qt %> <% } %><%= p.units %>
+                <% } %>
+            </p>
+            <p class="PDFShow" style="display: none"><b style="color: #8C9EFF">
+                <% let cost = recipe.costs %>
+                Costs:
+                <% if(recipe.sharingPermissions.misc){ %>
+                    $<%= cost.misc %> misc,
+                <% } %>
+                <% if(recipe.sharingPermissions.overhead){ %>
+                    $<%= cost.overhead %> overhead,
+                <% } %>
+                <% if(recipe.sharingPermissions.labor){ %>
+                    $<%= cost.labor %> labor,
+                <% } %>
+                <% if(recipe.sharingPermissions.food){ %>
+                    $<%= recipe.foodCost %> food,
+                <% } %>
+                <% if(recipe.sharingPermissions.profit){ %>
+                    $<%= recipe.profit %> profit,
+                <% } %>
+                <% if(recipe.sharingPermissions.profitMargin){ %>
+                    <%= recipe.profitMargin %>% margin
+                <% } %>
+            </b></p>
             <div class="post-content media">
                 <input type="hidden" name="filePathsJSON" value="<%= JSON.stringify(recipe.filePaths) %>" id="file-list">
                 <input type="hidden" name="deletedMeta" id="deleted">
@@ -194,7 +223,7 @@ onclick="toggleEdit('edit-recipe', '', '')" onsubmit="packageJSON()" id="recipe-
             <div class="post-content">
                 <p id="description" onclick="toggle('description', 'update-description')"><%= recipe.description || 'no description' %></p>
                 <p id="update-description" style="display: none">
-                    <textarea name="descriptionOpt" placeholder="Description"><%= recipe.description %></textarea>
+                    <textarea name="description" placeholder="Description"><%= recipe.description %></textarea>
                 </p>
                 <h3>Ingredients</h3>
                 <% if((auth || recipe.sharingPermissions.allergens) && recipe.allergens.length > 0){ %>
@@ -213,7 +242,7 @@ onclick="toggleEdit('edit-recipe', '', '')" onsubmit="packageJSON()" id="recipe-
                     <input type="hidden" value="<%= JSON.stringify(recipe.quantities) %>" name="quantitiesJSON" id="quantity-input">
                     <input type="hidden" value="<%= JSON.stringify(recipe.recipeQuantities) %>" name="recipeQuantitiesJSON" id="recipe-quantity-input">
                     <% if(auth){ %>
-                        <p class="plus-button"><button onclick="toggleArr(['add-ingredient'], ['add-ingredient-input', 'save-ingredient'])" type="button">
+                        <p class="plus-button PDFIgnore"><button onclick="toggleArr(['add-ingredient'], ['add-ingredient-input', 'save-ingredient'])" type="button">
                             <i class="material-icons" id="add-ingredient">add</i>
                             <i class="material-icons" id="save-ingredient" style="display: none" onclick="addIngredient()">done</i>
                         </button> Add ingredient</p>
@@ -252,7 +281,7 @@ onclick="toggleEdit('edit-recipe', '', '')" onsubmit="packageJSON()" id="recipe-
                         </p>
                     <% } %>
                 </div>
-                <p>
+                <p class="PDFIgnore">
                     <button type="button" class="form-upl" onclick="openDiv('nutrition-label')">Show nutritional label</button>
                 </p>
                 <div class="post-content" id="nutrition-label" style="display: none">
@@ -264,7 +293,7 @@ onclick="toggleEdit('edit-recipe', '', '')" onsubmit="packageJSON()" id="recipe-
                 <div id="add-step-container">
                     <input type="hidden" value="<%= JSON.stringify(recipe.steps) %>" name="stepsJSON" id="step-input">
                     <% if(auth){ %>
-                        <p class="plus-button"><button onclick="toggleArr(['add-step'], ['add-step-input', 'save-step'])" type="button">
+                        <p class="plus-button PDFIgnore"><button onclick="toggleArr(['add-step'], ['add-step-input', 'save-step'])" type="button">
                             <i class="material-icons" id="add-step">add</i>
                             <i class="material-icons" id="save-step" style="display: none" onclick="addStep()">done</i>
                         </button> Add steps</p>
@@ -291,7 +320,7 @@ onclick="toggleEdit('edit-recipe', '', '')" onsubmit="packageJSON()" id="recipe-
                 </div>
             </div>
             <% if(auth){ %>
-                <div class="post-content">
+                <div class="post-content" class="PDFIgnore">
                     <span id="edit-recipe" style="display: none">
                         <input type="submit" class="cta" value="Save">
                         <button type="button" onclick="cancelEdit()">Cancel</button>
@@ -305,6 +334,7 @@ onclick="toggleEdit('edit-recipe', '', '')" onsubmit="packageJSON()" id="recipe-
     <input type="hidden" id="price-input" name="priceJSON">
 </form>
 <% include partials/js/nutritionJs %>
+<% let user = recipe.author %>
 <% include partials/js/recipeJs %>
 <script>
     function getShare(){
@@ -347,4 +377,5 @@ onclick="toggleEdit('edit-recipe', '', '')" onsubmit="packageJSON()" id="recipe-
         priceInput.setAttribute('value', JSON.stringify(prices));
     }
 </script>
+<% include partials/js/genPDF %>
 <% include partials/footer %>

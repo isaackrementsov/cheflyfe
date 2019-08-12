@@ -1,0 +1,12 @@
+<script src="/js/print.js"></script>
+<script>
+    function genPDF(){
+        $('.PDFIgnore').hide();
+        $('.PDFShow').show();
+        $('#PDFContent').printElement();
+    }
+
+    window.afterPrint = function(){
+        console.log('done')
+    }
+</script>
