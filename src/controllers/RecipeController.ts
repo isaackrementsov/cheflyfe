@@ -45,6 +45,11 @@ export default class RecipeController {
             relations: ['ingredients', 'recipes', 'brigade']
         });
 
+        for(let i = 0; i < user.recipes.length; i++){
+            await user.recipes[i].getRelations();
+            await user.recipes[i].getFoodCost();
+        }
+
         res.render('createRecipe', {session: req.session, user: user});
     }
 

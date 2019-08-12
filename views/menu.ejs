@@ -1,87 +1,221 @@
 <% include partials/header %>
+<% let auth = menu.author.id == session.userID %>
 <div class="profile-nav ingredients-header">
     <h1>View Menu</h1>
 </div>
-<form class="profile-main add-recipe" method="POST" action="/menus/create" enctype="multipart/form-data">
+<form class="profile-main add-recipe" method="POST" action="/menus/update/<%= menu.id %>?_method=PATCH" enctype="multipart/form-data"
+onclick="toggleEdit('menu-edit')" onsubmit="packageJSON()" id="menu-update-form">
     <div class="profile-card">
         <h1><i class="material-icons">people</i>Sharing Settings</h1>
-        <div class="allergens flex-container" id="add-viewer-container" style="margin-bottom: 0">
-            <input type="hidden" id="viewer-input" value="[]" name="sharedUsersRelJSON">
-            <div class="flex-container add-allergen">
-                <input type="text" list="user-datalist" placeholder="Add viewer" id="add-viewer-input">
-                <button type="button" onclick="addViewer()"><i class="material-icons">done</i></button>
+        <% if(auth){ %>
+            <div class="allergens flex-container" id="add-viewer-container" style="margin-bottom: 0">
+                <input type="hidden" id="viewer-input" value="<%= JSON.stringify(menu.sharedUsers.map(u => u.id)) %>" name="sharedUsersRelJSON">
+                <div class="flex-container add-allergen" style="display: none" id="add-viewer">
+                    <input type="text" list="user-datalist" placeholder="Add viewer" id="add-viewer-input">
+                    <button type="button" onclick="addViewer()"><i class="material-icons">done</i></button>
+                </div>
+                <button type="button" class="edit-allergens"
+                onclick="toggleArr(['viewer-close', 'add-viewer'], ['viewer-edit'])">
+                    <i class="material-icons" id="viewer-edit">edit</i>
+                    <i class="material-icons" id="viewer-close" style="display: none">minimize</i>
+                </button>
+                <% for(let i  = 0; i < menu.sharedUsers.length; i++){ %>
+                    <span class="allergen" id="user-<%= menu.sharedUsers[i].id %>" style="background-color: #536DFE">
+                        <%= menu.sharedUsers[i].username %>
+                        <i class="material-icons" onclick="removeViewer(<%= menu.sharedUsers[i].id %>, '<%= menu.sharedUsers[i].username %>')" style="display: inline">close</i>
+                    </span>
+                <% } %>
             </div>
-            <% for(let i = 0; i < menu.sharedUsers; i++){ %>
-                <span class="allergen" id="user-${id}" style="background-color: #536DFE">
-                    <%= menu.sharedUsers[i].username %>
-                    <i class="material-icons"
-                    onclick="removeViewer('<%= menu.sharedUsers[i].id %>', '<%= menu.sharedUsers[i].username %>')" style="display: inline">close</i>
-                </span>
-            <% } %>
-        </div>
-        <h2>Display to Viewers</h2>
-        <h3>Recipe Costs</h3>
-        <div class="checkbox flex-container">
-            <div>Food</div>
-            <label class="switch"><input type="checkbox" name="foodShareJSON"><span class="slider"></span></label>
-        </div>
-        <div class="checkbox flex-container">
-            <div>Labor</div>
-            <label class="switch"><input type="checkbox" name="laborShareJSON"><span class="slider"></span></label>
-        </div>
-        <div class="checkbox flex-container">
-            <div>Misc</div>
-            <label class="switch"><input type="checkbox" name="miscShareJSON"><span class="slider"></span></label>
-        </div>
-        <div class="checkbox flex-container">
-            <div>Overhead</div>
-            <label class="switch"><input type="checkbox" name="overheadShareJSON"><span class="slider"></span></label>
-        </div>
-        <h3>Recipe Values</h3>
-        <div class="checkbox flex-container">
-            <div>Profit</div>
-            <label class="switch"><input type="checkbox" name="profitShareJSON"><span class="slider"></span></label>
-        </div>
-        <div class="checkbox flex-container">
-            <div>Profit Margin</div>
-            <label class="switch"><input type="checkbox" name="profitMarginShareJSON"><span class="slider"></span></label>
-        </div>
-        <div class="checkbox flex-container">
-            <div>Price</div>
-            <label class="switch"><input type="checkbox" name="priceShareJSON"><span class="slider"></span></label>
-        </div>
-        <h3>Other</h3>
-        <div class="checkbox flex-container">
-            <div>Allergens</div>
-            <label class="switch"><input type="checkbox" name="allergensShareJSON"><span class="slider"></span></label>
-        </div>
+            <h2>Display to Viewers</h2>
+            <input type="hidden" name="sharingPermissionsJSON" id="sharing-input">
+            <h3>Recipe Costs</h3>
+            <div class="checkbox flex-container">
+                <div>Food</div>
+                <label class="switch"><input type="checkbox" id="food-share"
+                <% if(menu.sharingPermissions.food){ %>checked<% } %>><span class="slider"></span></label>
+            </div>
+            <div class="checkbox flex-container">
+                <div>Labor</div>
+                <label class="switch"><input type="checkbox"  id="labor-share"
+                <% if(menu.sharingPermissions.labor){ %>checked<% } %>><span class="slider"></span></label>
+            </div>
+            <div class="checkbox flex-container">
+                <div>Misc</div>
+                <label class="switch"><input type="checkbox" id="misc-share"
+                <% if(menu.sharingPermissions.misc){ %>checked<% } %>><span class="slider"></span></label>
+            </div>
+            <div class="checkbox flex-container">
+                <div>Overhead</div>
+                <label class="switch"><input type="checkbox" id="overhead-share"
+                <% if(menu.sharingPermissions.overhead){ %>checked<% } %>><span class="slider"></span></label>
+            </div>
+            <h3>Recipe Profit</h3>
+            <div class="checkbox flex-container">
+                <div>Profit</div>
+                <label class="switch"><input type="checkbox" id="profit-share"
+                <% if(menu.sharingPermissions.profit){ %>checked<% } %>><span class="slider"></span></label>
+            </div>
+            <div class="checkbox flex-container">
+                <div>Profit Margin</div>
+                <label class="switch"><input type="checkbox" id="profit-margin-share"
+                <% if(menu.sharingPermissions.profitMargin){ %>checked<% } %>><span class="slider"></span></label>
+            </div>
+            <div class="checkbox flex-container">
+                <div>Price</div>
+                <label class="switch"><input type="checkbox" id="price-share"
+                <% if(menu.sharingPermissions.price){ %>checked<% } %>><span class="slider"></span></label>
+            </div>
+            <h3>Other</h3>
+            <div class="checkbox flex-container">
+                <div>Allergens</div>
+                <label class="switch"><input type="checkbox" id="allergens-share"
+                <% if(menu.sharingPermissions.allergens){ %>checked<% } %>><span class="slider"></span></label>
+            </div>
+        <% }else{ %>
+            <h3>Settings are not accessible to you</h3>
+        <% } %>
     </div>
     <div class="profile-feed">
         <div class="post-card">
             <div class="post-header">
-                <input type="text" placeholder="Title" name="name">
+                <div>
+                    <div class="media" style="vertical-align: middle; height: 45px; display: inline-block; margin-right: 10px">
+                        <img src="<%= menu.logo %>" style="vertical-align: middle; height: 45px">
+                        <% if(auth){ %>
+                            <div class="media-overlay" style="vertical-align: middle; height: 45px">
+                                <div class="center-inline">
+                                    <div class="form-upl-wrapper">
+                                        <input type="file" name="logoUpl" oninput="submitForm('menu-update-form')">
+                                        <button class="form-upl"><i class="material-icons" style="font-size: 30px !important">camera_alt</i></button>
+                                    </div>
+                                </div>
+                            </div>
+                        <% } %>
+                    </div>
+                    <span style="vertical-align: middle; display: inline"  onclick="toggle('name', 'update-name')" id="name"><%= menu.name %></span>
+                </div>
+                <% if(auth){ %>
+                    <input type="text" placeholder="Title" value="<%= menu.name %>" name="name" id="update-name" style="display: none; flex: 1; margin-left: 5px">
+                <% } %>
             </div>
             <div class="post-content">
-                <p><textarea placeholder="Briefly describe your recipe (optional)" name="descriptionOpt"></textarea></p>
-                <div id="add-recipe-container">
-                    <input type="hidden" value="[]" name="recipesRelJSON" id="recipe-input">
-                    <p class="plus-button"><button onclick="toggleArr(['add-recipe'], ['add-recipe-input', 'save-recipe'])" type="button">
-                        <i class="material-icons" id="add-recipe">add</i>
-                        <i class="material-icons" id="save-recipe" style="display: none" onclick="addRecipe()">done</i>
-                    </button> Add Recipes</p>
-                    <div id="add-recipe-input" style="display: none" class="grey-inputs">
-                        <input type="text" placeholder="Recipe name" list="recipe-datalist" id="add-recipe-input-text" style="width: 300px">
+                <% if((auth || menu.sharingPermissions.allergens) && menu.allergens.length > 0){ %>
+                    <div class="allergens flex-container">
+                        <% for(let i = 0; i < menu.allergens.length; i++){ %>
+                            <span class="allergen">
+                                <i class="material-icons">warning</i>
+                                <%= menu.allergens[i] %>
+                            </span>
+                        <% } %>
                     </div>
+                <% } %>
+                <div id="add-recipe-container">
+                    <input type="hidden" value="<%= JSON.stringify(menu.recipes.map(r => r.id)) %>" name="recipesRelJSON" id="recipe-input">
+                    <% if(auth){ %>
+                        <p class="plus-button"><button onclick="toggleArr(['add-recipe'], ['add-recipe-input', 'save-recipe'])" type="button">
+                            <i class="material-icons" id="add-recipe">add</i>
+                            <i class="material-icons" id="save-recipe" style="display: none" onclick="addRecipe()">done</i>
+                        </button> Add Recipes</p>
+                        <div id="add-recipe-input" style="display: none" class="grey-inputs">
+                            <input type="text" placeholder="Recipe name" list="recipe-datalist" id="add-recipe-input-text" style="width: 300px">
+                        </div>
+                    <% } %>
+                    <% for(let i = 0; i < menu.recipes.length; i++){ %>
+                        <div id="recipe-<%= menu.recipes[i].id %>" class="flex-container step brigade">
+                            <div class="flex-container" style="flex: 1">
+                                <% let found %>
+                                <% for(let k = 0; k < menu.recipes[i].filePaths.length; k++){ %>
+                                    <% let src = menu.recipes[i].filePaths[k] %>
+                                    <% let path = src.split('.') %>
+                                    <% let ext = path[path.length - 1].toLowerCase() %>
+                                    <% if(ext == 'png' || ext == 'jpg' || ext == 'bmp' || ext == 'svg'){ %>
+                                        <% found = src %>
+                                    <% } %>
+                                <% } %>
+                                <% if(found){ %><img class="recipe-img" src="<%= found %>"><% } %>
+                                <div style="flex: 1">
+                                    <b><%= menu.recipes[i].name %></b><br style="height: 20px">
+                                    <p style="margin: 5px 0">
+                                        <%= menu.recipes[i].description %><br>
+                                    </p>
+                                    <% let cost = menu.recipes[i].costs %>
+                                    <b style="font-size: 13px; color: #8C9EFF">
+                                        <% if(auth || menu.sharingPermissions.misc){ %>$<%= cost.misc %> misc, <% } %>
+                                        <% if(auth || menu.sharingPermissions.overhead){ %>$<%= cost.overhead %> overhead, <% } %>
+                                        <% if(auth || menu.sharingPermissions.labor){ %>$<%= cost.labor %> labor, <% } %>
+                                        <% if(auth || menu.sharingPermissions.food){ %>$<%= menu.recipes[i].foodCost %> food, <% } %>
+                                        <% if(auth || menu.sharingPermissions.profit){ %>$<%= menu.recipes[i].profit %> profit, <% } %>
+                                        <% if(auth || menu.sharingPermissions.profitMargin){ %><%= menu.recipes[i].profitMargin %>% margin<% } %>
+                                    </b>
+                                </div>
+                            </div>
+                            <div>
+                                <% let p = menu.recipes[i].price %>
+                                <% if(auth || menu.sharingPermissions.price){ %>
+                                    $<%= p.val %>/<% if(p.qt != 1){ %><%= p.qt %> <% } %><%= p.units %>
+                                <% } %>
+                                <% if(auth){ %>
+                                    <i class="material-icons" onclick="removeRecipe(<%= menu.recipes[i].id %>, '<%= menu.recipes[i].name %>')">close</i>
+                                <% } %>
+                            </div>
+                        </div>
+                    <% } %>
+                </div>
+                <p class="plus-button"><button onclick="toggleArr(['view-shopping'], ['shopping-list', 'close-shopping'])" type="button" style="padding-top: 8px !important">
+                    <i class="material-icons" id="view-shopping">remove_red_eye</i>
+                    <i class="material-icons" id="close-shopping" style="display: none">close</i>
+                </button> Shopping List (1 of each recipe)</p>
+                <div id="shopping-list" style="display: none">
+                    <% for(let i = 0; i < menu.ingredients.length; i++){ %>
+                        <div class="flex-container step brigade">
+                            <span><%= menu.ingredients[i].name %></span>
+                            <div>
+                                <%= menu.ingredients[i].price.qt %> <%= menu.ingredients[i].price.units %>,
+                                $<%= menu.ingredients[i].price.val %>
+                            </div>
+                        </div>
+                    <% } %>
                 </div>
             </div>
-            <div class="post-content">
-                <div class="form-upl-wrapper">
-                    <input type="file" name="logoUpl" accept=".jpg,.png,.svg,.bmp,.mp4" required>
-                    <button class="form-upl" type="button">Add a logo</button>
-                </div><br>
-                <input type="submit" class="cta" value="Publish">
-            </div>
+            <% if(auth){ %>
+                <div class="post-content">
+                    <span id="menu-edit" style="display: none">
+                        <input type="submit" class="cta" value="Save">
+                        <button type="button" onclick="cancelEdit()">Cancel</button>
+                    </span>
+                </div>
+            <% } %>
         </div>
     </div>
 </form>
+<script>
+    function getShare(){
+        let obj = {
+            allergens: document.getElementById('allergens-share').value,
+            profitMargin: document.getElementById('profit-margin-share').value,
+            profit: document.getElementById('profit-share').value,
+            price: document.getElementById('price-share').value,
+            labor: document.getElementById('labor-share').value,
+            overhead: document.getElementById('overhead-share').value,
+            misc: document.getElementById('misc-share').value,
+            food: document.getElementById('food-share').value
+        }
+
+        Object.keys(obj).map(key => {
+            obj[key] = JSON.parse(obj[key]);
+        });
+
+        return obj;
+    }
+
+    function packageJSON(){
+        let share = getShare();
+
+        let shareInput = document.getElementById('sharing-input');
+
+        shareInput.setAttribute('value', JSON.stringify(share));
+    }
+</script>
+<% let user = menu.author %>
+<% include partials/js/menuJs %>
 <% include partials/footer %>

@@ -21,7 +21,7 @@
     let profit = document.getElementById('profit');
     let foodInput = document.getElementById('food-input');
     let price = <% if(locals.recipe){ %><%= recipe.price.val %><% }else{ %>0<% } %>;
-    let cost = <% if(locals.recipe){ %><%- JSON.stringify({...recipe.costs, ...{food: recipe.foodCost}}) %><% }else{ %>{food: 0, labour: 0, overhead: 0, misc: 0}<% } %>;
+    let cost = <% if(locals.recipe){ %><%- JSON.stringify({...recipe.costs, ...{food: recipe.foodCost}}) %><% }else{ %>{food: 0, labor: 0, overhead: 0, misc: 0}<% } %>;
     let ids = <%= JSON.stringify(user.ingredients.map(i => i.id)) %>;
     let names = <%- JSON.stringify(user.ingredients.map(i => i.name)) %>;
     let prices = <%= JSON.stringify(user.ingredients.map(i => i.price.val)) %>;
@@ -29,9 +29,8 @@
     let factors = <%= JSON.stringify(user.ingredients.map(i => [i.price.qt].concat(i.conversions.map(c => c.qt)))) %>;
     let recipeIds = <%= JSON.stringify(user.recipes.map(r => r.id)) %>;
     let recipeNames = <%- JSON.stringify(user.recipes.map(r => r.name + ' (recipe)')) %>;
-    let recipePrices = <%= JSON.stringify(user.recipes.map(r => r.price.val)) %>;
+    let recipePrices = <%- JSON.stringify(user.recipes.map(r => {return {...r.costs, ...{food: r.foodCost}}})) %>;
     let recipeUnits =  <%- JSON.stringify(user.recipes.map(r => [r.price.units])) %>;
-    let recipeFactors = <%= JSON.stringify(user.recipes.map(r => [r.price.qt])) %>;
     let userIds = <%= JSON.stringify(user.brigade.map(u => u.id)) %>;
     let users = <%- JSON.stringify(user.brigade.map(u => u.username)) %>;
 
@@ -48,10 +47,15 @@
         updateProfit();
     }
 
-    function changeCost(val, key){
+    function changeCost(val, key, notInput){
         if(key){
-            let num = parseFloat(document.getElementById(val).value);
-            cost[key] = isNaN(num) ? 0 : num;
+            if(notInput){
+                cost[key] += money(val);
+                document.getElementById(`${key}-input`).setAttribute('value', cost[key]);
+            }else{
+                let num = parseFloat(document.getElementById(val).value);
+                cost[key] = isNaN(num) ? 0 : num;
+            }
         }else{
             cost.food += money(val);
             foodInput.setAttribute('value', cost.food);
@@ -141,11 +145,16 @@
         let ingredientInfo = document.querySelectorAll('#add-ingredient-input input, #add-ingredient-input select');
         let name = ingredientInfo[0].value;
         let select = ingredientInfo[2];
+        let isRecipe = false;
         let i = names.indexOf(names.find(n => clean(n) == clean(name)));
+        if(i == -1){
+            i = recipeNames.indexOf(recipeNames.find(rn => clean(rn) == clean(name)));
+            isRecipe = true;
+        }
 
         if(i != -1){
             select.innerHTML = '';
-            let u = units[i];
+            let u = isRecipe ? recipeUnits[i] : units[i];
 
             for(let j = 0; j < u.length; j++){
                 select.innerHTML += `<option value="${u[j]}">${u[j]}</option>`
@@ -169,7 +178,6 @@
         let quantityArr = JSON.parse(quantityList.value);
         let iNames = isRecipe ? recipeNames : names;
         let iIds = isRecipe ? recipeIds : ids;
-        let iFactors = isRecipe ? recipeFactors : factors;
         let i = iNames.indexOf(iNames.find(n => clean(n) == clean(name)));
         let id = iIds[i];
         let ingPrice = isRecipe ? recipePrices[i] : prices[i];
@@ -178,7 +186,21 @@
         let token = isRecipe ? 'recipe' : 'ingredient';
 
         if(qt != '' && un != '' && matched == 0){
-            let total = qt * ingPrice / iFactors[i][units[i].indexOf(un)];
+            let total;
+
+            if(isRecipe){
+                ingPrice.labor *= qt;
+                ingPrice.food *= qt;
+                ingPrice.misc *= qt;
+                ingPrice.overhead *= qt;
+                total = ingPrice.food;
+
+                changeCost(ingPrice.labor, 'labor', true);
+                changeCost(ingPrice.misc, 'misc', true);
+                changeCost(ingPrice.overhead, 'overhead', true);
+
+                ingPrice = Object.keys(ingPrice).map(k => ingPrice[k]);
+            }else total = qt * ingPrice / factors[i][units[i].indexOf(un)];
 
             changeCost(total);
 
@@ -190,8 +212,8 @@
 
             ingredientContainer.innerHTML += `
                 <p id="${token}-${id}" class="step flex-container brigade">
-                    <span>${qt} ${un} ${names[i]}</span>
-                    <i class="material-icons" onclick="removeIngredient(${id}, ${total}, '${name}', ${isRecipe})">close</i>
+                    <span>${qt} ${un} ${iNames[i]}</span>
+                    <i class="material-icons" onclick="removeIngredient(${id}, ${isRecipe ? "'" + JSON.stringify(ingPrice) + "'" : total}, '${name}', ${isRecipe})">close</i>
                 </p>
             `;
 
@@ -204,14 +226,23 @@
     }
 
     function removeIngredient(id, foodPrice, name, isRecipe){
-        let ingredientList = document.getElementById(isRecipe ? 'recipe-input' : 'ingredient-input');
+        let ingredientList = document.getElementById(isRecipe ? 'subrecipe-input' : 'ingredient-input');
         let quantityList = document.getElementById(isRecipe ? 'recipe-quantity-input' : 'quantity-input');
         let token = isRecipe ? 'recipe' : 'ingredient';
         let ingredientArr = JSON.parse(ingredientList.value);
         let quantityArr = JSON.parse(quantityList.value);
         let i = ingredientArr.indexOf(id);
 
-        changeCost(0 - foodPrice);
+        if(typeof foodPrice == 'number'){
+            changeCost(0 - foodPrice);
+        }else{
+            foodPrice = JSON.parse(foodPrice);
+            console.log(foodPrice);
+            changeCost(0 - foodPrice[0], 'labor', true);
+            changeCost(0 - foodPrice[1], 'overhead', true);
+            changeCost(0 - foodPrice[2], 'misc', true);
+            changeCost(0 - foodPrice[3]);
+        }
 
         ingredientArr.splice(i, 1);
         quantityArr.splice(i, 1);

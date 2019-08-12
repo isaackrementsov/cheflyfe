@@ -1,7 +1,7 @@
 <% include partials/header %>
 <% include partials/lists/units %> <!-- TODO: add ingredient brands -->
 <% let user = recipe.author %>
-<% let auth = recipe.author.id == session.userID %>
+<% let auth = user.id == session.userID %>
 <div class="profile-nav ingredients-header">
     <h1>View Recipe</h1>
 </div>
@@ -22,9 +22,9 @@ onclick="toggleEdit('edit-recipe', '', '')" onsubmit="packageJSON()" id="recipe-
                     <i class="material-icons" id="viewer-close" style="display: none">minimize</i>
                 </button>
                 <% for(let i  = 0; i < recipe.sharedUsers.length; i++){ %>
-                    <span class="allergen" id="user-${id}" style="background-color: #536DFE">
+                    <span class="allergen" id="user-<%= recipe.sharedUsers[i].id %>" style="background-color: #536DFE">
                         <%= recipe.sharedUsers[i].username %>
-                        <i class="material-icons" onclick="removeViewer('${id}', '${username}')" style="display: inline">close</i>
+                        <i class="material-icons" onclick="removeViewer(<%= recipe.sharedUsers[i].id %>, '<%= recipe.sharedUsers[i].username %>')" style="display: inline">close</i>
                     </span>
                 <% } %>
             </div>
@@ -50,8 +50,8 @@ onclick="toggleEdit('edit-recipe', '', '')" onsubmit="packageJSON()" id="recipe-
         <% } %>
         <% if(auth || recipe.sharingPermissions.labor){ %>
             <div class="checkbox flex-container">
-                <div>Labour - $<input type="number" step="0.01" value="<%= recipe.costs.labor %>" id="labour-input"
-                oninput="changeCost('labour-input', 'labour')" <% if(!auth){ %>disabled<% } %>></div>
+                <div>Labour - $<input type="number" step="0.01" value="<%= recipe.costs.labor %>" id="labor-input"
+                oninput="changeCost('labor-input', 'labor')" <% if(!auth){ %>disabled<% } %>></div>
                 <% if(auth){ %>
                     <label class="switch"><input type="checkbox"
                     id="labor-share" <% if(recipe.sharingPermissions.labor){ %> checked <% } %>>
@@ -231,6 +231,21 @@ onclick="toggleEdit('edit-recipe', '', '')" onsubmit="packageJSON()" id="recipe-
                             <% if(auth){ %>
                                 <i class="material-icons"
                                 onclick="removeIngredient(<%= recipe.ingredients[i].id %>, <%= total %>, '<%= recipe.ingredients[i].name %>', false)">
+                                    close
+                                </i>
+                            <% } %>
+                        </p>
+                    <% } %>
+                    <% for(let i = 0; i < recipe.subRecipes.length; i++){ %>
+                        <% let qt = recipe.recipeQuantities[i].qt %>
+                        <% let sub = recipe.subRecipes[i] %>
+                        <% for(let key in sub){ sub.costs[key] *= qt } %>
+                        <% let total = {...sub.costs, ...{food: qt * sub.foodCost}} %>
+                        <p id="ingredient-<%= sub.id %>" class="step flex-container brigade">
+                            <span><%= recipe.recipeQuantities[i].qt %> <%= recipe.recipeQuantities[i].units %> <%= sub.name %></span>
+                            <% if(auth){ %>
+                                <i class="material-icons"
+                                onclick="removeIngredient(<%= sub.id %>, '<%= JSON.stringify(total) %>', '<%= sub.name %>', false)">
                                     close
                                 </i>
                             <% } %>

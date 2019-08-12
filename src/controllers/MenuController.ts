@@ -3,6 +3,7 @@ import {Repository, getRepository} from 'typeorm';
 import Menu from '../entity/Menu';
 import User from '../entity/User';
 import Middleware from '../util/Middleware';
+import * as fs from 'fs';
 
 /*TODO:
     * add basic views
@@ -24,15 +25,23 @@ export default class MenuController {
             .andWhere('menu.id = :id', {id: parseInt(req.params.id)})
             .getOne();
 
-        await menu.getAllIngredients();
+        if(menu){
+            await menu.getAllIngredients();
+            await menu.getAllAllergens();
+
+            for(let i = 0; i < menu.recipes.length; i++){
+                await menu.recipes[i].populateInfo();
+            }
+        };
 
         res.render(menu ? 'menu' : 'notFound', {menu: menu, session: req.session});
     }
 
     getAll = async (req: Request, res: Response) => {
-        let menus : Menu[] = await this.menuRepo.find({
-            where: {'authorId': req.session.userID}
-        });
+        let menus : Menu[] = await this.menuRepo.createQueryBuilder('menu')
+            .leftJoinAndSelect('menu.sharedUsers', 'sharedUsers')
+            .where('authorId = :userID OR sharedUsers.id = :userID', {userID: req.session.userID})
+            .getMany()
 
         res.render('menus', {menus: menus, session: req.session});
     }
@@ -49,7 +58,7 @@ export default class MenuController {
         let menu : Menu = new Menu({
             logo: req.files['logoUpl'].path,
             name: req.body.name,
-            recipes: req.body.recipeRelJSON,
+            recipes: req.body.recipesRelJSON,
             sharedUsers: req.body.sharedUsersRelJSON,
             sharingPermissions: {
                 food: req.body.foodShareJSON || false,
@@ -72,13 +81,25 @@ export default class MenuController {
     patchUpdate = async (req: Request, res: Response) => {
         let update = Middleware.decodeBody(req.body, req.files);
 
-        await this.menuRepo.createQueryBuilder()
-            .update().set(update)
+        let toUpdate : Menu = await this.menuRepo.createQueryBuilder()
+            .select()
             .where('authorId = :userID AND id = :id', {
                 userID: req.session.userID,
                 id: parseInt(req.params.id)
             })
-            .execute();
+            .getOne();
+
+        if(toUpdate){
+            if(update['logo'] != toUpdate.logo){
+                try{
+                    fs.unlinkSync(toUpdate.logo);
+                }catch(e){ }
+            }
+
+            Object.assign(toUpdate, update);
+
+            await this.menuRepo.save(toUpdate);
+        }
 
         res.redirect('/menus/' + req.params.id);
     }

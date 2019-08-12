@@ -718,7 +718,7 @@ a.cta:hover {
     font-size: 20px;
     margin-bottom: 40px;
 }
-.add-recipe .post-card input[type=submit], #edit-recipe button {
+.add-recipe .post-card input[type=submit], #edit-recipe button, #menu-edit button {
     margin: 40px 0;
     font-size: 20px;
     padding: 10px 15px !important;
@@ -729,4 +729,9 @@ a.cta:hover {
 }
 .add-recipe .post-card input[type=submit]:hover {
     box-shadow: 0 0px 8px 0 rgba(0,0,0,0.2);
+}
+.recipe-img {
+    border-radius: 0 !important;
+    width: 75px !important;
+    height: auto !important;
 }

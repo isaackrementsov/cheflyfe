@@ -17,6 +17,15 @@ Element.prototype.remove = function() {
 
 $('time.timeago').timeago();
 
+$('.size-after').each((i, val) => {
+    let after = $(val);
+    let ratio = after.height()/after.width();
+    let height = after.next().height();
+
+    after.height(height);
+    after.width(height/ratio);
+});
+
 $(window).keydown(function(event){
     if(event.keyCode == 13) {
         event.preventDefault();

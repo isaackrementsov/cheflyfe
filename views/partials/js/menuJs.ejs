@@ -14,6 +14,23 @@
     let userIds = <%= JSON.stringify(user.brigade.map(u => u.id)) %>;
     let users = <%- JSON.stringify(user.brigade.map(u => u.username)) %>;
 
+    preventDuplicates();
+
+    function preventDuplicates(){
+        let arrs = {
+            user: JSON.parse(document.getElementById('viewer-input').value),
+            recipe:  JSON.parse(document.getElementById('recipe-input').value),
+        }
+
+        for(key in arrs){
+            let arr = arrs[key];
+
+            for(id of arr){
+                document.getElementById(`${key}-datalist-${id}`).remove();
+            }
+        }
+    }
+
     function addViewer(){
         let viewerList = document.getElementById('viewer-input');
         let viewerContainer = document.getElementById('add-viewer-container');

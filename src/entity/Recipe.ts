@@ -69,12 +69,17 @@ export default class Recipe {
     allergens : string[];
 
     async getRelations(){
-        let ingredientRepo = getRepository(Ingredient);
+        let recipeRepo = getRepository(Recipe);
 
-        this.ingredients = await ingredientRepo.createQueryBuilder('ingredient')
-            .leftJoinAndSelect('ingredient.nutritionalInfo', 'nutritionalInfo')
-            .where('recipeId = :id', {id: this.id})
-            .getMany();
+        let self : Recipe = await recipeRepo.createQueryBuilder('recipe')
+            .leftJoinAndSelect('recipe.ingredients', 'ingredients')
+            .leftJoinAndSelect('recipe.subRecipes', 'subRecipes')
+            .leftJoinAndSelect('ingredients.nutritionalInfo', 'ingredients_nutritionalInfo')
+            .where('recipe.id = :id', {id: this.id})
+            .getOne();
+
+        this.ingredients = self.ingredients || [];
+        this.subRecipes = self.subRecipes || [];
     }
 
     async getFoodCost(){
@@ -85,11 +90,11 @@ export default class Recipe {
             sum += ingredient.price.val * ingredient.unitConvert(this.quantities[i]);
         }
 
-        for(let i = 0; i < this.subRecipes.length; i++){
-            let subRecipe = this.subRecipes[i];
+        for(let subRecipe of this.subRecipes){
             await subRecipe.getRelations();
             await subRecipe.getFoodCost();
-            sum += this.foodCost;
+
+            sum += subRecipe.foodCost;
         }
 
         this.foodCost = money(sum);
@@ -144,7 +149,7 @@ export default class Recipe {
             if(subRecipe.nutritionalInfo){
                 Object.keys(subRecipe.nutritionalInfo).map(key => {
                     if(typeof n[key] == 'number'){
-                        n[key] += subRecipe.nutritionalInfo[key] * this.quantities[i].qt / subRecipe.price.qt;
+                        n[key] += subRecipe.nutritionalInfo[key] * this.recipeQuantities[i].qt / subRecipe.price.qt;
                     }else{
                         Object.keys(n[key]).map(key2 => {
                             n[key][key2] += subRecipe.nutritionalInfo[key][key2] * this.recipeQuantities[i].qt / subRecipe.price.qt;
@@ -184,15 +189,46 @@ export default class Recipe {
 
     async getAllIngredients(){
         if(!this.ingredients) this.ingredients = [];
+        if(!this.subRecipes) this.subRecipes = [];
 
-        for(let recipe of this.subRecipes){
-            recipe.getRelations();
-            recipe.getAllIngredients();
-            this.ingredients.concat(recipe.ingredients);
+        for(let k = 0; k < this.ingredients.length; k++){
+            let ingredient = this.ingredients[k];
+            let price = money(ingredient.price.val * ingredient.unitConvert(this.quantities[k]));
+            let qt = money(ingredient.price.qt * ingredient.unitConvert(this.quantities[k]));
+
+            this.ingredients[k].price.val = price;
+            this.ingredients[k].price.qt = qt;
+        }
+
+        for(let i = 0; i < this.subRecipes.length; i++){
+            let subRecipe = this.subRecipes[i];
+            let rqt = this.recipeQuantities[i].qt;
+
+            await subRecipe.getRelations();
+            await subRecipe.getAllIngredients();
+
+            for(let k = 0; k < subRecipe.ingredients.length; k++){
+                let ingredient = subRecipe.ingredients[k];
+                let idx = this.ingredients.indexOf(ingredient);
+                let price = money(rqt * ingredient.price.val);
+                let qt = money(rqt * ingredient.price.qt);
+
+                if(idx == -1){
+                    ingredient.price.val = price;
+                    ingredient.price.qt = qt;
+                    this.ingredients.push(ingredient);
+                }else{
+                    this.ingredients[idx].price.val += price;
+                    this.ingredients[idx].price.qt += qt;
+                }
+            }
         }
     }
 
     async populateInfo(){
+        if(!this.ingredients) this.ingredients = [];
+        if(!this.subRecipes) this.subRecipes = [];
+
         await this.getFoodCost();
         this.getSumCosts();
         this.getProfit();

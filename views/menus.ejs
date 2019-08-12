@@ -7,30 +7,20 @@
         <button class="add-post" id="add-post-button" onclick="toggle('add-post-button', 'new-post')">
             <a href="/menus/create" style="width: 100%"><i class="material-icons">add</i> Add Menu</a>
         </button>
-        <div class="post-card">
-            <div class="post-header">
-                <span>Dinner Menu</span>
-                <time class="timeago">5 days ago</time>
-            </div>
-            <div class="post-content flex-container heading-icons">
-                <span><i class="material-icons">people</i>Viewer</span>
-            </div>
-            <div class="post-content">
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit,
-                sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-                Turpis cursus in hac habitasse platea dictumst. Condimentum vitae
-                sapien pellentesque habitant morbi. Sollicitudin ac orci phasellus
-                egestas.
-            </div>
-            <div class="post-content media">
-                <div class="media-container">
-                    <img src="img/static/login.jpg">
+        <% for(let i = 0; i < menus.length; i++){ %>
+            <div class="post-card">
+                <div class="post-header">
+                    <span><%= menus[i].name %></span>
+                    <time class="timeago" datetime="<%= new Date(menus[i].timestamp).toISOString() %>"></time>
+                </div>
+                <div class="post-content flex-container heading-icons">
+                    <span><i class="material-icons">people</i>
+                    <% if(menus[i].sharedUsers.filter(s => s.id == session.userID).length == 0){ %>Author<% }else{ %>Viewer<% } %></span>
+                </div>
+                <div class="post-content">
+                    <a class="cta" href="/menus/<%= menus[i].id %>">View</a>
                 </div>
             </div>
-            <div class="post-content">
-                <a class="cta" href="/menus/">View</a>
-            </div>
-        </div>
-    </div>
+        <% } %>
 </div>
 <% include partials/footer %>
