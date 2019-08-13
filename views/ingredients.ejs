@@ -98,6 +98,7 @@
         return 0;
     }) %>
     <% for(let i = 0; i < ingredients.length; i++){ %>
+        <form style="display: none" id="delete-form-<%= ingredients[i].id %>" method="POST" action="/ingredients/delete/<%= ingredients[i].id %>?_method=DELETE"></form>
         <form class="post-card ingredient" onclick="toggleEdit('ingredient-update-<%= ingredients[i].id %>', '', '')" method="POST" action="/ingredients/update/<%= ingredients[i].id %>?_method=PATCH"
             onsubmit="prepareJSON(<%= ingredients[i].id %>)">
             <div class="post-header">
@@ -111,9 +112,17 @@
                 <input type="text" name="brand" id="brand-update-<%= ingredients[i].id %>" value="<%= ingredients[i].brand %>" style="display: none">
             </div>
             <p class="post-content" id="ingredient-more-<%= ingredients[i].id %>">
+                <% let canDelete = ingredients[i].recipes.length == 0 %>
+                <% if(canDelete){ %>
+                    <i class="material-icons" style="font-size: 30px !important; color: grey; vertical-align: 3px"
+                    onclick="submitForm('delete-form-<%= ingredients[i].id %>')">
+                        delete
+                    </i>
+                <% } %>
                 <i class="material-icons" style="font-size: 40px !important; color: grey"
                 onclick="toggle('ingredient-more-<%= ingredients[i].id %>', 'ingredient-content-<%= ingredients[i].id %>')">
-                    more_horiz</i>
+                    more_horiz
+                </i>
             </p>
             <div class="post-content" id="ingredient-content-<%= ingredients[i].id %>" style="display: none">
                 <% let color = ingredients[i].nutritionalInfo ? '#00E676' : 'coral' %>

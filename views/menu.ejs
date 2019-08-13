@@ -3,6 +3,7 @@
 <div class="profile-nav ingredients-header">
     <h1>View Menu</h1>
 </div>
+<form style="display: none" id="delete-form" method="POST" action="/menus/delete/<%= menu.id %>?_method=DELETE"></form>
 <form class="profile-main add-recipe" method="POST" action="/menus/update/<%= menu.id %>?_method=PATCH" enctype="multipart/form-data"
 onclick="toggleEdit('menu-edit')" onsubmit="packageJSON()" id="menu-update-form">
     <div class="profile-card">
@@ -189,6 +190,9 @@ onclick="toggleEdit('menu-edit')" onsubmit="packageJSON()" id="menu-update-form"
                 </div>
             </div>
             <% if(auth){ %>
+                <div class="post-content PDFIgnore">
+                    <button type="button" onclick="submitForm('delete-form')"><i class="material-icons" style="vertical-align: -1px">delete</i> Delete menu</button>
+                </div>
                 <div class="post-content" class="PDFIgnore">
                     <span id="menu-edit" style="display: none">
                         <input type="submit" class="cta" value="Save">

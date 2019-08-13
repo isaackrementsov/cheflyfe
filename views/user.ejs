@@ -16,8 +16,7 @@
             </div>
         <% } %>
         <div class="profile-header"
-         style="background: <% if(user.background != ''){ %> url(<%= user.background %>) <% }else{ %> linear-gradient(45deg, #8C9EFF, #304FFE) <% } %>;background-size: cover !important;
-"></div>
+         style="background: <% if(user.background != ''){ %> url(<%= user.background %>) <% }else{ %> linear-gradient(45deg, #8C9EFF, #304FFE) <% } %>;background-size: cover !important;"></div>
     </form>
     <div class="profile-nav" id="profile-nav-uq">
         <button class="profile-nav-button active" id="posts" onclick="toggleActivate('profile-feed-feed', 'profile-feed-brigade')">
@@ -123,6 +122,7 @@
                             <% } %>
                         </div>
                     <% }else{ %>
+                        <form style="display: none" id="delete-form-<%= posts[i].id %>" method="POST" action="/posts/delete/<%= posts[i].id %>?_method=DELETE"></form>
                         <form method="POST"
                         action="/posts/update/<%= posts[i].id %>?_method=PATCH&userID=<%= user.id %>" class="post-card" enctype="multipart/form-data" id="post-form-<%= posts[i].id %>">
                             <div class="post-header">
@@ -206,6 +206,9 @@
                                 </div>
                             </div>
                             <% if(auth){ %>
+                                <div class="post-content">
+                                    <button type="button" onclick="submitForm('delete-form-<%= posts[i].id %>')"><i class="material-icons" style="vertical-align: -1px">delete</i> Delete post</button>
+                                </div>
                                 <div class="post-content" id="post-update<%= posts[i].id %>" style="display: none">
                                     <input type="submit" value="Save">
                                     <button type="button" onclick="cancelEdit()">Cancel</button>

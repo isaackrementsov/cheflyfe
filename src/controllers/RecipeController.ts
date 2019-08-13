@@ -103,8 +103,8 @@ export default class RecipeController {
 
                 if(req.body.deletedMeta != '' && req.body.deletedMeta){
                     try{
-                        fs.unlinkSync(req.body.deletedMeta);
-                    }catch(e){}
+                        fs.unlinkSync(__dirname + '../../../public' + req.body.deletedMeta);
+                    }catch(e){ }
                 }
             }
 
@@ -115,13 +115,23 @@ export default class RecipeController {
     }
 
     delete = async (req: Request, res: Response) => {
-        await this.recipeRepo.createQueryBuilder()
-            .delete()
-            .where('authorId = :userID AND id = :id', {
-                userID: req.session.userID,
-                id: parseInt(req.params.id)
-            })
-            .execute();
+        let toDelete : Recipe = await this.recipeRepo.createQueryBuilder('recipe')
+            .leftJoinAndSelect('recipe.menus', 'menus')
+            .where('recipe.authorId = :userID AND recipe.id = :id', {userID: req.session.userID, id: parseInt(req.params.id)})
+            .getOne();
+
+        if(toDelete.menus.length == 0){
+            toDelete.filePaths.map(p => {
+                try{
+                    fs.unlinkSync(__dirname + '../../../public' + p);
+                }catch(e){ }
+            });
+
+            await this.recipeRepo.createQueryBuilder()
+                .delete()
+                .where('id = :id', {id: toDelete.id})
+                .execute();
+        }
 
         res.redirect('/recipes');
     }

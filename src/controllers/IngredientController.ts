@@ -16,10 +16,12 @@ export default class IngredientController {
     private userRepo : Repository<User>;
 
     getAll = async (req: Request, res: Response) => {
-        let ingredients : Ingredient[] = await this.ingredientRepo.find({
-            where: {'authorId': req.session.userID},
-            relations: ['author', 'recipes', 'nutritionalInfo'],
-        });
+        let ingredients : Ingredient[] = await this.ingredientRepo.createQueryBuilder('ingredient')
+            .leftJoinAndSelect('ingredient.recipes', 'recipes')
+            .leftJoinAndSelect('ingredient.author', 'author')
+            .leftJoinAndSelect('ingredient.nutritionalInfo', 'nutritionalInfo')
+            .where('author.id = :userID', {userID: req.session.userID})
+            .getMany()
 
         res.render('ingredients', {ingredients: ingredients, session: req.session});
     }
@@ -73,7 +75,7 @@ export default class IngredientController {
     postCreateCSV = async (req: Request, res: Response) => {
         if(req.files){
             if(req.files['csvUpl']){
-                let p = path.join(__dirname, `../../public/${req.files['csvUpl'].path}`);
+                let p = path.join(__dirname, `../../../public/${req.files['csvUpl'].path}`);
 
                 fs.createReadStream(p)
                     .pipe(csvParser())

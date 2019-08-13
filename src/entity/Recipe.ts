@@ -45,13 +45,12 @@ export default class Recipe {
         food: false
     };
 
-    @ManyToMany(type => Menu)
-    @JoinTable()
+    @ManyToMany(type => Menu, menu => menu.recipes)
     menus : Menu[];
     @ManyToMany(type => User)
     @JoinTable()
     sharedUsers : User[];
-    @ManyToMany(type => Ingredient)
+    @ManyToMany(type => Ingredient, ingredient => ingredient.recipes)
     @JoinTable()
     ingredients : Ingredient[];
     @ManyToMany(type => Recipe)
@@ -197,7 +196,7 @@ export default class Recipe {
 
             await subRecipe.getRelations();
             await subRecipe.getAllIngredients();
-            
+
             for(let k = 0; k < subRecipe.ingredients.length; k++){
                 let ingredient = subRecipe.ingredients[k].name;
 

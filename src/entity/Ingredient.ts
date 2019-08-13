@@ -25,8 +25,7 @@ export default class Ingredient {
     @Column('simple-array')
     allergens : string[];
 
-    @ManyToMany(type => Recipe)
-    @JoinTable()
+    @ManyToMany(type => Recipe, recipe => recipe.ingredients)
     recipes : Recipe[];
 
     @OneToOne(type => NutritionalInfo, n => n.ingredient, {cascade: true, nullable: true})

@@ -23,7 +23,7 @@ export default class Menu {
     @ManyToMany(type => User)
     @JoinTable()
     sharedUsers : User[];
-    @ManyToMany(type => Recipe)
+    @ManyToMany(type => Recipe, recipe => recipe.menus)
     @JoinTable()
     recipes : Recipe[];
 

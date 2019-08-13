@@ -83,13 +83,22 @@ export default class PostController {
     }
 
     delete = async (req: Request, res: Response) => {
-        await this.postRepo.createQueryBuilder()
-            .delete()
-            .where('authorId = :userID AND id = :id', {
-                userID: req.session.userID,
-                id: parseInt(req.params.id)
-            })
-            .execute();
+        let toDelete : Post = await this.postRepo.createQueryBuilder('post')
+            .leftJoinAndSelect('post.comments', 'comments')
+            .where('post.authorId = :userID AND post.id = :id', {userID: req.session.userID, id: parseInt(req.params.id)})
+            .getOne()
+
+        toDelete.filePaths.map(p => {
+            try{
+                fs.unlinkSync(__dirname + '/../../public' + p);
+            }catch(e){ }
+        });
+
+        toDelete.comments.map(async c => {
+            await this.commentRepo.delete(c);
+        });
+
+        await this.postRepo.delete(toDelete);
 
         res.redirect('/users/' + req.session.userID);
     }
