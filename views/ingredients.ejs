@@ -4,6 +4,10 @@
 <div class="profile-nav ingredients-header">
     <h1>Ingredients</h1>
 </div>
+<div class="flex-container" style="margin: 0 10px; margin-top: 20px">
+    CSV uploads must follow a specific format.
+    <a  href="/img/static/Ingredient CSV Format.csv" style="color: #8C9EFF; font-weight: bold; margin-left: 5px" download> Download example CSV</a>
+</div>
 <div class="flex-container" style="margin: 20px 0">
     <div class="ingredient add-ingredient post-card add-post" onclick="toggle('search-db', 'search-db-form')" id="search-db">
         <i class="material-icons">table_chart</i><p>Search USDA</p>
@@ -25,9 +29,14 @@
         </div>
         <p></p>
     </div>
-    <div class="ingredient add-ingredient post-card add-post" onclick="toggle('add-ingredient', 'add-ingredient-form')" id="add-ingredient">
-        <i class="material-icons">cloud_upload</i><p>Upload CSV</p>
-    </div>
+    <form class="ingredient add-ingredient post-card add-post" id="csv-form" method="POST" action="/ingredients/createCSV" enctype="multipart/form-data">
+        <div class="form-upl-wrapper">
+            <input type="file" name="csvUpl" accept=".csv" oninput="submitForm('csv-form')">
+            <button class="form-upl" type="button" style="padding: 0 !important; background-color: transparent">
+                <i class="material-icons">cloud_upload</i><p>Upload CSV</p>
+            </button>
+        </div>
+    </form>
     <div class="ingredient add-ingredient post-card add-post" onclick="toggle('add-ingredient', 'add-ingredient-form')" id="add-ingredient">
         <i class="material-icons">add</i><p>Add Ingredient</p>
     </div>

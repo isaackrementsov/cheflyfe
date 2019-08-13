@@ -67,6 +67,7 @@ export default class Recipe {
     profitMargin : number;
     nutritionalInfo : NutritionalInfo;
     allergens : string[];
+    subRecipeIngredients : string[];
 
     async getRelations(){
         let recipeRepo = getRepository(Recipe);
@@ -187,6 +188,26 @@ export default class Recipe {
         }
     }
 
+    async getAllIngredientsSTD(){
+        if(!this.subRecipes) this.subRecipes = [];
+        this.subRecipeIngredients = [];
+
+        for(let i = 0; i < this.subRecipes.length; i++){
+            let subRecipe = this.subRecipes[i];
+
+            await subRecipe.getRelations();
+            await subRecipe.getAllIngredients();
+            
+            for(let k = 0; k < subRecipe.ingredients.length; k++){
+                let ingredient = subRecipe.ingredients[k].name;
+
+                if(this.subRecipeIngredients.indexOf(ingredient) == -1){
+                    this.subRecipeIngredients.push(ingredient);
+                }
+            }
+        }
+    }
+
     async getAllIngredients(){
         if(!this.ingredients) this.ingredients = [];
         if(!this.subRecipes) this.subRecipes = [];
@@ -235,6 +256,7 @@ export default class Recipe {
         this.getProfitMargin();
         await this.getNutritionalInfo();
         await this.getAllergens();
+        await this.getAllIngredientsSTD();
     }
 
     constructor(recipe : Partial<Recipe>){

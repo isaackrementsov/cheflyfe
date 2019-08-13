@@ -30,6 +30,7 @@ let routes = app => {
     app.post('/signup', userController.postSignup);
     app.post('/logout', userController.postLogout);
     app.post('/ingredients/create', ingredientController.postCreate);
+    app.post('/ingredients/createCSV', ingredientController.postCreateCSV);
     app.post('/menus/create', menuController.postCreate);
     app.post('/posts/create', postController.postCreate);
     app.post('/recipes/create', recipeController.postCreate);

@@ -281,14 +281,6 @@ onclick="toggleEdit('edit-recipe', '', '')" onsubmit="packageJSON()" id="recipe-
                         </p>
                     <% } %>
                 </div>
-                <p class="PDFIgnore">
-                    <button type="button" class="form-upl" onclick="openDiv('nutrition-label')">Show nutritional label</button>
-                </p>
-                <div class="post-content" id="nutrition-label" style="display: none">
-                    <% if(!recipe.nutritionalInfo){ %>
-                        <span style="color: coral">Not all of the ingredients have nutritional info</span>
-                    <% } %>
-                </div>
                 <h3>Steps</h3>
                 <div id="add-step-container">
                     <input type="hidden" value="<%= JSON.stringify(recipe.steps) %>" name="stepsJSON" id="step-input">
@@ -318,9 +310,17 @@ onclick="toggleEdit('edit-recipe', '', '')" onsubmit="packageJSON()" id="recipe-
                         </span>
                     <% } %>
                 </div>
+                <p class="PDFIgnore">
+                    <button type="button" class="form-upl" onclick="openDiv('nutrition-label')">Show nutritional label</button>
+                </p>
+                <div class="post-content PDFShow no-break" id="nutrition-label" style="display: none; padding: 0">
+                    <% if(!recipe.nutritionalInfo){ %>
+                        <span style="color: coral">Not all of the ingredients have nutritional info</span>
+                    <% } %>
+                </div>
             </div>
             <% if(auth){ %>
-                <div class="post-content" class="PDFIgnore">
+                <div class="post-content PDFIgnore">
                     <span id="edit-recipe" style="display: none">
                         <input type="submit" class="cta" value="Save">
                         <button type="button" onclick="cancelEdit()">Cancel</button>

@@ -237,7 +237,6 @@
             changeCost(0 - foodPrice);
         }else{
             foodPrice = JSON.parse(foodPrice);
-            console.log(foodPrice);
             changeCost(0 - foodPrice[0], 'labor', true);
             changeCost(0 - foodPrice[1], 'overhead', true);
             changeCost(0 - foodPrice[2], 'misc', true);

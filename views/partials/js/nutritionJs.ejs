@@ -6,10 +6,14 @@
         $('#nutrition-label').nutritionLabel({
             showServingUnitQuantity: true,
             itemName: '<%= recipe.name %>',
-            ingredientList : <%- JSON.stringify(recipe.ingredients.map(i => i.name).concat(recipe.subRecipes.map(s => s.name))) %>,
+            ingredientList : <%- JSON.stringify(recipe.ingredients.map(i => i.name).concat(recipe.subRecipeIngredients)) %>,
+            showDisclaimer: true,
+            valueDisclaimer: 'Contains <%- recipe.allergens %>',
+
+            valueServingUnitQuantity : <%= recipe.price.qt %>,
+        	valueServingSizeUnit : '<%= recipe.price.units %>',
 
         	decimalPlacesForQuantityTextbox : 2,
-        	valueServingUnitQuantity : 1,
 
         	allowFDARounding : true,
         	decimalPlacesForNutrition : 2,
@@ -27,7 +31,7 @@
         	valueTotalCarb : <%= recipe.nutritionalInfo.carbohydrates.total %>,
         	valueFibers : <%= recipe.nutritionalInfo.carbohydrates.fiber %>,
         	valueSugars : <%= recipe.nutritionalInfo.carbohydrates.sugar %>,
-        	valueProteins : <%= recipe.nutritionalInfo.protein %>,
+        	valueProteins : <%= recipe.nutritionalInfo.protein %>
         });
     </script>
 

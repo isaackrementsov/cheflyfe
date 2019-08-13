@@ -736,3 +736,12 @@ a.cta:hover {
     width: 75px !important;
     height: auto !important;
 }
+@media print
+{
+    .no-break {
+        page-break-inside: avoid;
+    }
+}
+.nutritionLabel {
+    width: 300px !important;
+}
