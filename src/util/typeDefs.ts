@@ -3,6 +3,8 @@ import Recipe from '../entity/Recipe';
 import Ingredient from '../entity/Ingredient';
 import User from '../entity/User';
 
+export type DBCategory = 'recipe' | 'user' | 'post' | 'ingredient' | 'menu' | 'session';
+
 export type PricePerUnit = {val : number, qt : number, units : string};
 export type Costs = {labor: number, overhead: number, misc: number};
 export type UnitQt = {qt: number, units: string};

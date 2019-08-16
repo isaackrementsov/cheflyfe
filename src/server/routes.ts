@@ -32,6 +32,7 @@ let routes = app => {
     app.get('/recipes/public', recipeController.getPublic);
     app.get('/recipes/:id', recipeController.getIndex);
     app.get('/admin', adminController.getIndex);
+    app.get('/admin/exportEmails', adminController.getExportEmails);
 
     app.post('/login', userController.postLogin);
     app.post('/signup', userController.postSignup);

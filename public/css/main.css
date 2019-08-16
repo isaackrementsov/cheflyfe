@@ -790,8 +790,33 @@ a.cta:hover {
 #slideshow button:hover {
     color: #8C9EFF;
 }
-#slideshow .media-container, .media-container img, .media-container video {
+#slideshow .media-container, #slideshow .media-container img, #slideshow .media-container video {
     width: 500px;
     height: auto;
     max-width: 90%;
+}
+.chart-list button:first-child {
+    border-top: 1.5px solid whitesmoke !important;
+}
+.chart-list button {
+    width: 100%;
+    text-align: left;
+    border-style: hidden !important;
+    border-bottom: 1.5px solid whitesmoke !important;
+    border-radius: 0 !important;
+    color: grey !important;
+    font-size: 17px;
+}
+.chart-list button:hover, .chart-list button.active {
+    background-color: whitesmoke !important;
+    color: #8C9EFF !important;
+}
+table {
+    position: relative;
+    border-collapse: collapse;
+    margin: 10px 0;
+}
+table, th, td {
+    border: 1.5px solid rgb(200,200,200);
+    padding: 10px;
 }

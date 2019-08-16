@@ -1,4 +1,4 @@
-import {Entity, Column, PrimaryGeneratedColumn, ManyToMany, OneToOne, ManyToOne, JoinTable, JoinColumn} from 'typeorm';
+import {Entity, Column, PrimaryGeneratedColumn, ManyToMany, OneToOne, ManyToOne, JoinColumn, AfterInsert} from 'typeorm';
 import {UnitQt, PricePerUnit} from '../util/typeDefs';
 import Recipe from './Recipe';
 import NutritionalInfo from './NutritionalInfo';

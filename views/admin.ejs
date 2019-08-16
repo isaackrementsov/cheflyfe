@@ -8,17 +8,22 @@
             <i class="material-icons">security</i>
             Admin Actions
         </h1>
+        <h2>Select data</h2>
+        <p class="chart-list" id="data-buttons">
+            <button class="active" onclick="openData(0)">Visits</button>
+            <button onclick="openData(1)">Database Activity</button>
+            <button onclick="openData(2)">Users</button>
+        </p>
         <p><a style="display: inline; color: #8C9EFF; font-weight: bold" href="/users/<%= session.userID %>">Posts</a>
              you make will show up on the Cheflyfe news page
          </p>
-         
     </div>
-    <div class="profile-feed" id="PDFContent">
+    <div class="profile-feed">
         <div class="post-card" style="box-shadow: none">
             <div class="post-header">
-                <span>View Trends</span>
+                <span>View Data</span>
             </div>
-            <div class="post-content grey-inputs" style="padding-bottom: 0">
+            <div class="post-content grey-inputs" style="padding-bottom: 0" id="select-days-container">
                 View data from the <select id="select-days" oninput="buildChartByTime()" style="width: 200px">
                     <option value="7">Past week</option>
                     <option value="30">Past month</option>
@@ -27,21 +32,63 @@
                     <option value="-1">All time</option>
                 </select>
             </div>
-            <div class="post-content flex-container">
-                <div class="canvas-container">
-                    <canvas id="visits-chart"></canvas>
+            <div id="data">
+                <div class="post-content flex-container">
+                    <div class="canvas-container">
+                        <canvas id="visits-chart"></canvas>
+                    </div>
                 </div>
-                <div class="canvas-container">
-                    <canvas id="users-chart"></canvas>
+                <div class="post-content flex-container" style="display: none">
+                    <div class="canvas-container">
+                        <canvas id="users-chart"></canvas>
+                    </div>
+                    <div class="canvas-container">
+                        <canvas id="ingredients-chart"></canvas>
+                    </div>
+                    <div class="canvas-container">
+                        <canvas id="recipes-chart"></canvas>
+                    </div>
+                    <div class="canvas-container">
+                        <canvas id="menus-chart"></canvas>
+                    </div>
+                    <div class="canvas-container">
+                        <canvas id="posts-chart"></canvas>
+                    </div>
                 </div>
-                <div class="canvas-container">
-                    <canvas id="ingredients-chart"></canvas>
-                </div>
-                <div class="canvas-container">
-                    <canvas id="recipes-chart"></canvas>
-                </div>
-                <div class="canvas-container">
-                    <canvas id="menus-chart"></canvas>
+                <div style="display: none">
+                    <form class="post-content" method="GET" action="/admin/exportEmails">
+                        <button class="form-upl">
+                            <i class="material-icons" style="font-size: 20px !important; vertical-align: middle">cloud_download</i>
+                             <span style="vertical-align: middle">Export all to MailChimp</span>
+                         </button>
+                    </form>
+                    <div class="post-content grey-inputs" style="padding-bottom: 0" id="select-days-container">
+                        Find by <select id="select-column" style="width: 150px;">
+                            <option value="0">Email</option>
+                            <option value="1">Username</option>
+                            <option value="2">Name</option>
+                            <option value="3">Payment Status</option>
+                        </select>
+                        <input type="text" placeholder="Enter query..." style="max-width: 30%; width: 250px" id="query" oninput="searchUsers()">
+                    </div>
+                    <div class="post-content flex-container">
+                        <table id="user-data-table">
+                            <tr id="header">
+                                <th>Email</th>
+                                <th>Username</th>
+                                <th>Name</th>
+                                <th>Payment Status</th>
+                            </tr>
+                            <% for(let i = 0; i < userData.length; i++){ %>
+                                <tr id="user-<%= userData[i].id %>">
+                                    <td><%= userData[i].email %></td>
+                                    <td><%= userData[i].username %></td>
+                                    <td><%= userData[i].name.first %> <%= userData[i].name.last %></td>
+                                    <td>Active</td>
+                                </tr>
+                            <% } %>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -50,23 +97,33 @@
 <script src="http://d3js.org/d3.v4.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.bundle.min.js"></script>
 <script>
-    <% let getTimestamp = d => Math.round((new Date().valueOf() - new Date(d['timestamp']).valueOf())/86400000) + "" %>
+    let dataDivs = $('#data > *');
+    let dataButtons = $('#data-buttons button');
+    let searchColumn = $('#select-column');
+    let searchQuery = $('#query');
 
+    <% let getTimestamp = d => Math.round((new Date().valueOf() - new Date(d['timestamp']).valueOf())/86400000) + "" %>
     let datasets = [
         <%- JSON.stringify(visits.map(getTimestamp)) %>,
         <%- JSON.stringify(users.map(getTimestamp)) %>,
         <%- JSON.stringify(ingredients.map(getTimestamp)) %>,
         <%- JSON.stringify(recipes.map(getTimestamp)) %>,
-        <%- JSON.stringify(menus.map(getTimestamp)) %>
+        <%- JSON.stringify(menus.map(getTimestamp)) %>,
+        <%- JSON.stringify(posts.map(getTimestamp)) %>
     ];
-    let ids = ['#visits-chart', '#users-chart', '#ingredients-chart', '#recipes-chart', '#menus-chart'];
-    let groups = ['Visits', 'Users created', 'Ingredients created', 'Recipes created', 'Menus created']
-    let colors = ['rgba(83,109,254, 0.7)', 'rgba(93,119,264, 0.7)', 'rgba(103,129,274, 0.7)', 'rgba(113,139,284, 0.7)', 'rgba(123,149,294, 0.7)'];
-    let lineColors = ['rgb(83,109,254)', 'rgb(93,119,264)', 'rgb(103,129,274)', 'rgb(113,139,284)', 'rgb(123,149,294)'];
-    let titles = ['Visits per day', 'New users per day', 'New ingredients per day', 'New recipes per day', 'New menus per day'];
+
+    let ids = ['#visits-chart', '#users-chart', '#ingredients-chart', '#recipes-chart', '#menus-chart', '#posts-chart'];
+    let colors = ['rgba(83,109,254, 0.7)', 'rgba(93,119,264, 0.7)', 'rgba(103,129,274, 0.7)', 'rgba(113,139,284, 0.7)', 'rgba(123,149,294, 0.7)', 'rgba(133,159,304, 0.7)'];
+    let lineColors = ['rgb(83,109,254)', 'rgb(93,119,264)', 'rgb(103,129,274)', 'rgb(113,139,284)', 'rgb(123,149,294)', 'rgba(133,159,304)'];
+    let titles = ['Logins per day', 'New users per day', 'New ingredients per day', 'New recipes per day', 'New menus per day', 'New posts per day'];
     let months = ['January', 'February', 'March', 'April', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    let dataIdx = sessionStorage.getItem('dataIdx');
 
     buildChart(8, false);
+
+    if(dataIdx){
+        openData(parseInt(dataIdx));
+    }
 
     function buildChartByTime(){
         let val = parseInt($('#select-days').val());
@@ -127,7 +184,6 @@
                 data: {
                     labels: dataLabels,
                     datasets: [{
-                        label: groups[i],
                         data: dataValues,
                         showLine: true,
                         lineTension: 0.3,
@@ -169,6 +225,40 @@
                                 }
                         }]
                     }
+                }
+            });
+        }
+    }
+
+    function openData(i){
+        sessionStorage.setItem('dataIdx', i);
+        dataDivs.hide();
+
+        $(dataDivs[i]).show();
+
+        dataButtons.attr('class', '');
+        $(dataButtons[i]).attr('class', 'active');
+
+        if(i == 2){
+            $('#select-days-container').hide();
+        }else{
+            $('#select-days-container').show();
+        }
+    }
+
+    function searchUsers(){ //TODO: remove all sync methods on the backend for performance optimization
+        let q = clean(searchQuery.val());
+
+        if(q == ''){
+            $('#user-data-table tr').show();
+        }else{
+            $('#user-data-table tr:not(#header)').each(function(i){
+                let td = $($(this).find('td')[searchColumn.val()]);
+
+                if(clean(td.text()).indexOf(q) == -1){
+                    $(this).hide()
+                }else{
+                    $(this).show();
                 }
             });
         }

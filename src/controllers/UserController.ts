@@ -1,7 +1,7 @@
 import {Request, Response} from 'express';
 import {Repository, getRepository} from 'typeorm';
 import User from '../entity/User';
-import Visit from '../entity/Visit';
+import Record from '../entity/Record';
 import Middleware from '../util/Middleware';
 import * as fs from 'fs';
 
@@ -11,7 +11,7 @@ import * as fs from 'fs';
 export default class UserController {
 
     private userRepo : Repository<User>;
-    private visitRepo : Repository<Visit>;
+    private recordRepo : Repository<Record>;
 
     getLogin = (req: Request, res: Response) => {
         req.session.page = 'login';
@@ -30,8 +30,8 @@ export default class UserController {
         });
 
         if(user){
-            await this.visitRepo.save(new Visit());
-            
+            await this.recordRepo.save(new Record('session'));
+
             req.session.username = user.username;
             req.session.userID = user.id;
             req.session.admin = user.admin;
@@ -113,7 +113,7 @@ export default class UserController {
 
     constructor(){
         this.userRepo = getRepository(User);
-        this.visitRepo = getRepository(Visit);
+        this.recordRepo = getRepository(Record);
     }
 
 }
