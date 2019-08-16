@@ -4,6 +4,9 @@ import Menu from '../entity/Menu';
 import User from '../entity/User';
 import Middleware from '../util/Middleware';
 import * as fs from 'fs';
+import Recipe from '../entity/Recipe';
+import Ingredient from '../entity/Ingredient';
+import { RecipeSearcher } from '../util/typeDefs';
 
 /*TODO:
     * add basic views
@@ -11,6 +14,8 @@ import * as fs from 'fs';
 export default class MenuController {
 
     private menuRepo : Repository<Menu>;
+    private recipeRepo : Repository<Recipe>;
+    private ingredientRepo : Repository<Ingredient>;
     private userRepo : Repository<User>;
 
     getIndex = async (req: Request, res: Response) => { //TODO: more descriptive errors, fix params issues, implement user search, admin, payment, exports, optimize relation loading in updates, don't send empty forms in req.body
@@ -21,17 +26,21 @@ export default class MenuController {
             .leftJoinAndSelect('author.recipes','author_recipes')
             .leftJoinAndSelect('author.brigade','author_brigade')
             .leftJoinAndSelect('menu.sharedUsers', 'shared')
-            .where('shared.id = :userID OR author.id = :userID', {userID: req.session.userID})
-            .andWhere('menu.id = :id', {id: parseInt(req.params.id)})
+            .where('(shared.id = :userID OR author.id = :userID OR author.admin = :yes) AND menu.id = :id', {
+                userID: req.session.userID,
+                yes: true,
+                id: parseInt(req.params.id)
+            })
             .getOne();
 
         if(menu){
-            await menu.getAllIngredients();
-            await menu.getAllAllergens();
-
             for(let i = 0; i < menu.recipes.length; i++){
+                await menu.recipes[i].getRelations();
                 await menu.recipes[i].populateInfo();
             }
+
+            await menu.getAllIngredients();
+            await menu.getAllAllergens();
         };
 
         res.render(menu ? 'menu' : 'notFound', {menu: menu, session: req.session});
@@ -44,6 +53,16 @@ export default class MenuController {
             .getMany()
 
         res.render('menus', {menus: menus, session: req.session});
+    }
+
+    getPublic = async (req: Request, res: Response) => {
+        let menus : Menu[] = await this.menuRepo.createQueryBuilder('menu')
+            .limit(5)
+            .leftJoinAndSelect('menu.author', 'author')
+            .where('author.admin = :yes', {yes: true})
+            .getMany();
+
+        res.render('menus', {menus: menus, session: req.session, public: true});
     }
 
     getCreate = async (req: Request, res: Response) => {
@@ -104,6 +123,52 @@ export default class MenuController {
         res.redirect('/menus/' + req.params.id);
     }
 
+    putTransfer = async (req: Request, res: Response) => {
+        let toTransfer : Menu = await this.menuRepo.findOne(parseInt(req.params.id), {
+            relations: ['recipes', 'recipes.ingredients']
+        });
+
+        if(toTransfer){
+            let temp : Recipe[] = toTransfer.recipes;
+            let recipeSearcher : RecipeSearcher = await RecipeSearcher.createSearcher(req.session.userID, {
+                ingredientRepo: this.ingredientRepo,
+                recipeRepo: this.recipeRepo
+            });
+
+            delete toTransfer['id'];
+            toTransfer.recipes = [];
+            toTransfer.author = recipeSearcher.author;
+
+            toTransfer = await this.menuRepo.save(toTransfer);
+
+            for(let recipe of temp){
+                let matched : Recipe[] = await this.recipeRepo.createQueryBuilder('recipe')
+                    .leftJoinAndSelect('recipe.author', 'author')
+                    .where('author.id = :userID AND recipe.name = :name', {userID: recipeSearcher.author.id, name: recipe.name})
+                    .getMany();
+
+                let final : Recipe;
+
+                for(let rec of matched){
+                    if(rec.price.units == recipe.price.units){
+                        final = rec;
+                        break;
+                    }
+                }
+
+                if(final){
+                    toTransfer.recipes.push(final);
+                }else{
+                    toTransfer.recipes.push(await recipeSearcher.transferRecipe(recipe));
+                }
+            }
+
+            await this.menuRepo.save(toTransfer);
+        }
+
+        res.redirect('/menus');
+    }
+
     delete = async (req: Request, res: Response) => {
         await this.menuRepo.createQueryBuilder()
             .delete()
@@ -119,6 +184,8 @@ export default class MenuController {
     constructor(){
         this.menuRepo = getRepository(Menu);
         this.userRepo = getRepository(User);
+        this.recipeRepo = getRepository(Recipe);
+        this.ingredientRepo = getRepository(Ingredient);
     }
 
 }

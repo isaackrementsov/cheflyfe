@@ -1,17 +1,19 @@
 <% include partials/header %>
 <div class="profile-nav ingredients-header">
-    <h1>Create Menu</h1>
+    <h1><% if(session.admin){ %>Create a Public Menu<% }else{ %>Create Menu<% } %></h1>
 </div>
 <form class="profile-main add-recipe" method="POST" action="/menus/create" enctype="multipart/form-data">
     <div class="profile-card">
         <h1><i class="material-icons">people</i>Sharing Settings</h1>
-        <div class="allergens flex-container" id="add-viewer-container" style="margin-bottom: 0">
-            <input type="hidden" id="viewer-input" value="[]" name="sharedUsersRelJSON">
-            <div class="flex-container add-allergen">
-                <input type="text" list="user-datalist" placeholder="Add viewer" id="add-viewer-input">
-                <button type="button" onclick="addViewer()"><i class="material-icons">done</i></button>
+        <input type="hidden" id="viewer-input" value="[]" name="sharedUsersRelJSON">
+        <% if(!session.admin){ %>
+            <div class="allergens flex-container" id="add-viewer-container" style="margin-bottom: 0">
+                <div class="flex-container add-allergen">
+                    <input type="text" list="user-datalist" placeholder="Add viewer" id="add-viewer-input">
+                    <button type="button" onclick="addViewer()"><i class="material-icons">done</i></button>
+                </div>
             </div>
-        </div>
+        <% } %>
         <h2>Display to Viewers</h2>
         <h3>Recipe Costs</h3>
         <div class="checkbox flex-container">

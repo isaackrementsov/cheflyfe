@@ -9,7 +9,7 @@
 onclick="toggleEdit('edit-recipe', '', '')" onsubmit="packageJSON()" id="recipe-form">
     <div class="profile-card">
         <h1><i class="material-icons">people</i><% if(auth){ %>Sharing Settings<% }else{ %>Recipe Info<% } %></h1>
-        <% if(auth){ %>
+        <% if(auth && !session.admin){ %>
             <div class="allergens flex-container <% if(!recipe.sharingPermissions.allergens){ %>PDFIgnore<% } %>" id="add-viewer-container" style="margin-bottom: 0">
                 <input type="hidden" id="viewer-input" value="<%= JSON.stringify(recipe.sharedUsers.map(u => u.id)) %>" name="sharedUsersRelJSON">
                 <div class="flex-container add-allergen" style="display: none" id="add-viewer">
@@ -28,6 +28,8 @@ onclick="toggleEdit('edit-recipe', '', '')" onsubmit="packageJSON()" id="recipe-
                     </span>
                 <% } %>
             </div>
+        <% }else{ %>
+            <input type="hidden" id="viewer-input" value="[]" name="sharedUsersRelJSON">
         <% } %>
         <% if(auth){ %>
             <h2>Display to Viewers</h2>

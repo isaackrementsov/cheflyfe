@@ -192,6 +192,7 @@
                     <span id="price-update-<%= ingredients[i].id %>" style="display: none">
                         $<input type="number" step="0.01" value="<%= ingredients[i].price.val %>"> per
                         <input type="number" step="0.01" value="<%= ingredients[i].price.qt %>">
+                        <input type="text" value="<%= ingredients[i].price.units %>" disabled>
                         <%= ingredients[i].price.units %>
                     </span>
                 </span>

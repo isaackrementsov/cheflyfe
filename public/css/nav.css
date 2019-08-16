@@ -20,11 +20,12 @@
     font-weight: 300;
     color: #3D5AFE;
 }
-#navbar li a:not(.first), #navbar li #avatar-link {
+#navbar li a:not(.first), #navbar li .avatar-link {
     display: block;
     padding: 15px;
     transition: 0.5s ease-in-out;
     font-weight: 300;
+    cursor: pointer;
 }
 #navbar li a:not(.first):hover {
     color: #3D5AFE;
@@ -37,17 +38,23 @@
     border-style: hidden;
     border-radius: 100vw;
 }
-#navbar #menu {
+#navbar .menu {
     position: absolute;
     background-color: whitesmoke;
     padding: 0;
-    top: 10px;
-    right: 68px;
     border-style: hidden;
     border-radius: 5px;
     box-shadow: 0 0px 8px 0 rgba(0,0,0,0.2);
+    top: 10px;
 }
-#menu li {
+#navbar #menu {
+    right: 68px;
+}
+#navbar #public-menu {
+    left: 50px;
+    max-width: 150px;
+}
+.menu li {
     box-sizing: border-box;
     padding: 0 30px;
     padding-left: 5px;
@@ -58,18 +65,18 @@
     transition: 0.2s ease-in-out;
     border-style: hidden;
 }
-#menu li:hover {
+.menu li:hover {
     background-color: rgb(230,230,230);
 }
-#menu li:first-child {
+.menu li:first-child {
     border-top-left-radius: 5px;
     border-top-right-radius: 5px;
 }
-#menu li:last-child {
+.menu li:last-child {
     border-bottom-left-radius: 5px;
     border-bottom-right-radius: 5px;
 }
-#menu li input, #menu li a {
+.menu li input, .menu li a {
     color: inherit;
     font-weight: normal !important;
     background-color: transparent;
@@ -78,15 +85,19 @@
     font-size: 15px;
     cursor: pointer;
 }
-#menu li form, #menu li a {
+.menu li form, .menu li a {
     padding: 5px 10px !important;
 }
-#menu li form:hover, #menu li a:hover {
+.menu li form:hover, .menu li a:hover {
     color: #3D5AFE;
 }
-#menu li input[type=submit] {
+.menu li input[type=submit] {
     padding: 0;
     margin: 0;
+}
+.menu li input[type=submit]:hover {
+    background-color: transparent;
+    color: inherit;
 }
 li p {
     margin: 0;

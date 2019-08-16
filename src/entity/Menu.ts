@@ -37,12 +37,11 @@ export default class Menu {
         this.ingredients = [];
 
         for(let recipe of this.recipes){
-            await recipe.getRelations();
             await recipe.getAllIngredients();
 
             for(let k = 0; k < recipe.ingredients.length; k++){
                 let ingredient = recipe.ingredients[k];
-                let idx = this.ingredients.indexOf(ingredient);
+                let idx = this.ingredients.map(i => i.id).indexOf(ingredient.id);
 
                 if(idx == -1){
                     this.ingredients.push(ingredient);

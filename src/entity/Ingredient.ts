@@ -18,6 +18,8 @@ export default class Ingredient {
     description : string;
     @Column()
     wastage : number;
+    @Column()
+    timestamp : Date = new Date();
     @Column('simple-json')
     price : PricePerUnit;
     @Column('simple-json')
@@ -39,6 +41,7 @@ export default class Ingredient {
         let factor = this.conversions.concat([this.price]).find(c => c.units == initial.units);
 
         if(factor) return initial.qt / factor.qt;
+        else return 0;
     }
 
     constructor(ingredients : Partial<Ingredient>){

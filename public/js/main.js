@@ -42,6 +42,7 @@ checks.each((i, val) => {
 checks.on('change',  function(){
     setUpCheckBox($(this));
 });
+
 if(navbar){
     content.style.paddingTop = navbar.offsetHeight - 0.5 + 'px';
 

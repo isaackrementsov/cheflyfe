@@ -142,7 +142,7 @@ function addDB(name, brand, id){
             $('#nutritional-info-form input[name="transFatOptJSON"]').val(0);
 
             $('#nutritional-info-form input').each(function(e){
-                if($(this).val() == '') $(this.val(0));
+                if($(this).val() == '') $(this).attr('value', 0);
             });
         }
     });

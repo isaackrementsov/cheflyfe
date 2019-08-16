@@ -21,6 +21,25 @@ export default class PostController {
         res.render(user ? 'user' : 'notFound', {user: user, posts: user.posts, session: req.session});
     }
 
+    getPublic = async (req: Request, res: Response) => {
+        let posts : Post[] = await this.postRepo.createQueryBuilder('post')
+            .limit(5)
+            .leftJoinAndSelect('post.author', 'author')
+            .where('author.admin = :yes', {yes: true})
+            .getMany();
+
+        res.render('news', {posts, session: req.session});
+    }
+
+    getPublicIndex = async (req: Request, res: Response) => {
+        let post : Post = await this.postRepo.createQueryBuilder('post')
+            .leftJoinAndSelect('post.author', 'author')
+            .where('author.admin = :yes AND post.id = :id', {id: parseInt(req.params.id), yes: true})
+            .getOne();
+
+        res.render('newsPost', {post, session: req.session});
+    }
+
     postCreate = async (req: Request, res: Response) => {
         let post : Post = new Post({
             name: req.body.name,
@@ -38,7 +57,7 @@ export default class PostController {
     patchUpdate = async (req: Request, res: Response) => {
         let update = Middleware.decodeBody(req.body, req.files);
 
-        if(typeof update['filePaths'] == 'string' || update['addedComment'] != ''){
+        if(typeof update['filePaths'] == 'string' || (update['addedComment'] != '' && update['addedComment'])){
             let toUpdate : Post = await this.postRepo.createQueryBuilder('post')
                 .select()
                 .leftJoinAndSelect('post.comments', 'comment')

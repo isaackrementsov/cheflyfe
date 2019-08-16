@@ -1,6 +1,7 @@
 import {Request, Response} from 'express';
 import {Repository, getRepository} from 'typeorm';
 import User from '../entity/User';
+import Visit from '../entity/Visit';
 import Middleware from '../util/Middleware';
 import * as fs from 'fs';
 
@@ -10,6 +11,7 @@ import * as fs from 'fs';
 export default class UserController {
 
     private userRepo : Repository<User>;
+    private visitRepo : Repository<Visit>;
 
     getLogin = (req: Request, res: Response) => {
         req.session.page = 'login';
@@ -28,13 +30,19 @@ export default class UserController {
         });
 
         if(user){
+            await this.visitRepo.save(new Visit());
+            
             req.session.username = user.username;
             req.session.userID = user.id;
             req.session.admin = user.admin;
             req.session.avatar = user.avatar;
             req.session.error = null;
 
-            res.redirect('/users/' + user.id);
+            if(user.admin){
+                res.redirect('/admin');
+            }else{
+                res.redirect('/users/' + user.id);
+            }
         }else{
             req.session.error = 'Invalid credentials';
             res.redirect('/login');
@@ -83,10 +91,10 @@ export default class UserController {
                 let toUpdate : User = await this.userRepo.findOne(req.session.userID, {select: ['background', 'avatar']});
                 try{
                     if(update['avatar']){
-                        fs.unlinkSync(__dirname + '/../../public' + toUpdate.avatar);
+                        fs.unlinkSync(__dirname + '/../../../public' + toUpdate.avatar);
                     }
                     if(update['background']){
-                        fs.unlinkSync(__dirname + '/../../public' + toUpdate.background);
+                        fs.unlinkSync(__dirname + '/../../../public' + toUpdate.background);
                     }
                 }catch(e){}
             }
@@ -105,6 +113,7 @@ export default class UserController {
 
     constructor(){
         this.userRepo = getRepository(User);
+        this.visitRepo = getRepository(Visit);
     }
 
 }

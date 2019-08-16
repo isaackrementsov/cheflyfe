@@ -1,12 +1,27 @@
 <ul id="navbar">
-    <li class="first"><a href="/"><p>Chef<span style="font-weight: bold">Lyfe</span></p></a></li>
     <% if(locals.session){ %>
         <% if(session.userID){ %>
-            <li>
-                <div id="avatar-link">
+            <li class="first">
+                <div class="avatar-link" onclick="openDiv('public-menu')" style="color: rgb(90,90,90)">
+                    <i class="material-icons" style="vertical-align: -3px; color: grey">
+                        menu
+                    </i>
                     <div class="img" style="background-image: url(<%= session.avatar %>)" onclick="openDiv('menu')"></div>
-                    <ul id="menu" style="display: none">
+                    <ul id="public-menu" class="menu" style="display: none">
+                        <li><a href="/news">News</a></li><br>
+                        <li><a href="/recipes/public">Get Recipes</a></li>
+                        <li><a href="/menus/public">Get Menus</a></li>
+                    </ul>
+                </div>
+            </li>
+            <li>
+                <div id="avatar-link" class="avatar-link">
+                    <div class="img" style="background-image: url(<%= session.avatar %>)" onclick="openDiv('menu')"></div>
+                    <ul id="menu"  class="menu" style="display: none">
                         <li><a href="/">Home</a></li><br>
+                        <% if(session.admin){ %>
+                            <li><a href="/admin">Dash</a></li><br>
+                        <% } %>
                         <li><form method="POST" action="/logout"><input type="submit" value="Logout"></form></li>
                     </ul>
                 </div>
@@ -17,4 +32,5 @@
             <li><a><input type="text" class="search" placeholder="Search users"></a></li>
         <% } %>
     <% } %>
+    <li class="first"><a href="/"><p>Chef<span style="font-weight: bold">Lyfe</span></p></a></li>
 </ul>

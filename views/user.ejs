@@ -138,7 +138,11 @@
                                 <time class="timeago" datetime="<%= new Date(posts[i].timestamp).toISOString() %>"></time>
                             </div>
                             <div class="post-content" id="post-text<%= posts[i].id %>" onclick="toggleEdit('post-update<%= posts[i].id %>', 'post-text<%= posts[i].id %>', 'post-text-edit<%= posts[i].id %>')">
-                                <%= posts[i].content %>
+                                <% if(posts[i].author.admin){ %>
+                                    <%- posts[i].content %>
+                                <% }else{ %>
+                                    <%= posts[i].content %>
+                                <% } %>
                             </div>
                             <% if(auth){ %>
                                 <div class="post-content" id="post-text-edit<%= posts[i].id %>" style="display: none">
@@ -175,36 +179,38 @@
                                     </div>
                                 <% } %>
                             </div>
-                            <div class="post-content">
-                                <div style="margin-bottom: 20px">
-                                    <button class="form-upl" type="button" onclick="openDiv('comments')">View comments</button>
-                                    <div id="comments" style="display: none; margin-top: 20px">
-                                        <% for(let k = 0; k < posts[i].comments.length; k++){ %>
-                                            <div class="brigade">
-                                                <span>
-                                                    <a href="/users/<%= posts[i].comments[k].author.id %>" style="margin-right: 10px">
-                                                        <img src="<%= posts[i].comments[k].author.avatar %>" style="margin-right: 0">
-                                                        <b style="letter-spacing: 0"><%= posts[i].comments[k].author.username %></b>
-                                                    </a>
-                                                    <a><span><%= posts[i].comments[k].content %></span></a>
-                                                </span>
-                                            </div>
-                                        <% } %>
+                            <% if(!posts[i].author.admin){ %>
+                                <div class="post-content">
+                                    <div style="margin-bottom: 20px">
+                                        <button class="form-upl" type="button" onclick="openDiv('comments')">View comments</button>
+                                        <div id="comments" style="display: none; margin-top: 20px">
+                                            <% for(let k = 0; k < posts[i].comments.length; k++){ %>
+                                                <div class="brigade">
+                                                    <span>
+                                                        <a href="/users/<%= posts[i].comments[k].author.id %>" style="margin-right: 10px">
+                                                            <img src="<%= posts[i].comments[k].author.avatar %>" style="margin-right: 0">
+                                                            <b style="letter-spacing: 0"><%= posts[i].comments[k].author.username %></b>
+                                                        </a>
+                                                        <a><span><%= posts[i].comments[k].content %></span></a>
+                                                    </span>
+                                                </div>
+                                            <% } %>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <span>
+                                            <input type="hidden" id="comment-input" name="addedCommentOpt">
+                                            <a class="grey-inputs small-input">
+                                                <input type="text" placeholder="Add comment" style="width: 300px" id="add-comment-input">
+                                                <button class="edit-allergens" onclick="sendComment()"
+                                                style="font-size: 16px;margin: 0;padding: 7px 9px !important;">
+                                                    <i class="material-icons" style="vertical-align: -2.5px">send</i>
+                                                </button>
+                                            </a>
+                                        </span>
                                     </div>
                                 </div>
-                                <div>
-                                    <span>
-                                        <input type="hidden" id="comment-input" name="addedCommentOpt">
-                                        <a class="grey-inputs small-input">
-                                            <input type="text" placeholder="Add comment" style="width: 300px" id="add-comment-input">
-                                            <button class="edit-allergens" onclick="sendComment()"
-                                            style="font-size: 16px;margin: 0;padding: 7px 9px !important;">
-                                                <i class="material-icons" style="vertical-align: -2.5px">send</i>
-                                            </button>
-                                        </a>
-                                    </span>
-                                </div>
-                            </div>
+                            <% } %>
                             <% if(auth){ %>
                                 <div class="post-content">
                                     <button type="button" onclick="submitForm('delete-form-<%= posts[i].id %>')"><i class="material-icons" style="vertical-align: -1px">delete</i> Delete post</button>

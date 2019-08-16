@@ -1,0 +1,53 @@
+<% include partials/header %>
+<div class="profile-header-container">
+    <div class="profile-header-overlay" style="color: white; opacity: 1">
+        <div class="center-inline">
+            <h1 style="font-weight: 300; font-size: 45px">News</h1>
+        </div>
+    </div>
+    <div class="profile-header"
+     style="background: url(/img/static/news.jpg); background-size: cover">
+    </div>
+</div>
+<div class="profile-main recipe-main">
+    <div class="profile-feed">
+        <% if(posts.length == 0){ %>
+            <p style="text-align: center">No news right now</p>
+        <% } %>
+        <% for(let i = posts.length - 1; i >= 0; i--){ %>
+            <div class="post-card">
+                <div class="post-header">
+                    <span><%= posts[i].name %></span>
+                    <time class="timeago" datetime="<%= new Date(posts[i].timestamp).toISOString() %>"></time>
+                </div>
+                <div class="post-content">
+                    <%- posts[i].content.substring(0, 200) %>
+                    <% if(posts[i].content.length > 200){ %>...<% } %>
+                </div>
+                <div class="post-content media">
+                    <% for(let k = 0; k < Math.min(2, posts[i].filePaths.length); k++) { %>
+                        <% let src = posts[i].filePaths[k] %>
+                        <% let path = src.split('.') %>
+                        <% let ext = path[path.length - 1].toLowerCase() %>
+                        <div class="media-container">
+                            <% if(ext == 'png' || ext == 'jpg' || ext == 'bmp' || ext == 'svg'){ %>
+                                <img src="<%= src %>">
+                            <% }else{ %>
+                                <video controls><source src="<%= src %>"></video>
+                            <% } %>
+                        </div>
+                    <% } %>
+                </div>
+                <div class="post-content">
+                    <% if(!session.admin){ %>
+                        <form style="display: inline" method="POST" action="/recipes/transfer/<%= recipes[i].id %>?_method=PUT">
+                            <button class="button-cta">Get recipe</button>
+                        </form>
+                    <% } %>
+                    <a class="cta" href="/news/<%= posts[i].id %>">View</a>
+                </div>
+            </div>
+        <% } %>
+    </div>
+</div>
+<% include partials/footer %>

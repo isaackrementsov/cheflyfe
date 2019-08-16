@@ -9,24 +9,28 @@ onclick="toggleEdit('menu-edit')" onsubmit="packageJSON()" id="menu-update-form"
     <div class="profile-card">
         <h1><i class="material-icons">people</i>Sharing Settings</h1>
         <% if(auth){ %>
-            <div class="allergens flex-container" id="add-viewer-container" style="margin-bottom: 0">
+            <% if(session.admin){ %>
                 <input type="hidden" id="viewer-input" value="<%= JSON.stringify(menu.sharedUsers.map(u => u.id)) %>" name="sharedUsersRelJSON">
-                <div class="flex-container add-allergen" style="display: none" id="add-viewer">
-                    <input type="text" list="user-datalist" placeholder="Add viewer" id="add-viewer-input">
-                    <button type="button" onclick="addViewer()"><i class="material-icons">done</i></button>
+            <% }else{ %>
+                <div class="allergens flex-container" id="add-viewer-container" style="margin-bottom: 0">
+                    <input type="hidden" id="viewer-input" value="<%= JSON.stringify(menu.sharedUsers.map(u => u.id)) %>" name="sharedUsersRelJSON">
+                    <div class="flex-container add-allergen" style="display: none" id="add-viewer">
+                        <input type="text" list="user-datalist" placeholder="Add viewer" id="add-viewer-input">
+                        <button type="button" onclick="addViewer()"><i class="material-icons">done</i></button>
+                    </div>
+                    <button type="button" class="edit-allergens"
+                    onclick="toggleArr(['viewer-close', 'add-viewer'], ['viewer-edit'])">
+                        <i class="material-icons" id="viewer-edit">edit</i>
+                        <i class="material-icons" id="viewer-close" style="display: none">minimize</i>
+                    </button>
+                    <% for(let i  = 0; i < menu.sharedUsers.length; i++){ %>
+                        <span class="allergen" id="user-<%= menu.sharedUsers[i].id %>" style="background-color: #536DFE">
+                            <%= menu.sharedUsers[i].username %>
+                            <i class="material-icons" onclick="removeViewer(<%= menu.sharedUsers[i].id %>, '<%= menu.sharedUsers[i].username %>')" style="display: inline">close</i>
+                        </span>
+                    <% } %>
                 </div>
-                <button type="button" class="edit-allergens"
-                onclick="toggleArr(['viewer-close', 'add-viewer'], ['viewer-edit'])">
-                    <i class="material-icons" id="viewer-edit">edit</i>
-                    <i class="material-icons" id="viewer-close" style="display: none">minimize</i>
-                </button>
-                <% for(let i  = 0; i < menu.sharedUsers.length; i++){ %>
-                    <span class="allergen" id="user-<%= menu.sharedUsers[i].id %>" style="background-color: #536DFE">
-                        <%= menu.sharedUsers[i].username %>
-                        <i class="material-icons" onclick="removeViewer(<%= menu.sharedUsers[i].id %>, '<%= menu.sharedUsers[i].username %>')" style="display: inline">close</i>
-                    </span>
-                <% } %>
-            </div>
+            <% } %>
             <h2>Display to Viewers</h2>
             <input type="hidden" name="sharingPermissionsJSON" id="sharing-input">
             <h3>Recipe Costs</h3>

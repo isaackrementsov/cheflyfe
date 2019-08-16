@@ -40,12 +40,12 @@ export default class IngredientController {
         let invalid = Object.keys(obj).filter(k => {
             if(typeof obj[k] == 'object'){
                 let nestedInvalid = Object.keys(obj[k]).filter(j => {
-                    return (obj[k][j] == '' || obj[k][j] == undefined);
+                    return isNaN(obj[k][j]);
                 });
 
                 if(nestedInvalid.length > 0) return obj[k];
             }else{
-                return (obj[k] == '' || obj[k] == undefined);
+                return isNaN(obj[k]);
             }
         });
 
@@ -157,6 +157,17 @@ export default class IngredientController {
             .execute();
 
         res.redirect('/ingredients');
+    }
+
+    putTransfer = async (req: Request, res: Response) => {
+        let toTransfer : Ingredient = await this.ingredientRepo.findOne(parseInt(req.params.id));
+
+        if(toTransfer){
+            delete toTransfer['id'];
+            toTransfer.author = await this.userRepo.findOne(req.session.userID);
+
+            await this.ingredientRepo.save(toTransfer);
+        }
     }
 
     delete = async (req: Request, res: Response) => {

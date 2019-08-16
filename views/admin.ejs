@@ -1,0 +1,177 @@
+<% include partials/header %>
+<div class="profile-nav ingredients-header">
+    <h1>Analytics</h1>
+</div>
+<div class="profile-main add-recipe">
+    <div class="profile-card">
+        <h1>
+            <i class="material-icons">security</i>
+            Admin Actions
+        </h1>
+        <p><a style="display: inline; color: #8C9EFF; font-weight: bold" href="/users/<%= session.userID %>">Posts</a>
+             you make will show up on the Cheflyfe news page
+         </p>
+         
+    </div>
+    <div class="profile-feed" id="PDFContent">
+        <div class="post-card" style="box-shadow: none">
+            <div class="post-header">
+                <span>View Trends</span>
+            </div>
+            <div class="post-content grey-inputs" style="padding-bottom: 0">
+                View data from the <select id="select-days" oninput="buildChartByTime()" style="width: 200px">
+                    <option value="7">Past week</option>
+                    <option value="30">Past month</option>
+                    <option value="180">Past 6 months</option>
+                    <option value="365">Past year</option>
+                    <option value="-1">All time</option>
+                </select>
+            </div>
+            <div class="post-content flex-container">
+                <div class="canvas-container">
+                    <canvas id="visits-chart"></canvas>
+                </div>
+                <div class="canvas-container">
+                    <canvas id="users-chart"></canvas>
+                </div>
+                <div class="canvas-container">
+                    <canvas id="ingredients-chart"></canvas>
+                </div>
+                <div class="canvas-container">
+                    <canvas id="recipes-chart"></canvas>
+                </div>
+                <div class="canvas-container">
+                    <canvas id="menus-chart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="http://d3js.org/d3.v4.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.bundle.min.js"></script>
+<script>
+    <% let getTimestamp = d => Math.round((new Date().valueOf() - new Date(d['timestamp']).valueOf())/86400000) + "" %>
+
+    let datasets = [
+        <%- JSON.stringify(visits.map(getTimestamp)) %>,
+        <%- JSON.stringify(users.map(getTimestamp)) %>,
+        <%- JSON.stringify(ingredients.map(getTimestamp)) %>,
+        <%- JSON.stringify(recipes.map(getTimestamp)) %>,
+        <%- JSON.stringify(menus.map(getTimestamp)) %>
+    ];
+    let ids = ['#visits-chart', '#users-chart', '#ingredients-chart', '#recipes-chart', '#menus-chart'];
+    let groups = ['Visits', 'Users created', 'Ingredients created', 'Recipes created', 'Menus created']
+    let colors = ['rgba(83,109,254, 0.7)', 'rgba(93,119,264, 0.7)', 'rgba(103,129,274, 0.7)', 'rgba(113,139,284, 0.7)', 'rgba(123,149,294, 0.7)'];
+    let lineColors = ['rgb(83,109,254)', 'rgb(93,119,264)', 'rgb(103,129,274)', 'rgb(113,139,284)', 'rgb(123,149,294)'];
+    let titles = ['Visits per day', 'New users per day', 'New ingredients per day', 'New recipes per day', 'New menus per day'];
+    let months = ['January', 'February', 'March', 'April', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+    buildChart(8, false);
+
+    function buildChartByTime(){
+        let val = parseInt($('#select-days').val());
+
+        if(val == -1){
+            buildChart(0, true);
+        }else{
+            buildChart(val + 1, false);
+        }
+    }
+
+    function getLabels(len){
+        let div = 1;
+
+        /*if(len > 200){
+            div = 32;
+        }else if(len > 100){
+            div = 16;
+        }else if(len > 50){
+            div = 8;
+        }else if(len > 20){
+            div = 4;
+        }else if(len > 10){
+            div = 2;
+        }*/
+
+        let l = [...Array(Math.floor(len/div) + 1).keys()].map(a => div * a);
+
+        if(l[l.length - 1] != len){
+            l.push(len);
+        }
+
+        return l.reverse();
+    }
+
+    function buildChart(days, refresh){
+        let histGenerator = d3.histogram().domain([0, days]).thresholds(days - 1);
+        let dataLabels = getLabels(days - 1);
+
+        for(let i = 0; i < datasets.length; i++){
+            let ctx = $(ids[i]);
+            let max = Math.max(...datasets[i]);
+            max = max < 0 ? 0 : max;
+
+            let floored;
+            if(refresh){
+                floored = Math.floor(max);
+                histGenerator = d3.histogram().domain([0, floored + 1]).thresholds(floored);
+                dataLabels = getLabels(floored);
+            }
+
+            let dataValues = histGenerator(datasets[i]).map(b => {return {x: b.x0, y: b.length}}).reverse();
+
+            let len = refresh ? floored : days;
+
+            new Chart(ctx, {
+                type: 'scatter',
+                data: {
+                    labels: dataLabels,
+                    datasets: [{
+                        label: groups[i],
+                        data: dataValues,
+                        showLine: true,
+                        lineTension: 0.3,
+                        pointRadius: 21/len,
+                        backgroundColor: colors[i],
+                        borderColor: lineColors[i]
+                    }]
+                },
+                options: {
+                    legend: {
+                        display: false
+                    },
+                    tooltips: {
+                        callbacks: {
+                            label: function(t) {
+                                let d = new Date();
+                                d = new Date(d.setDate(d.getDate() - t.xLabel));
+
+                                return months[d.getMonth() - 1] + ' ' + d.getDate() + ' ' + d.getFullYear() + ', ' + t.yLabel;
+                            }
+                        }
+                    },
+                    title: {display: true, text: titles[i], fontSize: 16},
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        xAxes: [
+                                {display: false},
+                                {
+                                    scaleLabel: { display: true, labelString: 'Days ago' },
+                                    display: len <= 30,
+                                    ticks: {
+                                        autoSkip: false
+                                    }
+                            }],
+                            yAxes: [{
+                                ticks: {
+                                    beginAtZero:true
+                                }
+                        }]
+                    }
+                }
+            });
+        }
+    }
+</script>
+<% include partials/footer %>

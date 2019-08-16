@@ -1,21 +1,49 @@
 <% include partials/header %>
-<div class="profile-nav ingredients-header">
-    <h1>Recipes</h1>
-</div>
+<% if(locals.public){ %>
+    <div class="profile-header-container">
+        <div class="profile-header-overlay" style="color: white; opacity: 1">
+            <div class="center-inline">
+                <h1 style="font-weight: 300; font-size: 45px">Public Recipes</h1>
+            </div>
+        </div>
+        <div class="profile-header"
+         style="background: url(/img/static/recipes.jpg); background-size: cover">
+        </div>
+    </div>
+<% }else{ %>
+    <div class="profile-nav ingredients-header">
+        <h1>Recipes</h1>
+    </div>
+<% } %>
 <div class="profile-main recipe-main">
     <div class="profile-feed">
-        <button class="add-post" id="add-post-button" onclick="toggle('add-post-button', 'new-post')">
-            <a href="/recipes/create" style="width: 100%"><i class="material-icons">add</i> Add Recipe</a>
-        </button>
+        <% if(!locals.public){ %>
+            <button class="add-post" id="add-post-button" onclick="toggle('add-post-button', 'new-post')">
+                <a href="/recipes/create" style="width: 100%"><i class="material-icons">add</i> Add Recipe</a>
+            </button>
+        <% } %>
+        <% if(recipes.length == 0 && locals.public){ %>
+            <p style="text-align: center">No public recipes found</p>
+        <% } %>
         <% for(let i = recipes.length - 1; i >= 0; i--){ %>
+            <% let auth;
+                if(locals.public){
+                    auth = recipes[i].author.id == session.userID;
+                }else{
+                    auth = recipes[i].sharedUsers.filter(s => s.id == session.userID).length == 0;
+                } %>
             <div class="post-card">
                 <div class="post-header">
                     <span><%= recipes[i].name %></span>
                     <time class="timeago" datetime="<%= new Date(recipes[i].timestamp).toISOString() %>"></time>
                 </div>
-                <div class="post-content flex-container heading-icons">
-                    <span><i class="material-icons">people</i><% if(recipes[i].sharedUsers.filter(s => s.id == session.userID).length == 0){ %>Author<% }else{ %>Viewer<% } %></span>
-                </div>
+                <% if(!locals.public){ %>
+                    <div class="post-content flex-container heading-icons">
+                        <span><i class="material-icons">people</i>
+                            <% if(auth){ %>Author<% }else{ %>Viewer<% } %>
+                        </span>
+                    </div>
+                <% } %>
                 <div class="post-content">
                     <%= recipes[i].description %>
                 </div>
@@ -34,6 +62,11 @@
                     <% } %>
                 </div>
                 <div class="post-content">
+                    <% if(!auth){ %>
+                        <form style="display: inline" method="POST" action="/recipes/transfer/<%= recipes[i].id %>?_method=PUT">
+                            <button class="button-cta">Get recipe</button>
+                        </form>
+                    <% } %>
                     <a class="cta" href="/recipes/<%= recipes[i].id %>">View</a>
                 </div>
             </div>

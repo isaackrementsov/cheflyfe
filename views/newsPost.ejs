@@ -1,0 +1,69 @@
+<% include partials/header %>
+<div class="profile-nav ingredients-header">
+    <h1>Website News</h1>
+</div>
+<div class="profile-main add-recipe">
+    <div class="profile-feed" id="PDFContent" style="margin: 0 auto">
+        <div class="post-card"
+        style="box-shadow: none; width: 900px; max-width: 95%; margin: 0 auto; border: 2px solid whitesmoke">
+            <div class="post-header">
+                <span style="vertical-align: middle; display: inline"  onclick="toggle('name', 'update-name')" id="name"  style="font-size: 35px">
+                    <%= post.name %>
+                </span>
+            </div>
+            <div class="post-content media flex-container" id="slideshow">
+                <button onclick="prev()">
+                    <i class="material-icons">keyboard_arrow_left</i>
+                </button>
+                <% for(let i = 0; i < post.filePaths.length; i++) { %>
+                    <% let src = post.filePaths[i] %>
+                    <% let path = src.split('.') %>
+                    <% let ext = path[path.length - 1].toLowerCase() %>
+                    <div class="media-container" style="display: none">
+                        <% if(ext == 'png' || ext == 'jpg' || ext == 'bmp' || ext == 'svg'){ %>
+                            <img src="<%= src %>">
+                        <% }else{ %>
+                            <video controls><source src="<%= src %>"></video>
+                        <% } %>
+                    </div>
+                <% } %>
+                <button onclick="next()">
+                    <i class="material-icons">keyboard_arrow_right</i>
+                </button>
+            </div>
+            <div class="post-content" style="font-size: 19px; font-weight: 300; letter-spacing: 1.5px">
+                <%- post.content %>
+            </div>
+            <p></p>
+        </div>
+    </div>
+</div>
+<script>
+    let elems = $('#slideshow .media-container');
+    let len = elems.length;
+    let i = 0;
+
+    $(elems[i]).show();
+
+    function inc(){
+        i = (i + 1) >= len ? 0 : i + 1;
+    }
+
+    function dec(){
+        i = (i - 1) < 0 ? len - 1 : i - 1;
+    }
+
+    function prev(){
+        $(elems[i]).hide();
+        dec();
+        $(elems[i]).show();
+
+    }
+
+    function next(){
+        $(elems[i]).hide();
+        inc();
+        $(elems[i]).show();
+    }
+</script>
+<% include partials/footer %>

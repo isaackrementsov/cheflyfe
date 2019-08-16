@@ -16,17 +16,20 @@ export default class User {
     admin : boolean;
     @Column()
     password : string;
-    @Column()
-    email : string;
     @Column('text')
     bio : string = "I'm a new user to ChefLyfe!";
     @Column()
     avatar : string;
     @Column()
     background : string = '';
+    @Column()
+    timestamp : Date = new Date();
     @Column('simple-json')
     name : {first: string, last: string};
 
+    @Index({unique: true})
+    @Column()
+    email : string;
     @Index({unique: true})
     @Column()
     username : string

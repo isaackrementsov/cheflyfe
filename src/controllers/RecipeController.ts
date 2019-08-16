@@ -3,13 +3,16 @@ import {Repository, getRepository} from 'typeorm';
 import Recipe from '../entity/Recipe';
 import User from '../entity/User';
 import Middleware from '../util/Middleware';
-import * as fs from 'fs';
+//import * as fs from 'fs';
+import Ingredient from '../entity/Ingredient';
+import { RecipeSearcher } from '../util/typeDefs';
 
 //TODO: maybe fix create method?
 export default class RecipeController {
 
     private recipeRepo : Repository<Recipe>;
     private userRepo : Repository<User>;
+    private ingredientRepo : Repository<Ingredient>;
 
     getIndex = async (req: Request, res: Response) => {
         let recipe : Recipe = await this.recipeRepo.createQueryBuilder('recipe')
@@ -22,8 +25,11 @@ export default class RecipeController {
             .leftJoinAndSelect('author.recipes','author_recipes')
             .leftJoinAndSelect('author.brigade','author_brigade')
             .leftJoinAndSelect('recipe.sharedUsers', 'shared')
-            .where('shared.id = :userID OR author.id = :userID', {userID: req.session.userID})
-            .andWhere('recipe.id = :id', {id: parseInt(req.params.id)})
+            .where('(shared.id = :userID OR author.id = :userID OR author.admin = :yes) AND recipe.id = :id', {
+                userID: req.session.userID,
+                yes: true,
+                id: parseInt(req.params.id)
+            })
             .getOne();
 
         if(recipe) await recipe.populateInfo();
@@ -35,9 +41,19 @@ export default class RecipeController {
         let recipes : Recipe[] = await this.recipeRepo.createQueryBuilder('recipe')
             .leftJoinAndSelect('recipe.sharedUsers', 'sharedUsers')
             .where('authorId = :userID OR sharedUsers.id = :userID', {userID: req.session.userID})
-            .getMany()
+            .getMany();
 
         res.render('recipes', {recipes: recipes, session: req.session});
+    }
+
+    getPublic = async (req: Request, res: Response) => {
+        let recipes : Recipe[] = await this.recipeRepo.createQueryBuilder('recipe')
+            .limit(5)
+            .leftJoinAndSelect('recipe.author', 'author')
+            .where('author.admin = :yes', {yes: true})
+            .getMany();
+
+        res.render('recipes', {recipes: recipes, session: req.session, public: true});
     }
 
     getCreate = async (req: Request, res: Response) => {
@@ -101,17 +117,40 @@ export default class RecipeController {
             }else{
                 Object.assign(toUpdate, update);
 
-                if(req.body.deletedMeta != '' && req.body.deletedMeta){
+                //TODO: Work on deleting with shared recipes
+                /*if(req.body.deletedMeta != '' && req.body.deletedMeta){
                     try{
                         fs.unlinkSync(__dirname + '../../../public' + req.body.deletedMeta);
                     }catch(e){ }
-                }
+                }*/
             }
 
             await this.recipeRepo.save(toUpdate);
         }
 
         res.redirect('/recipes/' + req.params.id);
+    }
+
+    putTransfer = async (req: Request, res: Response) => {
+        let toTransfer : Recipe = await this.recipeRepo.createQueryBuilder('recipe')
+            .leftJoinAndSelect('recipe.ingredients', 'ingredients')
+            .leftJoinAndSelect('recipe.subRecipes', 'subRecipes')
+            .leftJoinAndSelect('recipe.sharedUsers', 'sharedUsers')
+            .leftJoinAndSelect('recipe.author', 'author')
+            .where('sharedUsers.id = :userID', {userID: req.session.userID})
+            .orWhere('author.admin = :yes AND author.id != :userID', {yes: true, userID: req.session.userID})
+            .getOne();
+
+        if(toTransfer){
+            let recipeSearcher : RecipeSearcher = await RecipeSearcher.createSearcher(req.session.userID, {
+                ingredientRepo: this.ingredientRepo,
+                recipeRepo: this.recipeRepo
+            });
+
+            await recipeSearcher.transferRecipe(toTransfer);
+        }
+
+        res.redirect('/recipes');
     }
 
     delete = async (req: Request, res: Response) => {
@@ -121,11 +160,11 @@ export default class RecipeController {
             .getOne();
 
         if(toDelete.menus.length == 0){
-            toDelete.filePaths.map(p => {
+            /*toDelete.filePaths.map(p => {
                 try{
                     fs.unlinkSync(__dirname + '../../../public' + p);
                 }catch(e){ }
-            });
+            });*/
 
             await this.recipeRepo.createQueryBuilder()
                 .delete()
@@ -139,6 +178,7 @@ export default class RecipeController {
     constructor(){
         this.recipeRepo = getRepository(Recipe);
         this.userRepo = getRepository(User);
+        this.ingredientRepo = getRepository(Ingredient);
     }
 
 }

@@ -82,11 +82,12 @@ export default class Recipe {
         this.subRecipes = self.subRecipes || [];
     }
 
-    async getFoodCost(){
+    async getFoodCost(){//TODO: keep recipe/menu/ingredient record after delete
         let sum = 0;
 
         for(let i = 0; i < this.ingredients.length; i++){
             let ingredient = this.ingredients[i];
+
             sum += ingredient.price.val * ingredient.unitConvert(this.quantities[i]);
         }
 
@@ -229,7 +230,7 @@ export default class Recipe {
 
             for(let k = 0; k < subRecipe.ingredients.length; k++){
                 let ingredient = subRecipe.ingredients[k];
-                let idx = this.ingredients.indexOf(ingredient);
+                let idx = this.ingredients.map(i => i.id).indexOf(ingredient.id);
                 let price = money(rqt * ingredient.price.val);
                 let qt = money(rqt * ingredient.price.qt);
 

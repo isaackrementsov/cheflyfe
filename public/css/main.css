@@ -582,12 +582,26 @@ button:focus {
 .recipe-main .post-card {
     padding-bottom: 10px;
 }
-a.cta {
-    padding: 10px;
-    background-color: #536DFE;
-    color: white;
+a.cta, button.button-cta {
+    padding: 10px !important;
     border-radius: 5px;
     transition: 0.5s ease-in-out;
+    vertical-align: middle;
+    font-size: 17px;
+}
+a.cta {
+    background-color: #536DFE !important;
+    color: white !important;
+    border-style: hidden !important;
+}
+button.button-cta {
+    color: #536DFE !important;
+    border-color: #536DFE !important;
+
+}
+button.button-cta:hover {
+    color: white !important;
+    background-color: #536DFE !important;
 }
 a.cta:hover {
     box-shadow: 0 0px 8px 0 rgba(0,0,0,0.2);
@@ -744,4 +758,40 @@ a.cta:hover {
 }
 .nutritionLabel {
     width: 300px !important;
+}
+.post-content .canvas-container {
+    height: 270px;
+    width: 430px;
+    padding: 10px;
+    margin: 10px;
+    border: 1px solid whitesmoke;
+    border-radius: 10px;
+}
+.post-content .canvas-container:first-child {
+    height: 370px;
+    width: 900px;
+}
+.profile-main .post-content br {
+    display: block;
+    margin: 10px 0;
+    line-height: 2;
+}
+#slideshow {
+    justify-content: space-around;
+    align-items: center;
+}
+#slideshow button {
+    background-color: transparent;
+    border-style: hidden;
+    font-size: 40px;
+    color: grey;
+    cursor: pointer;
+}
+#slideshow button:hover {
+    color: #8C9EFF;
+}
+#slideshow .media-container, .media-container img, .media-container video {
+    width: 500px;
+    height: auto;
+    max-width: 90%;
 }
