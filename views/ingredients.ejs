@@ -137,9 +137,11 @@
                         <input type="text" list="allergens-datalist" placeholder="Add allergen" id="add-allergen-input-<%= ingredients[i].id %>">
                         <button type="button" onclick="addAllergen(<%= ingredients[i].id %>)"><i class="material-icons">done</i></button>
                     </div>
-                    <button type="button" class="edit-allergens"
+                    <button type="button" class="edit-allergens wide"
                     onclick="toggleArr(['allergen-form-<%= ingredients[i].id %>', 'allergen-close-<%= ingredients[i].id %>'], ['allergen-edit-<%= ingredients[i].id %>'])">
-                        <i class="material-icons" id="allergen-edit-<%= ingredients[i].id %>">edit</i>
+                        <span id="allergen-edit-<%= ingredients[i].id %>">
+                            <i class="material-icons">edit</i><span> Allergens</span>
+                        </span>
                         <i class="material-icons" id="allergen-close-<%= ingredients[i].id %>" style="display: none">minimize</i>
                     </button>
                     <% for(let k = 0; k < ingredients[i].allergens.length; k++){ %>
@@ -158,9 +160,11 @@
                         <input type="text" list="units-datalist" placeholder="units" id="units-<%= ingredients[i].id %>">
                         <button type="button" onclick="addConversion(<%= ingredients[i].id %>)"><i class="material-icons">done</i></button>
                     </div>
-                    <button type="button" class="edit-conversions"
+                    <button type="button" class="edit-conversions wide"
                     onclick="toggleArr(['conversion-form-<%= ingredients[i].id %>', 'conversion-close-<%= ingredients[i].id %>'], ['conversion-edit-<%= ingredients[i].id %>'])">
-                        <i class="material-icons" id="conversion-edit-<%= ingredients[i].id %>">edit</i>
+                    <span id="conversion-edit-<%= ingredients[i].id %>">
+                        <i class="material-icons">edit</i><span> Conversions</span>
+                    </span>
                         <i class="material-icons" id="conversion-close-<%= ingredients[i].id %>" style="display: none">minimize</i>
                     </button>
                     <% for(let k = 0; k < ingredients[i].conversions.length; k++){ %>
@@ -168,6 +172,37 @@
                             <%= ingredients[i].conversions[k].qt %> <%= ingredients[i].conversions[k].units %>
                         </span>
                     <% } %>
+                </div>
+                <input type="hidden" value="<%= JSON.stringify(ingredients[i].purchaseRecords) %>"
+                id="purchase-input-<%= ingredients[i].id %>" name="purchaseRecordsJSON">
+                <div class="small-input smaller-input allergens flex-container" id="add-purchase-container-<%= ingredients[i].id %>">
+                    <div class="flex-container add-allergen add-conversion" style="display: none" id="purchase-form-<%= ingredients[i].id %>">
+                        $<input type="number" step="0.01" placeholder="Price" id="record-val-<%= ingredients[i].id %>">
+                        <input type="date" placeholder="units" id="date-<%= ingredients[i].id %>">
+                        <button type="button" onclick="addPurchase(<%= ingredients[i].id %>)"><i class="material-icons">done</i></button>
+                    </div>
+                    <button type="button" class="edit-conversions wide"
+                    onclick="toggleArr(['purchase-form-<%= ingredients[i].id %>', 'purchase-close-<%= ingredients[i].id %>'], ['purchase-edit-<%= ingredients[i].id %>'])">
+                        <span id="purchase-edit-<%= ingredients[i].id %>">
+                            <i class="material-icons">edit</i><span> Purchases</span>
+                        </span>
+                        <i class="material-icons" id="purchase-close-<%= ingredients[i].id %>" style="display: none">minimize</i>
+                    </button>
+                    <% for(let k = 0; k < ingredients[i].purchaseRecords.length; k++){ %>
+                        <% let rec = ingredients[i].purchaseRecords[k] %>
+                        <span class="allergen" style="background-color: #536DFE" id="purchase-<%= ingredients[i].id %>-<%= k %>">
+                            <% let d = new Date(rec.timestamp) %>
+                            $<%= rec.price %> on <%= d.getUTCMonth() + 1 %>/<%= d.getDate() %>/<%= d.getUTCFullYear() %>
+                            <i class="material-icons" onclick="removePurchase(<%= k %>, <%= ingredients[i].id %>)">close</i>
+                        </span>
+                    <% } %>
+                </div>
+                <button type="button" class="form-upl"
+                onclick="buildChart(<%= ingredients[i].id %>, 'purchase-chart-<%= ingredients[i].id %>', 'purchase-chart-container-<%= ingredients[i].id %>')">
+                    See cost chart
+                </button>
+                <div class="purchase-canvas-container" id="purchase-chart-container-<%= ingredients[i].id %>" style="display: none">
+                    <canvas id="purchase-chart-<%= ingredients[i].id %>"></canvas>
                 </div>
             </div>
             <div class="post-content" id="ingredient-update-<%= ingredients[i].id %>" style="display: none">
@@ -200,8 +235,10 @@
         </form>
     <% } %>
 </div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.bundle.min.js"></script>
 <script>
     let conversions = [];
+    let ingredientData = <%- JSON.stringify(ingredients.map(i => {return {id: i.id, records: i.purchaseRecords}})) %>;
 
     function addAllergen(id){
         let allergenList = document.getElementById('allergens-input-' + id);
@@ -267,6 +304,41 @@
         document.getElementById(units).remove();
     }
 
+    function addPurchase(id){
+        let purchaseList = document.getElementById('purchase-input-' + id);
+        let purchaseContainer = document.getElementById('add-purchase-container-' + id);
+        let p = document.getElementById('record-val-' + id);
+        let d = document.getElementById('date-' + id);
+        let price = parseFloat(p.value);
+        let date = d.value;
+        let arr = JSON.parse(purchaseList.value);
+
+        if(!isNaN(price) && date != ''){
+            let i = arr.push({price: price, timestamp: new Date(date)});
+
+            purchaseList.setAttribute('value', JSON.stringify(arr));
+
+            purchaseContainer.innerHTML += `
+            <span class="allergen" style="background-color: #536DFE" id="purchase-${id}-${i}">
+                $${price} on ${date}
+                <i class="material-icons" onclick="removePurchase(${i}, ${id})">close</i>
+            </span>`;
+
+            p.setAttribute('value', '');
+            d.setAttribute('value', '');
+        }
+    }
+
+    function removePurchase(i, id){
+        let purchaseList = document.getElementById('purchase-input-' + id);
+        let arr = JSON.parse(purchaseList.value);
+
+        arr.splice(i - 1, 1);
+        purchaseList.setAttribute('value', JSON.stringify(arr));
+
+        document.getElementById(`purchase-${id}-${i}`).remove();
+    }
+
     function prepareJSON(id){
         let inputs = document.querySelectorAll('#price-update-' + id + ' input');
         let input = document.getElementById('price-input-' + id);
@@ -274,7 +346,57 @@
 
         input.setAttribute('value', JSON.stringify(price));
     }
+
+    function buildChart(ingId, chartId, containerId){
+        openDiv(containerId);
+        let data = ingredientData.find(d => d.id == ingId);
+        let dataValues = data.records.map(d => {return {t: new Date(d.timestamp), y: d.price}}).sort((a, b) => {
+            return a.t - b.t;
+        });
+
+        new Chart($(`#${chartId}`), {
+            type: 'scatter',
+            data: {
+                datasets: [{
+                    data: dataValues,
+                    showLine: true,
+                    lineTension: 0.3,
+                    pointRadius: 3,
+                    backgroundColor: 'rgba(140,158,255,0.7)',
+                    borderColor: 'rgb(140,158,255)'
+                }]
+            },
+            options: {
+                legend: {
+                    display: false
+                },
+                tooltips: {
+                    callbacks: {
+                        label: function(t) {
+                            return `$${t.yLabel} on ${t.xLabel}`;
+                        }
+                    }
+                },
+                title: {display: true, text: 'Cost History', fontSize: 16},
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    xAxes: [{
+                            type: 'time',
+                            scaleLabel: { display: true, labelString: 'Date' },
+                            display: true,
+                            ticks: {
+                                source: 'data'
+                            }
+                        }],
+                        yAxes: [{
+                            scaleLabel: { display: true, labelString: 'Price' },
+                            ticks: {beginAtZero: true}
+                    }]
+                }
+            }
+        });
+    }
 </script>
-<script src="https://platform.fatsecret.com/js?key=beac3343d0574c0ab2c98dec67bade5f"></script>
 <script src="/js/searchDB.js"></script>
 <% include partials/footer %>

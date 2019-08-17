@@ -1,5 +1,5 @@
 import {Entity, Column, PrimaryGeneratedColumn, ManyToMany, OneToOne, ManyToOne, JoinColumn, AfterInsert} from 'typeorm';
-import {UnitQt, PricePerUnit} from '../util/typeDefs';
+import {UnitQt, PricePerUnit, PurchaseRecord} from '../util/typeDefs';
 import Recipe from './Recipe';
 import NutritionalInfo from './NutritionalInfo';
 import User from './User';
@@ -26,6 +26,8 @@ export default class Ingredient {
     conversions : UnitQt[];
     @Column('simple-array')
     allergens : string[];
+    @Column('simple-json')
+    purchaseRecords : PurchaseRecord[] = [];
 
     @ManyToMany(type => Recipe, recipe => recipe.ingredients)
     recipes : Recipe[];

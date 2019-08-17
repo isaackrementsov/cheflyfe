@@ -26,6 +26,10 @@ export default class IngredientController {
         res.render('ingredients', {ingredients: ingredients, session: req.session});
     }
 
+    getExport = async (req: Request, res: Response) => {
+
+    }
+
     postCreate = async (req: Request, res: Response) => {
         let n;
         let obj = {
@@ -156,18 +160,8 @@ export default class IngredientController {
             })
             .execute();
 
+
         res.redirect('/ingredients');
-    }
-
-    putTransfer = async (req: Request, res: Response) => {
-        let toTransfer : Ingredient = await this.ingredientRepo.findOne(parseInt(req.params.id));
-
-        if(toTransfer){
-            delete toTransfer['id'];
-            toTransfer.author = await this.userRepo.findOne(req.session.userID);
-
-            await this.ingredientRepo.save(toTransfer);
-        }
     }
 
     delete = async (req: Request, res: Response) => {

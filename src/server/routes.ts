@@ -20,6 +20,7 @@ let routes = app => {
     app.get('/login', userController.getLogin);
     app.get('/signup', userController.getSignup)
     app.get('/ingredients', ingredientController.getAll);
+    app.get('/ingredients/export', ingredientController.getExport)
     app.get('/menus', menuController.getAll);
     app.get('/menus/create', menuController.getCreate);
     app.get('/menus/public', menuController.getPublic);

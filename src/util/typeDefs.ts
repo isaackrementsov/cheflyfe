@@ -10,6 +10,7 @@ export type Costs = {labor: number, overhead: number, misc: number};
 export type UnitQt = {qt: number, units: string};
 export type Info = {allergens: boolean, profitMargin: boolean, profit: boolean, price: boolean, labor: boolean, overhead: boolean, misc: boolean, food: boolean};
 export type PaymentInfo = {creditCardNumber: number};
+export type PurchaseRecord = {val: number, timestamp: Date};
 
 export class RecipeSearcher {
     author : User;
