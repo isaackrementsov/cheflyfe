@@ -838,3 +838,6 @@ button.edit-conversions.wide, button.edit-allergens.wide {
 .edit-conversions.wide > span > *, button.edit-allergens.wide > span > * {
     vertical-align: middle;
 }
+.purchase-canvas-container {
+    height: 250px;
+}

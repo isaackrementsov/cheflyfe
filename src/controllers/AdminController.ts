@@ -35,7 +35,7 @@ export default class AdminController {
         });
 
         csv.writeRecords(data.map(u => {
-            return {email: u.email, firstName: u.name.first, lastName: u.name.last}
+            return {email: u.email, firstName: u.name.first, lastName: u.name.last};
         })).then(() => {
             res.download(`${__dirname}/../.${path}`, 'emails.csv', () => {
                 fs.unlink(`${__dirname}/../.${path}`, () => {});

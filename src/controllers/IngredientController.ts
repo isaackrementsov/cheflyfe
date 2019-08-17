@@ -7,7 +7,8 @@ import Middleware from '../util/Middleware';
 import * as csvParser from 'csv-parser';
 import * as fs from 'fs';
 import * as path from 'path';
-import { UnitQt } from '../util/typeDefs';
+import { UnitQt, PurchaseRecord } from '../util/typeDefs';
+import {createObjectCsvWriter} from 'csv-writer';
 
 //TODO: add CSV ingredient batch uplaod, keywords, prep time, video?, add required to all non-optional inputs
 export default class IngredientController {
@@ -27,7 +28,88 @@ export default class IngredientController {
     }
 
     getExport = async (req: Request, res: Response) => {
+        let data : Ingredient[] = await this.ingredientRepo.createQueryBuilder('ingredient')
+            .leftJoinAndSelect('ingredient.nutritionalInfo', 'nutritionalInfo')
+            .where('ingredient.authorId = :userID', {userID: req.session.userID})
+            .getMany();
 
+        let path = `./public/img/tmp/ingredients-${req.session.userID}.csv`;
+        let csv = createObjectCsvWriter({
+            path: path,
+            header: [
+                {id: 'name', title: 'Name'},
+                {id: 'brand', title: 'Brand'},
+                {id: 'description', title: 'Description'},
+                {id: 'wastage', title: 'Wastage'},
+                {id: 'priceVal', title: 'Price_val'},
+                {id: 'priceQt', title: 'Price_qt'},
+                {id: 'priceUnits', title: 'Price_units'},
+                {id: 'purchaseRecords', title: 'Purchase_records'},
+                {id: 'conversions', title: 'Conversions'},
+                {id: 'allergens', title: 'Allergens'},
+                {id: 'cholesterol', title: 'Cholesterol'},
+                {id: 'sodium', title: 'Sodium'},
+                {id: 'protein', title: 'Protein'},
+                {id: 'carbohydratesTotal', title: 'Carbohydrates_total'},
+                {id: 'carbohydratesFiber', title: 'Carbohydrates_fiber'},
+                {id: 'carbohydratesSugar', title: 'Carbohydrates_sugar'},
+                {id: 'caloriesTotal', title: 'Calories_total'},
+                {id: 'caloriesFromFat', title: 'Calories_from_fat'},
+                {id: 'fatTotal', title: 'Fat_total'},
+                {id: 'fatSaturated', title: 'Fat_saturated'},
+                {id: 'fatTrans', title: 'Fat_trans'},
+            ]
+        });
+
+        csv.writeRecords(data.map(i => {
+            let records = [];
+            let conversions = [];
+            let nutritionalInfo = {};
+
+            i.purchaseRecords.map(r => {
+                let d = new Date(r.timestamp);
+
+                records.push(`[${r.val},${d.getUTCMonth() + 1}/${d.getDate()}/${d.getUTCFullYear()}]`);
+            });
+
+            i.conversions.map(c => {
+                conversions.push(`[${c.qt}, ${c.units}]`);
+            });
+
+            if(i.nutritionalInfo){
+                nutritionalInfo = {
+                    cholesterol: i.nutritionalInfo.cholesterol,
+                    sodium: i.nutritionalInfo.sodium,
+                    protein: i.nutritionalInfo.protein,
+                    carbohydratesTotal: i.nutritionalInfo.carbohydrates.total,
+                    carbohydratesFiber: i.nutritionalInfo.carbohydrates.fiber,
+                    carbohydratesSugar: i.nutritionalInfo.carbohydrates.sugar,
+                    caloriesTotal: i.nutritionalInfo.calories.total,
+                    caloriesFromFat: i.nutritionalInfo.calories.fromFat,
+                    fatTotal: i.nutritionalInfo.fat.total,
+                    fatSaturated: i.nutritionalInfo.fat.saturated,
+                    fatTrans: i.nutritionalInfo.fat.trans
+                };
+            }
+
+            return {
+                name: i.name,
+                brand: i.brand,
+                description: i.description,
+                wastage: i.wastage,
+                priceVal: i.price.val,
+                priceQt: i.price.qt,
+                priceUnits: i.price.units,
+                purchaseRecords: records.join(','),
+                conversions: conversions.join(','),
+                allergens: i.allergens.join(','),
+                ...nutritionalInfo
+            };
+        })).then(() => {
+            res.download(`${__dirname}/../.${path}`, 'ingredients.csv', () => {
+                fs.unlink(`${__dirname}/../.${path}`, () => {});
+            });
+        });
     }
 
     postCreate = async (req: Request, res: Response) => {
@@ -122,6 +204,18 @@ export default class IngredientController {
                             conversions.push({qt: num, units: units});
                         }
 
+                        let purchases : PurchaseRecord[] = [];
+                        if(row.Purchase_records){
+                            let p = row.Purchase_records.split(',');
+
+                            for(let i = 1; i < p.length; i += 2){
+                                let val = parseFloat(p[i - 1].replace('[', ''));
+                                let timestamp = new Date(p[i].replace(']', ''));
+
+                                purchases.push({val, timestamp});
+                            }
+                        }
+
                         let ingredient : Ingredient = new Ingredient({
                             name: row.Name,
                             description: row.Description || 'no description',
@@ -131,6 +225,7 @@ export default class IngredientController {
                             conversions: conversions,
                             allergens: row.Allergens.split(','),
                             nutritionalInfo: n,
+                            purchaseRecords: purchases,
                             author: await this.userRepo.findOne(req.session.userID)
                         });
 

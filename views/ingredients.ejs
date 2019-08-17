@@ -37,6 +37,10 @@
             </button>
         </div>
     </form>
+    <form class="ingredient add-ingredient post-card add-post" method="GET" id="export-csv" action="/ingredients/export" onclick="submitForm('export-csv')">
+        <i class="material-icons">cloud_download</i>
+        <p>Export CSV</p>
+    </form>
     <div class="ingredient add-ingredient post-card add-post" onclick="toggle('add-ingredient', 'add-ingredient-form')" id="add-ingredient">
         <i class="material-icons">add</i><p>Add Ingredient</p>
     </div>
@@ -192,7 +196,7 @@
                         <% let rec = ingredients[i].purchaseRecords[k] %>
                         <span class="allergen" style="background-color: #536DFE" id="purchase-<%= ingredients[i].id %>-<%= k %>">
                             <% let d = new Date(rec.timestamp) %>
-                            $<%= rec.price %> on <%= d.getUTCMonth() + 1 %>/<%= d.getDate() %>/<%= d.getUTCFullYear() %>
+                            $<%= rec.val %> on <%= d.getUTCMonth() + 1 %>/<%= d.getDate() %>/<%= d.getUTCFullYear() %>
                             <i class="material-icons" onclick="removePurchase(<%= k %>, <%= ingredients[i].id %>)">close</i>
                         </span>
                     <% } %>
@@ -314,7 +318,7 @@
         let arr = JSON.parse(purchaseList.value);
 
         if(!isNaN(price) && date != ''){
-            let i = arr.push({price: price, timestamp: new Date(date)});
+            let i = arr.push({val: price, timestamp: new Date(date)});
 
             purchaseList.setAttribute('value', JSON.stringify(arr));
 
@@ -350,7 +354,7 @@
     function buildChart(ingId, chartId, containerId){
         openDiv(containerId);
         let data = ingredientData.find(d => d.id == ingId);
-        let dataValues = data.records.map(d => {return {t: new Date(d.timestamp), y: d.price}}).sort((a, b) => {
+        let dataValues = data.records.map(d => {return {t: new Date(d.timestamp), y: d.val}}).sort((a, b) => {
             return a.t - b.t;
         });
 
@@ -373,7 +377,10 @@
                 tooltips: {
                     callbacks: {
                         label: function(t) {
-                            return `$${t.yLabel} on ${t.xLabel}`;
+                            let sp = t.xLabel.split(',');
+                            sp.splice(2,1);
+
+                            return `$${t.yLabel} on ${sp.join(',')}`;
                         }
                     }
                 },
@@ -383,7 +390,6 @@
                 scales: {
                     xAxes: [{
                             type: 'time',
-                            scaleLabel: { display: true, labelString: 'Date' },
                             display: true,
                             ticks: {
                                 source: 'data'

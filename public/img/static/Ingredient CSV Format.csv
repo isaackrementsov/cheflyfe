@@ -1,2 +1,2 @@
-Name,Brand,Description,Wastage,Price_val,Price_qt,Price_units,Conversions,Allergens,Cholesterol,Sodium,Protein,Carbohydrates_total,Carbohydrates_fiber,Carbohydrates_sugar,Calories_total,Calories_from_fat,Fat_total,Fat_saturated,Fat_trans
-Cheddar Cheese,Cabot,Extra sharp cheddar cheese,17,2.34,2,lbs,"[3,fl oz], [2,in]","Dairy,Gluten",20,200,3,27,13,14,200,100,26,10,5
+Name,Brand,Description,Wastage,Price_val,Price_qt,Price_units,Purchase_records,Conversions,Allergens,Cholesterol,Sodium,Protein,Carbohydrates_total,Carbohydrates_fiber,Carbohydrates_sugar,Calories_total,Calories_from_fat,Fat_total,Fat_saturated,Fat_trans
+Cheddar Cheese,Cabot,Extra sharp cheddar cheese,17,2.34,2,lbs,"[4.21,8/16/2019],[3.47,8/23/2019]","[3,fl oz],[2,in]","Dairy,Gluten",20,200,3,27,13,14,200,100,26,10,5

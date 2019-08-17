@@ -5,13 +5,12 @@ import * as bodyParser from 'body-parser';
 import * as path from 'path';
 import * as redis from 'redis';
 import * as session from 'express-session';
-import * as randomKey from 'random-key';
 
 import ejs from 'ejs';
 
 const client = redis.createClient();
 const app = express();
-const SESSION_SECRET = randomKey.generate();
+const SESSION_SECRET = require('../redis.json').secret;
 
 const RedisStore = require('connect-redis')(session);
 
