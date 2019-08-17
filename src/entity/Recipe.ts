@@ -20,6 +20,10 @@ export default class Recipe {
     @Column()
     feed : boolean;
     @Column()
+    showServingCost : boolean;
+    @Column()
+    serves : number;
+    @Column()
     timestamp : Date = new Date();
     @Column('simple-array')
     steps : string[];
@@ -62,6 +66,7 @@ export default class Recipe {
     private sumCosts : number;
 
     foodCost : number;
+    servingCost : number;
     profit : number;
     profitMargin : number;
     nutritionalInfo : NutritionalInfo;
@@ -111,6 +116,10 @@ export default class Recipe {
 
     getProfitMargin(){
         this.profitMargin = this.price.val == 0 ?  0 : money(100 * this.profit / this.price.val);
+    }
+
+    getServingCost(){
+        this.servingCost = this.sumCosts / this.serves;
     }
 
     async getNutritionalInfo(){
@@ -254,6 +263,7 @@ export default class Recipe {
         this.getSumCosts();
         this.getProfit();
         this.getProfitMargin();
+        this.getServingCost();
         await this.getNutritionalInfo();
         await this.getAllergens();
         await this.getAllIngredientsSTD();

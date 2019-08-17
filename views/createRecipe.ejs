@@ -33,6 +33,10 @@
             <div>Overhead - $<input type="number" step="0.01" name="overheadJSON" value="0" id="overhead-input" oninput="changeCost('overhead-input', 'food')"></div>
             <label class="switch"><input type="checkbox" name="overheadShareJSON"><span class="slider"></span></label>
         </div>
+        <div class="checkbox flex-container">
+            <div>Portion - $<input type="number" step="0.01" value="0" id="serving-cost-input" disabled></div>
+            <label class="switch"><input type="checkbox" name="servingShareJSON"><span class="slider"></span></label>
+        </div>
         <h3>Profit</h3>
         <div class="checkbox flex-container">
             <div>Profit - <input type="number" step="0.01" name="profitMarginJSON" value="0" id="profit-margin" disabled>%</div>
@@ -92,6 +96,10 @@
                     <h3>Yield</h3>
                     <input type="number" placeholder="# of" name="qtJSON">
                     <input type="text" list="units-datalist" placeholder="units" name="units">
+                </div>
+                <div class="grey-inputs small-inputs">
+                    <h3>Serves</h3>
+                    <input type="number" min="1" placeholder="# of servings" name="servesJSON" style="width: 17.5%" oninput="changeServing()" id="serving-input">
                 </div>
             </div>
             <div class="post-content">

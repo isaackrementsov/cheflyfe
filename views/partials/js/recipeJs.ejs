@@ -21,6 +21,7 @@
     let profit = document.getElementById('profit');
     let foodInput = document.getElementById('food-input');
     let price = <% if(locals.recipe){ %><%= recipe.price.val %><% }else{ %>0<% } %>;
+    let servings = <% if(locals.recipe){ %><%= recipe.serves %><% }else{ %>1<% } %>;
     let cost = <% if(locals.recipe){ %><%- JSON.stringify({...recipe.costs, ...{food: recipe.foodCost}}) %><% }else{ %>{food: 0, labor: 0, overhead: 0, misc: 0}<% } %>;
     let ids = <%= JSON.stringify(user.ingredients.map(i => i.id)) %>;
     let names = <%- JSON.stringify(user.ingredients.map(i => i.name)) %>;
@@ -41,7 +42,7 @@
     }
 
     function changePrice(){
-        let num = parseFloat(priceInput.value)
+        let num = parseFloat(priceInput.value);
         price = isNaN(num) ? 0 : num;
 
         updateProfit();
@@ -75,11 +76,13 @@
     }
 
     function updateProfit(){
+        let servingCost = $('#serving-cost-input');
         let income = money(price - total(cost));
         let margin = price == 0 ? 0 : money(100*income/price);
 
         profit.value = income;
         profitMargin.value = margin;
+        servingCost.attr('value', money(total(cost)/servings))
 
         if(income < 0){
             profit.style.color = 'coral';
@@ -295,5 +298,13 @@
 
         deleted.setAttribute('value', src);
         fileList.setAttribute('value', JSON.stringify(JSON.parse(fileList.value).filter(p => p != src)));
+    }
+
+    function changeServing(){
+        let servingCost = $('#serving-cost-input');
+        servings = parseInt($('#serving-input').val());
+        if(isNaN(servings) || servings == 0) servings = 1;
+
+        servingCost.attr('value', money(total(cost)/servings));
     }
 </script>

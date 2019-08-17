@@ -88,6 +88,17 @@ onclick="toggleEdit('edit-recipe', '', '')" onsubmit="packageJSON()" id="recipe-
                 <% } %>
             </div>
         <% } %>
+        <% if(auth || recipe.shareServingCost){ %>
+            <div class="checkbox flex-container">
+                <div>Portion- $<input type="number" step="0.01" value="<%= recipe.servingCost %>" id="serving-cost-input" disabled></div>
+                <% if(auth){ %>
+                    <label class="switch"><input type="checkbox"
+                    name="shareServingCostJSON" <% if(recipe.shareServingCost){ %> checked <% } %>>
+                        <span class="slider"></span>
+                    </label>
+                <% } %>
+            </div>
+        <% } %>
         <% if(auth || recipe.sharingPermissions.profitMargin || recipe.sharingPermissions.profit || recipe.sharingPermissions.price){ %>
             <h3>Profit</h3>
         <% } %>
@@ -170,28 +181,33 @@ onclick="toggleEdit('edit-recipe', '', '')" onsubmit="packageJSON()" id="recipe-
                     Price: $<%= p.val %> / <% if(p.qt != 1){ %><%= p.qt %> <% } %><%= p.units %>
                 <% } %>
             </p>
-            <p class="PDFShow" style="display: none"><b style="color: #8C9EFF">
-                <% let cost = recipe.costs %>
-                Costs:
-                <% if(recipe.sharingPermissions.misc){ %>
-                    $<%= cost.misc %> misc,
-                <% } %>
-                <% if(recipe.sharingPermissions.overhead){ %>
-                    $<%= cost.overhead %> overhead,
-                <% } %>
-                <% if(recipe.sharingPermissions.labor){ %>
-                    $<%= cost.labor %> labor,
-                <% } %>
-                <% if(recipe.sharingPermissions.food){ %>
-                    $<%= recipe.foodCost %> food,
-                <% } %>
-                <% if(recipe.sharingPermissions.profit){ %>
-                    $<%= recipe.profit %> profit,
-                <% } %>
-                <% if(recipe.sharingPermissions.profitMargin){ %>
-                    <%= recipe.profitMargin %>% margin
-                <% } %>
-            </b></p>
+            <% if(recipe.sharingPermissions.misc || recipe.sharingPermissions.overhead || recipe.shareServingCost || recipe.sharingPermissions.labor || recipe.sharingPermissions.food || recipe.sharingPermissions.profit || recipe.sharingPermissions.profitMargin){ %>
+                <p class="PDFShow" style="display: none"><b style="color: #8C9EFF">
+                    <% let cost = recipe.costs %>
+                    Costs:
+                    <% if(recipe.sharingPermissions.misc){ %>
+                        $<%= cost.misc %> misc,
+                    <% } %>
+                    <% if(recipe.sharingPermissions.overhead){ %>
+                        $<%= cost.overhead %> overhead,
+                    <% } %>
+                    <% if(recipe.shareServingCost){ %>
+                        $<%= recipe.servingCost %> per portion,
+                    <% } %>
+                    <% if(recipe.sharingPermissions.labor){ %>
+                        $<%= cost.labor %> labor,
+                    <% } %>
+                    <% if(recipe.sharingPermissions.food){ %>
+                        $<%= recipe.foodCost %> food,
+                    <% } %>
+                    <% if(recipe.sharingPermissions.profit){ %>
+                        $<%= recipe.profit %> profit,
+                    <% } %>
+                    <% if(recipe.sharingPermissions.profitMargin){ %>
+                        <%= recipe.profitMargin %>% margin
+                    <% } %>
+                </b></p>
+            <% } %>
             <div class="post-content media">
                 <input type="hidden" name="filePathsJSON" value="<%= JSON.stringify(recipe.filePaths) %>" id="file-list">
                 <input type="hidden" name="deletedMeta" id="deleted">
@@ -216,7 +232,7 @@ onclick="toggleEdit('edit-recipe', '', '')" onsubmit="packageJSON()" id="recipe-
                 <% } %>
             </div>
             <% if(auth){ %>
-                <div class="post-content" style="margin-bottom: 0">
+                <div class="post-content PDFIgnore" style="margin-bottom: 0">
                     <div class="form-upl-wrapper">
                         <input type="file" name="recipeUpl" accept=".jpg,.png,.svg,.bmp,.mp4" oninput="submitForm('recipe-form')">
                         <button class="form-upl" type="button">Add photos and videos</button>
@@ -304,8 +320,8 @@ onclick="toggleEdit('edit-recipe', '', '')" onsubmit="packageJSON()" id="recipe-
                     <% } %>
                 </div>
                 <div class="grey-inputs small-inputs">
-                    <h3>Yield</h3>
-                    <p id="yield" onclick="toggle('yield', 'update-yield')" style="font-weight: bold; color: #8C9EFF"><%= recipe.price.qt %> <%= recipe.price.units %></p>
+                    <h3 style="display: inline">Yield: </h3>
+                    <span id="yield" onclick="toggle('yield', 'update-yield')" style="font-weight: bold; color: #8C9EFF"><%= recipe.price.qt %> <%= recipe.price.units %></span>
                     <% if(auth){ %>
                         <span id="update-yield" style="display: none">
                             <input type="number" value="<%= recipe.price.qt %>" id="qt">
@@ -313,6 +329,17 @@ onclick="toggleEdit('edit-recipe', '', '')" onsubmit="packageJSON()" id="recipe-
                         </span>
                     <% } %>
                 </div>
+                <p></p>
+                <% if(auth || recipe.shareServingCost){ %>
+                    <div class="grey-inputs small-inputs">
+                        <h3 style="display: inline">Serves: </h3>
+                        <span id="serves" onclick="toggle('serves', 'serving-input')" style="font-weight: bold; color: #8C9EFF"><%= recipe.serves %></span>
+                        <% if(auth){ %>
+                            <input type="number" min="1" placeholder="# of servings" name="servesJSON" value="<%= recipe.serves %>"
+                            style="width: 17.5%; display: none" oninput="changeServing()" id="serving-input">
+                        <% } %>
+                    </div>
+                <% } %>
                 <p class="PDFIgnore">
                     <button type="button" class="form-upl" onclick="openDiv('nutrition-label')">Show nutritional label</button>
                 </p>

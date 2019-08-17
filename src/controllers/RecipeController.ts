@@ -73,6 +73,7 @@ export default class RecipeController {
         let recipe : Recipe = new Recipe({
             name: req.body.name,
             description: req.body.descriptionOpt || 'no description',
+            serves: req.body.servesJSON,
             steps: req.body.stepsJSON,
             filePaths: req.files['recipeUplMulti6'].map(f => f.path),
             price: {val: req.body.priceJSON, qt: req.body.qtJSON, units: req.body.units},
@@ -92,6 +93,7 @@ export default class RecipeController {
                 food: req.body.foodShareJSON || false,
                 overhead: req.body.overheadShareJSON || false
             },
+            showServingCost: req.body.servingShareJSON || false,
             feed: req.body.postShareJSON || false,
             author: await this.userRepo.findOne(req.session.userID)
         });
@@ -115,6 +117,10 @@ export default class RecipeController {
             if(update['recipe']){
                 toUpdate.filePaths.push(update['recipe']);
             }else{
+                if(!update['shareServingCost']){
+                    update['shareServingCost'] = false;
+                }
+                
                 Object.assign(toUpdate, update);
 
                 //TODO: Work on deleting with shared recipes
