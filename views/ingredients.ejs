@@ -1,6 +1,7 @@
 <% include partials/header %>
 <% include partials/lists/units %>
 <% include partials/lists/allergens %>
+<% let c = session.currency %>
 <div class="profile-nav ingredients-header">
     <h1>Ingredients</h1>
 </div>
@@ -60,7 +61,7 @@
             </div>
             <p class="small-input"><input type="number" name="wastageJSON">% Wastage</p>
             <p class="small-input">
-                $<input type="number" step="0.01" placeholder="Price" name="valJSON">
+                <%= c %><input type="number" step="0.01" placeholder="Price" name="valJSON">
                 per<input type="number" step="0.01" placeholder="# of" name="qtJSON">
                 <input list="units-datalist" type="text" placeholder="units" name="units">
             </p>
@@ -181,7 +182,7 @@
                 id="purchase-input-<%= ingredients[i].id %>" name="purchaseRecordsJSON">
                 <div class="small-input smaller-input allergens flex-container" id="add-purchase-container-<%= ingredients[i].id %>">
                     <div class="flex-container add-allergen add-conversion" style="display: none" id="purchase-form-<%= ingredients[i].id %>">
-                        $<input type="number" step="0.01" placeholder="Price" id="record-val-<%= ingredients[i].id %>">
+                        <%= c %><input type="number" step="0.01" placeholder="Price" id="record-val-<%= ingredients[i].id %>">
                         <input type="date" placeholder="units" id="date-<%= ingredients[i].id %>">
                         <button type="button" onclick="addPurchase(<%= ingredients[i].id %>)"><i class="material-icons">done</i></button>
                     </div>
@@ -196,7 +197,7 @@
                         <% let rec = ingredients[i].purchaseRecords[k] %>
                         <span class="allergen" style="background-color: #536DFE" id="purchase-<%= ingredients[i].id %>-<%= k %>">
                             <% let d = new Date(rec.timestamp) %>
-                            $<%= rec.val %> on <%= d.getUTCMonth() + 1 %>/<%= d.getDate() %>/<%= d.getUTCFullYear() %>
+                            <%= c %><%= rec.val %> on <%= d.getUTCMonth() + 1 %>/<%= d.getDate() %>/<%= d.getUTCFullYear() %>
                             <i class="material-icons" onclick="removePurchase(<%= k %>, <%= ingredients[i].id %>)">close</i>
                         </span>
                     <% } %>
@@ -225,11 +226,11 @@
                 <input type="hidden" name="priceJSON" id="price-input-<%= ingredients[i].id %>">
                 <span class="small-input smaller-input"><i class="material-icons">shopping_basket</i>
                     <span id="price-<%= ingredients[i].id %>" onclick="toggle('price-<%= ingredients[i].id %>', 'price-update-<%= ingredients[i].id %>')">
-                        $<%= ingredients[i].price.val %> per <% if(ingredients[i].price.qt != 1){ %>
+                        <%= c %><%= ingredients[i].price.val %> per <% if(ingredients[i].price.qt != 1){ %>
                             <%= ingredients[i].price.qt %> <% } %><%= ingredients[i].price.units %>
                     </span>
                     <span id="price-update-<%= ingredients[i].id %>" style="display: none">
-                        $<input type="number" step="0.01" value="<%= ingredients[i].price.val %>"> per
+                        <%= c %><input type="number" step="0.01" value="<%= ingredients[i].price.val %>"> per
                         <input type="number" step="0.01" value="<%= ingredients[i].price.qt %>">
                         <input type="text" value="<%= ingredients[i].price.units %>" disabled>
                         <%= ingredients[i].price.units %>
@@ -241,6 +242,7 @@
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.bundle.min.js"></script>
 <script>
+    let c = '<%- session.currency %>'
     let conversions = [];
     let ingredientData = <%- JSON.stringify(ingredients.map(i => {return {id: i.id, records: i.purchaseRecords}})) %>;
 
@@ -324,7 +326,7 @@
 
             purchaseContainer.innerHTML += `
             <span class="allergen" style="background-color: #536DFE" id="purchase-${id}-${i}">
-                $${price} on ${date}
+                ${c}${price} on ${date}
                 <i class="material-icons" onclick="removePurchase(${i}, ${id})">close</i>
             </span>`;
 
@@ -380,7 +382,7 @@
                             let sp = t.xLabel.split(',');
                             sp.splice(2,1);
 
-                            return `$${t.yLabel} on ${sp.join(',')}`;
+                            return `${c}${t.yLabel} on ${sp.join(',')}`;
                         }
                     }
                 },

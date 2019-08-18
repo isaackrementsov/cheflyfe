@@ -120,7 +120,7 @@ export default class RecipeController {
                 if(!update['shareServingCost']){
                     update['shareServingCost'] = false;
                 }
-                
+
                 Object.assign(toUpdate, update);
 
                 //TODO: Work on deleting with shared recipes
@@ -143,8 +143,11 @@ export default class RecipeController {
             .leftJoinAndSelect('recipe.subRecipes', 'subRecipes')
             .leftJoinAndSelect('recipe.sharedUsers', 'sharedUsers')
             .leftJoinAndSelect('recipe.author', 'author')
-            .where('sharedUsers.id = :userID', {userID: req.session.userID})
-            .orWhere('author.admin = :yes AND author.id != :userID', {yes: true, userID: req.session.userID})
+            .where('(sharedUsers.id = :userID OR (author.admin = :yes AND author.id != :userID)) AND recipe.id = :id', {
+                userID: req.session.userID,
+                yes: true,
+                id: parseInt(req.params.id)
+            })
             .getOne();
 
         if(toTransfer){

@@ -126,12 +126,12 @@ export default class IngredientController {
         let invalid = Object.keys(obj).filter(k => {
             if(typeof obj[k] == 'object'){
                 let nestedInvalid = Object.keys(obj[k]).filter(j => {
-                    return isNaN(obj[k][j]);
+                    return typeof obj[k][j] != 'number';
                 });
 
                 if(nestedInvalid.length > 0) return obj[k];
             }else{
-                return isNaN(obj[k]);
+                return typeof obj[k] != 'number';
             }
         });
 
@@ -179,12 +179,12 @@ export default class IngredientController {
                         let invalid = Object.keys(obj).filter(k => {
                             if(typeof obj[k] == 'object'){
                                 let nestedInvalid = Object.keys(obj[k]).filter(j => {
-                                    return isNaN(obj[k][j]);
+                                    return typeof obj[k][j] != 'number';
                                 });
 
                                 if(nestedInvalid.length > 0) return obj[k];
                             }else{
-                                return isNaN(obj[k]);
+                                return typeof obj[k] != 'number';
                             }
                         });
 

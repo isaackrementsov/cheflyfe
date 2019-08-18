@@ -23,6 +23,10 @@ export default class User {
     @Column()
     background : string = '';
     @Column()
+    system : 'metric' | 'imperial';
+    @Column()
+    currency : string;
+    @Column()
     timestamp : Date = new Date();
     @Column('simple-json')
     name : {first: string, last: string};

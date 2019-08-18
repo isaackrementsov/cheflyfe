@@ -1,6 +1,7 @@
 <% include partials/header %>
 <% include partials/lists/units %> <!-- TODO: add ingredient brands -->
 <% let auth = recipe.author.id == session.userID %>
+<% let c = recipe.author.currency %>
 <div class="profile-nav ingredients-header">
     <h1>View Recipe</h1>
 </div>
@@ -39,7 +40,7 @@ onclick="toggleEdit('edit-recipe', '', '')" onsubmit="packageJSON()" id="recipe-
         <% } %>
         <% if(auth || recipe.sharingPermissions.food){ %>
             <div class="checkbox flex-container">
-                <div>Food - $<input type="number" step="0.01" id="food-input" value="<%= recipe.foodCost %>" disabled
+                <div>Food - <%= c %><input type="number" step="0.01" id="food-input" value="<%= recipe.foodCost %>" disabled
                 <% if(!auth){ %>disabled<% } %>>
                 </div>
                 <% if(auth){ %>
@@ -52,7 +53,7 @@ onclick="toggleEdit('edit-recipe', '', '')" onsubmit="packageJSON()" id="recipe-
         <% } %>
         <% if(auth || recipe.sharingPermissions.labor){ %>
             <div class="checkbox flex-container">
-                <div>Labour - $<input type="number" step="0.01" value="<%= recipe.costs.labor %>" id="labor-input"
+                <div>Labour - <%= c %><input type="number" step="0.01" value="<%= recipe.costs.labor %>" id="labor-input"
                 oninput="changeCost('labor-input', 'labor')" <% if(!auth){ %>disabled<% } %>></div>
                 <% if(auth){ %>
                     <label class="switch"><input type="checkbox"
@@ -64,7 +65,7 @@ onclick="toggleEdit('edit-recipe', '', '')" onsubmit="packageJSON()" id="recipe-
         <% } %>
         <% if(auth || recipe.sharingPermissions.misc){ %>
             <div class="checkbox flex-container">
-                <div>Misc - $
+                <div>Misc - <%= c %>
                     <input type="number" step="0.01" value="<%= recipe.costs.misc %>" id="misc-input" oninput="changeCost('misc-input', 'misc')"
                     <% if(!auth){ %>disabled<% } %>>
                 </div>
@@ -78,7 +79,7 @@ onclick="toggleEdit('edit-recipe', '', '')" onsubmit="packageJSON()" id="recipe-
         <% } %>
         <% if(auth || recipe.sharingPermissions.overhead){ %>
             <div class="checkbox flex-container">
-                <div>Overhead - $<input type="number" step="0.01" value="<%= recipe.costs.overhead %>" id="overhead-input"
+                <div>Overhead - <%= c %><input type="number" step="0.01" value="<%= recipe.costs.overhead %>" id="overhead-input"
                 oninput="changeCost('overhead-input', 'overhead')" <% if(!auth){ %>disabled<% } %>></div>
                 <% if(auth){ %>
                     <label class="switch"><input type="checkbox"
@@ -90,7 +91,7 @@ onclick="toggleEdit('edit-recipe', '', '')" onsubmit="packageJSON()" id="recipe-
         <% } %>
         <% if(auth || recipe.shareServingCost){ %>
             <div class="checkbox flex-container">
-                <div>Portion- $<input type="number" step="0.01" value="<%= recipe.servingCost %>" id="serving-cost-input" disabled></div>
+                <div>Portion- <%= c %><input type="number" step="0.01" value="<%= recipe.servingCost %>" id="serving-cost-input" disabled></div>
                 <% if(auth){ %>
                     <label class="switch"><input type="checkbox"
                     name="shareServingCostJSON" <% if(recipe.shareServingCost){ %> checked <% } %>>
@@ -120,7 +121,7 @@ onclick="toggleEdit('edit-recipe', '', '')" onsubmit="packageJSON()" id="recipe-
         <% } %>
         <% if(auth || recipe.sharingPermissions.profit){ %>
             <div class="checkbox flex-container">
-                <div>Profit - $
+                <div>Profit - <%= c %>
                     <input type="number" step="0.01" value="<%= Math.round(100*recipe.profit)/100 %>" id="profit" style="color: <%= color %>" disabled>
                 </div>
                 <% if(auth){ %>
@@ -133,7 +134,7 @@ onclick="toggleEdit('edit-recipe', '', '')" onsubmit="packageJSON()" id="recipe-
         <% } %>
         <% if(auth || recipe.sharingPermissions.price){ %>
             <div class="checkbox flex-container">
-                <div>Price - $<input type="number" step="0.01" value="<%= recipe.price.val %>" id="price" oninput="changePrice()"
+                <div>Price - <%= c %><input type="number" step="0.01" value="<%= recipe.price.val %>" id="price" oninput="changePrice()"
                 <% if(!auth){ %>disabled<% } %>></div>
                 <% if(auth){ %>
                     <label class="switch"><input type="checkbox"
@@ -178,7 +179,7 @@ onclick="toggleEdit('edit-recipe', '', '')" onsubmit="packageJSON()" id="recipe-
             <p class="PDFShow" style="display: none">
                 <% let p = recipe.price %>
                 <% if(recipe.sharingPermissions.price){ %>
-                    Price: $<%= p.val %> / <% if(p.qt != 1){ %><%= p.qt %> <% } %><%= p.units %>
+                    Price: <%= c %><%= p.val %> / <% if(p.qt != 1){ %><%= p.qt %> <% } %><%= p.units %>
                 <% } %>
             </p>
             <% if(recipe.sharingPermissions.misc || recipe.sharingPermissions.overhead || recipe.shareServingCost || recipe.sharingPermissions.labor || recipe.sharingPermissions.food || recipe.sharingPermissions.profit || recipe.sharingPermissions.profitMargin){ %>
@@ -186,22 +187,22 @@ onclick="toggleEdit('edit-recipe', '', '')" onsubmit="packageJSON()" id="recipe-
                     <% let cost = recipe.costs %>
                     Costs:
                     <% if(recipe.sharingPermissions.misc){ %>
-                        $<%= cost.misc %> misc,
+                        <%= c %><%= cost.misc %> misc,
                     <% } %>
                     <% if(recipe.sharingPermissions.overhead){ %>
-                        $<%= cost.overhead %> overhead,
+                        <%= c %><%= cost.overhead %> overhead,
                     <% } %>
                     <% if(recipe.shareServingCost){ %>
-                        $<%= recipe.servingCost %> per portion,
+                        <%= c %><%= recipe.servingCost %> per portion,
                     <% } %>
                     <% if(recipe.sharingPermissions.labor){ %>
-                        $<%= cost.labor %> labor,
+                        <%= c %><%= cost.labor %> labor,
                     <% } %>
                     <% if(recipe.sharingPermissions.food){ %>
-                        $<%= recipe.foodCost %> food,
+                        <%= c %><%= recipe.foodCost %> food,
                     <% } %>
                     <% if(recipe.sharingPermissions.profit){ %>
-                        $<%= recipe.profit %> profit,
+                        <%= c %><%= recipe.profit %> profit,
                     <% } %>
                     <% if(recipe.sharingPermissions.profitMargin){ %>
                         <%= recipe.profitMargin %>% margin

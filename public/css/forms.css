@@ -27,7 +27,7 @@
     margin-bottom: 15px;
     margin-top: 5px;
 }
-.login-form-input input {
+.login-form-input input, .login-form-input select {
     padding: 10px;
     margin: 10px 0;
     width: 330px;
@@ -37,7 +37,7 @@
     color: grey;
     transition: 0.2s ease-in-out;
 }
-.login-form-input input:focus {
+.login-form-input input:focus, .login-form-input select:focus {
     outline: none;
     border-color: #8C9EFF;
     color: #8C9EFF;

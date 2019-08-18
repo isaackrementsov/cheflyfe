@@ -1,5 +1,6 @@
 <% include partials/header %>
 <% let auth = menu.author.id == session.userID %>
+<% let c = menu.author.currency %>
 <div class="profile-nav ingredients-header">
     <h1>View Menu</h1>
 </div>
@@ -148,19 +149,19 @@ onclick="toggleEdit('menu-edit')" onsubmit="packageJSON()" id="menu-update-form"
                                     <% let cost = menu.recipes[i].costs %>
                                     <b style="font-size: 13px; color: #8C9EFF">
                                         <% if(auth || menu.sharingPermissions.misc){ %>
-                                            <span class="<% if(!menu.sharingPermissions.misc){ %>PDFIgnore<% } %>">$<%= cost.misc %> misc, </span>
+                                            <span class="<% if(!menu.sharingPermissions.misc){ %>PDFIgnore<% } %>"><%= c %><%= cost.misc %> misc, </span>
                                         <% } %>
                                         <% if(auth || menu.sharingPermissions.overhead){ %>
-                                            <span class="<% if(!menu.sharingPermissions.overhead){ %>PDFIgnore<% } %>">$<%= cost.overhead %> overhead, </span>
+                                            <span class="<% if(!menu.sharingPermissions.overhead){ %>PDFIgnore<% } %>"><%= c %><%= cost.overhead %> overhead, </span>
                                         <% } %>
                                         <% if(auth || menu.sharingPermissions.labor){ %>
-                                            <span class="<% if(!menu.sharingPermissions.labor){ %>PDFIgnore<% } %>">$<%= cost.labor %> labor, </span>
+                                            <span class="<% if(!menu.sharingPermissions.labor){ %>PDFIgnore<% } %>"><%= c %><%= cost.labor %> labor, </span>
                                         <% } %>
                                         <% if(auth || menu.sharingPermissions.food){ %>
-                                            <span class="<% if(!menu.sharingPermissions.food){ %>PDFIgnore<% } %>">$<%= menu.recipes[i].foodCost %> food, </span>
+                                            <span class="<% if(!menu.sharingPermissions.food){ %>PDFIgnore<% } %>"><%= c %><%= menu.recipes[i].foodCost %> food, </span>
                                         <% } %>
                                         <% if(auth || menu.sharingPermissions.profit){ %>
-                                            <span class="<% if(!menu.sharingPermissions.profit){ %>PDFIgnore<% } %>">$<%= menu.recipes[i].profit %> profit, </span>
+                                            <span class="<% if(!menu.sharingPermissions.profit){ %>PDFIgnore<% } %>"><%= c %><%= menu.recipes[i].profit %> profit, </span>
                                         <% } %>
                                         <% if(auth || menu.sharingPermissions.profitMargin){ %>
                                             <span class="<% if(!menu.sharingPermissions.profitMargin){ %>PDFIgnore<% } %>"><%= menu.recipes[i].profitMargin %>% margin</span>
@@ -171,7 +172,7 @@ onclick="toggleEdit('menu-edit')" onsubmit="packageJSON()" id="menu-update-form"
                             <div>
                                 <% let p = menu.recipes[i].price %>
                                 <% if(auth || menu.sharingPermissions.price){ %>
-                                    $<%= p.val %>/<% if(p.qt != 1){ %><%= p.qt %> <% } %><%= p.units %>
+                                    <%= c %><%= p.val %>/<% if(p.qt != 1){ %><%= p.qt %> <% } %><%= p.units %>
                                 <% } %>
                                 <% if(auth){ %>
                                     <i class="material-icons" onclick="removeRecipe(<%= menu.recipes[i].id %>, '<%= menu.recipes[i].name %>')">close</i>
@@ -187,7 +188,7 @@ onclick="toggleEdit('menu-edit')" onsubmit="packageJSON()" id="menu-update-form"
                             <span><%= menu.ingredients[i].name %></span>
                             <div>
                                 <%= menu.ingredients[i].price.qt %> <%= menu.ingredients[i].price.units %>,
-                                $<%= menu.ingredients[i].price.val %>
+                                <%= c %><%= menu.ingredients[i].price.val %>
                             </div>
                         </div>
                     <% } %>

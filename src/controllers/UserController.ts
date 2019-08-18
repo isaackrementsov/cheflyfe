@@ -36,6 +36,8 @@ export default class UserController {
             req.session.userID = user.id;
             req.session.admin = user.admin;
             req.session.avatar = user.avatar;
+            req.session.currency = user.currency;
+            req.session.system = user.system;
             req.session.error = null;
 
             if(user.admin){
@@ -56,7 +58,9 @@ export default class UserController {
             email: req.body.email,
             avatar: req.files['avatarUpl'].path,
             name: {first: req.body.first, last: req.body.last},
-            username: req.body.username
+            username: req.body.username,
+            system: req.body.system,
+            currency: req.body.currency
         });
 
         try {
@@ -98,6 +102,8 @@ export default class UserController {
                     }
                 }catch(e){}
             }
+            
+            Object.assign(req.session, update);
 
             await this.userRepo.update(req.session.userID, update);
         }

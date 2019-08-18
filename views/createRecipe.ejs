@@ -1,5 +1,6 @@
 <% include partials/header %>
 <% include partials/lists/units %>
+<% let c = session.currency %>
 <div class="profile-nav ingredients-header">
     <h1><% if(session.admin){ %>Post a Public Recipe<% }else{ %>Create Recipe<% } %></h1>
 </div>
@@ -18,23 +19,23 @@
         <h2>Display to Viewers</h2>
         <h3>Costs</h3>
         <div class="checkbox flex-container">
-            <div>Food - $<input type="number" step="0.01" name="foodJSON" id="food-input" value="0" disabled></div>
+            <div>Food - <%= c %><input type="number" step="0.01" name="foodJSON" id="food-input" value="0" disabled></div>
             <label class="switch"><input type="checkbox" name="foodShareJSON"><span class="slider"></span></label>
         </div>
         <div class="checkbox flex-container">
-            <div>Labour - $<input type="number" step="0.01" name="laborJSON" value="0" id="labor-input" oninput="changeCost('labor-input', 'labor')"></div>
+            <div>Labour - <%= c %><input type="number" step="0.01" name="laborJSON" value="0" id="labor-input" oninput="changeCost('labor-input', 'labor')"></div>
             <label class="switch"><input type="checkbox" name="laborShareJSON"><span class="slider"></span></label>
         </div>
         <div class="checkbox flex-container">
-            <div>Misc - $<input type="number" step="0.01" name="miscJSON" value="0" id="misc-input" oninput="changeCost('misc-input', 'misc')"></div>
+            <div>Misc - <%= c %><input type="number" step="0.01" name="miscJSON" value="0" id="misc-input" oninput="changeCost('misc-input', 'misc')"></div>
             <label class="switch"><input type="checkbox" name="miscShareJSON"><span class="slider"></span></label>
         </div>
         <div class="checkbox flex-container">
-            <div>Overhead - $<input type="number" step="0.01" name="overheadJSON" value="0" id="overhead-input" oninput="changeCost('overhead-input', 'food')"></div>
+            <div>Overhead - <%= c %><input type="number" step="0.01" name="overheadJSON" value="0" id="overhead-input" oninput="changeCost('overhead-input', 'food')"></div>
             <label class="switch"><input type="checkbox" name="overheadShareJSON"><span class="slider"></span></label>
         </div>
         <div class="checkbox flex-container">
-            <div>Portion - $<input type="number" step="0.01" value="0" id="serving-cost-input" disabled></div>
+            <div>Portion - <%= c %><input type="number" step="0.01" value="0" id="serving-cost-input" disabled></div>
             <label class="switch"><input type="checkbox" name="servingShareJSON"><span class="slider"></span></label>
         </div>
         <h3>Profit</h3>
@@ -43,11 +44,11 @@
             <label class="switch"><input type="checkbox" name="profitMarginShareJSON"><span class="slider"></span></label>
         </div>
         <div class="checkbox flex-container">
-            <div>Profit - $<input type="number" step="0.01" name="profitJSON" value="0" id="profit" disabled></div>
+            <div>Profit - <%= c %><input type="number" step="0.01" name="profitJSON" value="0" id="profit" disabled></div>
             <label class="switch"><input type="checkbox" name="profitShareJSON"><span class="slider"></span></label>
         </div>
         <div class="checkbox flex-container">
-            <div>Price - $<input type="number" step="0.01" name="priceJSON" value="0" id="price" oninput="changePrice()"></div>
+            <div>Price - <%= c %><input type="number" step="0.01" name="priceJSON" value="0" id="price" oninput="changePrice()"></div>
             <label class="switch"><input type="checkbox" name="priceShareJSON"><span class="slider"></span></label>
         </div>
         <h3>Other</h3>

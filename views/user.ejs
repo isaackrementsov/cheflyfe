@@ -61,6 +61,20 @@
                 <span id="bio" onclick="toggleEdit('user-edit', 'bio', 'bio-edit')"><%= user.bio %></span>
                 <% if(auth){ %><textarea id="bio-edit" name="bio" style="display: none"><%= user.bio %></textarea><% } %>
             </p>
+            <div class="post-content grey-inputs account-edit">
+                <h3>Account Info</h3>
+                <span onclick="toggleEdit('user-edit', 'currency', 'currency-edit')" id="currency">
+                    Currency symbol - <%= user.currency %>
+                </span>
+                <input type="text" id="currency-edit" placeholder="Symbol" value="<%= user.currency %>" name="currency" style="display: none">
+                <span onclick="toggleEdit('user-edit', 'measurements', 'measurements-edit')" id="measurements">
+                    Units - <%= user.system %>
+                </span>
+                <select  id="measurements-edit" name="system" style="display: none">
+                    <option value="imperial" <% if(user.system == 'imperial'){ %>selected<% } %>>Imperial</option>
+                    <option value="metric" <% if(user.system == 'metric'){ %>selected<% } %>>Metric</option>
+                </select>
+            </div>
             <% if(auth){ %>
                 <p class="inline-center" id="user-edit" style="display: none">
                     <input type="submit" value="Save">

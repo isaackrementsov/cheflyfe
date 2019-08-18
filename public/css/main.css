@@ -841,3 +841,7 @@ button.edit-conversions.wide, button.edit-allergens.wide {
 .purchase-canvas-container {
     height: 250px;
 }
+.account-edit input, .account-edit select {
+    width: 90% !important;
+    margin: 10px auto;
+}
