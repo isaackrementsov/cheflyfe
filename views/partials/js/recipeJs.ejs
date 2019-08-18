@@ -307,4 +307,25 @@
 
         servingCost.attr('value', money(total(cost)/servings));
     }
+
+    function adjustMargin(){
+        if(profitMargin.value < 100 && profitMargin.value >= 0){
+            price = money(total(cost)/(1 - profitMargin.value/100));
+            let income = money(price - total(cost));;
+
+            $('#price').attr('value', price);
+            profit.setAttribute('value', income);
+
+            if(income < 0){
+                profit.style.color = 'coral';
+                profitMargin.style.color = 'coral';
+            }else if(income == 0){
+                profit.style.color = 'inherit';
+                profitMargin.style.color = 'inherit';
+            }else{
+                profit.style.color = '#00E676';
+                profitMargin.style.color = '#00E676';
+            }
+        }
+    }
 </script>

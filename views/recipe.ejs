@@ -108,7 +108,7 @@ onclick="toggleEdit('edit-recipe', '', '')" onsubmit="packageJSON()" id="recipe-
             <div class="checkbox flex-container">
                 <div>Profit -
                     <input type="number" step="0.01" value="<%= recipe.profitMargin %>" id="profit-margin"
-                    style="color: <%= color %>" disabled>%
+                    oninput="adjustMargin()" style="color: <%= color %>">%
                 </div>
                 <% if(auth){ %>
                     <label class="switch"><input type="checkbox"
@@ -121,7 +121,7 @@ onclick="toggleEdit('edit-recipe', '', '')" onsubmit="packageJSON()" id="recipe-
         <% if(auth || recipe.sharingPermissions.profit){ %>
             <div class="checkbox flex-container">
                 <div>Profit - $
-                    <input type="number" step="0.01" value="<%= recipe.profit %>" id="profit" style="color: <%= color %>" disabled>
+                    <input type="number" step="0.01" value="<%= Math.round(100*recipe.profit)/100 %>" id="profit" style="color: <%= color %>" disabled>
                 </div>
                 <% if(auth){ %>
                     <label class="switch"><input type="checkbox"
