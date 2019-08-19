@@ -25,7 +25,7 @@
     let cost = <% if(locals.recipe){ %><%- JSON.stringify({...recipe.costs, ...{food: recipe.foodCost}}) %><% }else{ %>{food: 0, labor: 0, overhead: 0, misc: 0}<% } %>;
     let ids = <%= JSON.stringify(user.ingredients.map(i => i.id)) %>;
     let names = <%- JSON.stringify(user.ingredients.map(i => i.name)) %>;
-    let prices = <%= JSON.stringify(user.ingredients.map(i => i.price.val)) %>;
+    let prices = <%= JSON.stringify(user.ingredients.map(i => Math.round(100*i.price.val/(1 - i.wastage/100))/100)) %>;
     let units =  <%- JSON.stringify(user.ingredients.map(i => [i.price.units].concat(i.conversions.map(c => c.units)))) %>;
     let factors = <%= JSON.stringify(user.ingredients.map(i => [i.price.qt].concat(i.conversions.map(c => c.qt)))) %>;
     let recipeIds = <%= JSON.stringify(user.recipes.map(r => r.id)) %>;
@@ -59,7 +59,7 @@
             }
         }else{
             cost.food += money(val);
-            foodInput.setAttribute('value', cost.food);
+            foodInput.setAttribute('value', money(cost.food));
         }
 
         updateProfit();

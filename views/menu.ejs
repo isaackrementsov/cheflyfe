@@ -187,8 +187,9 @@ onclick="toggleEdit('menu-edit')" onsubmit="packageJSON()" id="menu-update-form"
                         <div class="flex-container step brigade">
                             <span><%= menu.ingredients[i].name %></span>
                             <div>
-                                <%= menu.ingredients[i].price.qt %> <%= menu.ingredients[i].price.units %>,
-                                <%= c %><%= menu.ingredients[i].price.val %>
+                                <% let w = 1 - menu.ingredients[i].wastage/100 %>
+                                <%= menu.ingredients[i].price.qt/w %> <%= menu.ingredients[i].price.units %>,
+                                <%= c %><%= menu.ingredients[i].price.val/w %>
                             </div>
                         </div>
                     <% } %>

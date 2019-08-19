@@ -93,7 +93,7 @@ export default class Recipe {
         for(let i = 0; i < this.ingredients.length; i++){
             let ingredient = this.ingredients[i];
 
-            sum += ingredient.price.val * ingredient.unitConvert(this.quantities[i]);
+            sum += ingredient.price.val * ingredient.unitConvert(this.quantities[i]) / (1 - ingredient.wastage/100);
         }
 
         for(let subRecipe of this.subRecipes){
