@@ -13,6 +13,7 @@ export type UnitQt = {qt: number, units: string};
 export type Info = {allergens: boolean, profitMargin: boolean, profit: boolean, price: boolean, labor: boolean, overhead: boolean, misc: boolean, food: boolean};
 export type PaymentInfo = {creditCardNumber: number};
 export type PurchaseRecord = {val: number, timestamp: Date};
+export type Rating = {userID: number, val: number};
 
 export class RecipeSearcher {
     author : User;
@@ -61,6 +62,7 @@ export class RecipeSearcher {
         pop.quantities = [];
         pop.subRecipes = [];
         pop.recipeQuantities = [];
+        pop.ratings = [];
 
         pop = await this.recipeRepo.save(pop);
 

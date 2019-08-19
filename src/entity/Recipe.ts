@@ -1,5 +1,5 @@
 import {getRepository, Entity, Column, PrimaryGeneratedColumn, ManyToMany, ManyToOne, JoinTable} from 'typeorm';
-import {UnitQt, PricePerUnit, Costs, Info} from '../util/typeDefs';
+import {UnitQt, PricePerUnit, Costs, Info, Rating} from '../util/typeDefs';
 import {money} from '../util/mathUtils';
 import Menu from './Menu';
 import Ingredient from './Ingredient';
@@ -37,6 +37,8 @@ export default class Recipe {
     quantities : UnitQt[];
     @Column('simple-json')
     recipeQuantities : UnitQt[];
+    @Column('simple-json')
+    ratings : Rating[] = [];
     @Column('simple-json')
     sharingPermissions : Info = {
         allergens: false,

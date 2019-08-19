@@ -1,0 +1,39 @@
+<div class="rating-container">
+    <div class="rating">
+        <label>
+            <input type="radio" name="starsJSON" value="1" />
+            <span class="icon"><i class="material-icons">star_border</i></span>
+        </label>
+        <label>
+            <input type="radio" name="starsJSON" value="2" />
+            <span class="icon"><i class="material-icons">star_border</i></span>
+            <span class="icon"><i class="material-icons">star_border</i></span>
+        </label>
+        <label>
+            <input type="radio" name="starsJSON" value="3" />
+            <span class="icon"><i class="material-icons">star_border</i></span>
+            <span class="icon"><i class="material-icons">star_border</i></span>
+            <span class="icon"><i class="material-icons">star_border</i></span>
+        </label>
+        <label>
+            <input type="radio" name="starsJSON" value="4" />
+            <span class="icon"><i class="material-icons">star_border</i></span>
+            <span class="icon"><i class="material-icons">star_border</i></span>
+            <span class="icon"><i class="material-icons">star_border</i></span>
+            <span class="icon"><i class="material-icons">star_border</i></span>
+        </label>
+    </div>
+    <button>Rate</button>
+</div>
+<script>
+    $(':radio').change(function(){
+        $('.rating label input:checked ~ .icon i').text('star');
+        $('.rating label input:not(:checked) ~ .icon i').text('star_border');
+    });
+
+    $('.rating label .icon').hover(function(){
+        console.log('hover')
+        $('.rating label input:hover ~ .icon i').text('star');
+        $('.rating label input:not(:hover):not(:checked) ~ .icon i').text('star_border');
+    });
+</script>

@@ -61,21 +61,21 @@
                 <span id="bio" onclick="toggleEdit('user-edit', 'bio', 'bio-edit')"><%= user.bio %></span>
                 <% if(auth){ %><textarea id="bio-edit" name="bio" style="display: none"><%= user.bio %></textarea><% } %>
             </p>
-            <div class="post-content grey-inputs account-edit">
-                <h3>Account Info</h3>
-                <span onclick="toggleEdit('user-edit', 'currency', 'currency-edit')" id="currency">
-                    Currency symbol - <%= user.currency %>
-                </span>
-                <input type="text" id="currency-edit" placeholder="Symbol" value="<%= user.currency %>" name="currency" style="display: none">
-                <span onclick="toggleEdit('user-edit', 'measurements', 'measurements-edit')" id="measurements">
-                    Units - <%= user.system %>
-                </span>
-                <select  id="measurements-edit" name="system" style="display: none">
-                    <option value="imperial" <% if(user.system == 'imperial'){ %>selected<% } %>>Imperial</option>
-                    <option value="metric" <% if(user.system == 'metric'){ %>selected<% } %>>Metric</option>
-                </select>
-            </div>
             <% if(auth){ %>
+                <div class="post-content grey-inputs account-edit">
+                    <h3>Account Info</h3>
+                    <span onclick="toggleEdit('user-edit', 'currency', 'currency-edit')" id="currency">
+                        Currency symbol - <%= user.currency %>
+                    </span>
+                    <input type="text" id="currency-edit" placeholder="Symbol" value="<%= user.currency %>" name="currency" style="display: none">
+                    <span onclick="toggleEdit('user-edit', 'measurements', 'measurements-edit')" id="measurements">
+                        Units - <%= user.system %>
+                    </span>
+                    <select  id="measurements-edit" name="system" style="display: none">
+                        <option value="imperial" <% if(user.system == 'imperial'){ %>selected<% } %>>Imperial</option>
+                        <option value="metric" <% if(user.system == 'metric'){ %>selected<% } %>>Metric</option>
+                    </select>
+                </div>
                 <p class="inline-center" id="user-edit" style="display: none">
                     <input type="submit" value="Save">
                     <button onclick="cancelEdit()" type="button">Cancel</button>
@@ -107,10 +107,17 @@
             }) %>
             <% for(let i = posts.length - 1; i >= 0; i--){ %>
                 <% if(posts[i].feed){ %>
-                        <div class="post-card">
+                        <form class="post-card" method="POST" action="/recipes/update/<%= posts[i].id %>?_method=PATCH">
                             <div class="post-header">
                                 <span><%= posts[i].name %></span>
                                 <time class="timeago" datetime="<%= new Date(posts[i].timestamp).toISOString() %>"></time>
+                            </div>
+                            <div class="post-content star-rating-container">
+                                <% let sum = 0;
+                                    for(let rating of posts[i].ratings){
+                                        sum += rating.val
+                                    } %>
+                                <i class="material-icons star-rating">star</i><span><%= Math.round(10*sum/posts[i].ratings.length)/10 %></span>
                             </div>
                             <div class="post-content">
                                 <%= posts[i].description %>
@@ -129,12 +136,15 @@
                                     </div>
                                 <% } %>
                             </div>
+                            <% if(!auth && posts[i].ratings.map(r => r.userID).indexOf(session.userID) == -1){ %>
+                                <% include partials/forms/stars %>
+                            <% } %>
                             <% if(auth || posts[i].sharedUsers.filter(u => u.id == session.userID).length > 0){ %>
                                 <div class="post-content" style="padding-bottom: 20px">
                                     <a class="cta" href="/recipes/<%= posts[i].id %>">View</a>
                                 </div>
                             <% } %>
-                        </div>
+                        </form>
                     <% }else{ %>
                         <form style="display: none" id="delete-form-<%= posts[i].id %>" method="POST" action="/posts/delete/<%= posts[i].id %>?_method=DELETE"></form>
                         <form method="POST"
@@ -150,6 +160,15 @@
                                     </span>
                                 <% } %>
                                 <time class="timeago" datetime="<%= new Date(posts[i].timestamp).toISOString() %>"></time>
+                            </div>
+                            <div class="post-content star-rating-container">
+                                <% let sum = 0;
+                                    for(let rating of posts[i].ratings){
+                                        sum += rating.val
+                                    } %>
+                                <i class="material-icons star-rating">star</i><span>
+                                    <%= posts[i].ratings.length == 0 ? 'No ratings' : Math.round(10*sum/posts[i].ratings.length)/10 %>
+                                </span>
                             </div>
                             <div class="post-content" id="post-text<%= posts[i].id %>" onclick="toggleEdit('post-update<%= posts[i].id %>', 'post-text<%= posts[i].id %>', 'post-text-edit<%= posts[i].id %>')">
                                 <% if(posts[i].author.admin){ %>
@@ -193,6 +212,9 @@
                                     </div>
                                 <% } %>
                             </div>
+                            <% if(!auth && posts[i].ratings.map(r => r.userID).indexOf(session.userID) == -1){ %>
+                                <% include partials/forms/stars %>
+                            <% } %>
                             <% if(!posts[i].author.admin){ %>
                                 <div class="post-content">
                                     <div style="margin-bottom: 20px">

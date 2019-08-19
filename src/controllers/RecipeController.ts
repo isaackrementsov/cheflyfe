@@ -105,36 +105,50 @@ export default class RecipeController {
 
     patchUpdate = async (req: Request, res: Response) => {
         let update = Middleware.decodeBody(req.body, req.files);
-        let toUpdate : Recipe = await this.recipeRepo.createQueryBuilder()
-            .select()
-            .where('authorId = :userID AND id = :id', {
-                userID: req.session.userID,
-                id: parseInt(req.params.id)
-            })
-            .getOne();
 
-        if(toUpdate){
-            if(update['recipe']){
-                toUpdate.filePaths.push(update['recipe']);
-            }else{
-                if(!update['shareServingCost']){
-                    update['shareServingCost'] = false;
+        if(update['stars']){
+            let toUpdate : Recipe = await this.recipeRepo.createQueryBuilder()
+                .select()
+                .where('id = :id', {id: parseInt(req.params.id)})
+                .getOne();
+
+            if(toUpdate.ratings.map(r => r.userID).indexOf(req.session.userID) == -1){
+                toUpdate.ratings.push({userID: req.session.userID, val: update['stars']});
+                await this.recipeRepo.save(toUpdate);
+            }
+            res.redirect(req.header('referer'));
+        }else{
+            let toUpdate : Recipe = await this.recipeRepo.createQueryBuilder()
+                .select()
+                .where('authorId = :userID AND id = :id', {
+                    userID: req.session.userID,
+                    id: parseInt(req.params.id)
+                })
+                .getOne();
+
+            if(toUpdate){
+                if(update['recipe']){
+                    toUpdate.filePaths.push(update['recipe']);
+                }else{
+                    if(!update['shareServingCost']){
+                        update['shareServingCost'] = false;
+                    }
+
+                    Object.assign(toUpdate, update);
+
+                    //TODO: Work on deleting with shared recipes
+                    /*if(req.body.deletedMeta != '' && req.body.deletedMeta){
+                        try{
+                            fs.unlinkSync(__dirname + '../../../public' + req.body.deletedMeta);
+                        }catch(e){ }
+                    }*/
                 }
 
-                Object.assign(toUpdate, update);
-
-                //TODO: Work on deleting with shared recipes
-                /*if(req.body.deletedMeta != '' && req.body.deletedMeta){
-                    try{
-                        fs.unlinkSync(__dirname + '../../../public' + req.body.deletedMeta);
-                    }catch(e){ }
-                }*/
+                await this.recipeRepo.save(toUpdate);
             }
 
-            await this.recipeRepo.save(toUpdate);
+            res.redirect('/recipes/' + req.params.id);
         }
-
-        res.redirect('/recipes/' + req.params.id);
     }
 
     putTransfer = async (req: Request, res: Response) => {

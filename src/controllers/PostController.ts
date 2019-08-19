@@ -57,48 +57,63 @@ export default class PostController {
     patchUpdate = async (req: Request, res: Response) => {
         let update = Middleware.decodeBody(req.body, req.files);
 
-        if(typeof update['filePaths'] == 'string' || (update['addedComment'] != '' && update['addedComment'])){
-            let toUpdate : Post = await this.postRepo.createQueryBuilder('post')
+        if(update['stars']){
+            let toUpdate : Post = await this.postRepo.createQueryBuilder()
                 .select()
-                .leftJoinAndSelect('post.comments', 'comment')
-                .where('post.authorId = :userID AND post.id = :id', {
-                    userID: typeof update['filePaths'] == 'string' ? req.session.userID : parseInt(req.query.userID),
-                    id: parseInt(req.params.id)
-                })
+                .where('id = :id', {id: parseInt(req.params.id)})
                 .getOne();
 
-            if(toUpdate){
-                if(typeof update['filePaths'] == 'string'){
-                    toUpdate.filePaths.push(update['filePaths']);
-                }else{
-                    let comment = new Comment({
-                        author: await this.userRepo.findOne(req.session.userID),
-                        content: update['addedComment']
-                    });
+            if(toUpdate.ratings.map(r => r.userID).indexOf(req.session.userID) == -1){
+                toUpdate.ratings.push({userID: req.session.userID, val: update['stars']});
 
-                    toUpdate.comments ? toUpdate.comments.push(comment) : toUpdate.comments = [comment];
-                }
                 await this.postRepo.save(toUpdate);
             }
+
+            res.redirect(req.header('referer'));
         }else{
-            if(update['addedComment'] == '') delete update['addedComment'];
+            if(typeof update['filePaths'] == 'string' || (update['addedComment'] != '' && update['addedComment'])){
+                let toUpdate : Post = await this.postRepo.createQueryBuilder('post')
+                    .select()
+                    .leftJoinAndSelect('post.comments', 'comment')
+                    .where('post.authorId = :userID AND post.id = :id', {
+                        userID: typeof update['filePaths'] == 'string' ? req.session.userID : parseInt(req.query.userID),
+                        id: parseInt(req.params.id)
+                    })
+                    .getOne();
 
-            await this.postRepo.createQueryBuilder()
-                .update().set(update)
-                .where('authorId = :userID AND id = :id', {
-                    userID: req.session.userID,
-                    id: parseInt(req.params.id)
-                })
-                .execute();
+                if(toUpdate){
+                    if(typeof update['filePaths'] == 'string'){
+                        toUpdate.filePaths.push(update['filePaths']);
+                    }else{
+                        let comment = new Comment({
+                            author: await this.userRepo.findOne(req.session.userID),
+                            content: update['addedComment']
+                        });
+
+                        toUpdate.comments ? toUpdate.comments.push(comment) : toUpdate.comments = [comment];
+                    }
+                    await this.postRepo.save(toUpdate);
+                }
+            }else{
+                if(update['addedComment'] == '') delete update['addedComment'];
+
+                await this.postRepo.createQueryBuilder()
+                    .update().set(update)
+                    .where('authorId = :userID AND id = :id', {
+                        userID: req.session.userID,
+                        id: parseInt(req.params.id)
+                    })
+                    .execute();
+            }
+
+            if(req.body.deletedMeta != '' && req.body.deletedMeta){
+                try{
+                    fs.unlinkSync(__dirname + '/../../public' + req.body.deletedMeta);
+                }catch(e){}
+            }
+
+            res.redirect('/users/' + req.query.userID);
         }
-
-        if(req.body.deletedMeta != '' && req.body.deletedMeta){
-            try{
-                fs.unlinkSync(__dirname + '/../../public' + req.body.deletedMeta);
-            }catch(e){}
-        }
-
-        res.redirect('/users/' + req.query.userID);
     }
 
     delete = async (req: Request, res: Response) => {

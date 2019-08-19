@@ -1,6 +1,7 @@
 import {Entity, Column, PrimaryGeneratedColumn, ManyToOne, OneToMany} from 'typeorm';
 import User from './User';
 import Comment from './Comment';
+import { Rating } from '../util/typeDefs';
 
 //TODO: convert all long strings to @Column('text')
 @Entity()
@@ -19,6 +20,8 @@ export default class Post {
     filePaths : string[];
     @Column()
     timestamp : Date = new Date();
+    @Column('simple-json')
+    ratings : Rating[];
 
     @OneToMany(type => Comment, comment => comment.post, {cascade: true})
     comments : Comment[];
