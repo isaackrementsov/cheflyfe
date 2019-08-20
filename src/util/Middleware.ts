@@ -155,14 +155,17 @@ export default class Middleware {
 
     auth = (req: Request, res: Response, next: NextFunction) => {
         let adminRestricted : boolean = req.url.indexOf('/admin') != -1;
-        let userRestricted : boolean = !(req.url == '/' || req.url == '/login' || req.url == '/signup' || req.url.indexOf('/css/') != -1 || req.url.indexOf('/js/') != -1 ||  req.url.indexOf('/img/') != -1 );
+        let loginRestricted : boolean = ['/login', '/signup'].indexOf(req.url) != -1;
+        let userRestricted : boolean = ['/', '/login', '/signup', '/terms', '/privacy'].indexOf(req.url) == -1;
 
         if((adminRestricted && req.session.admin) || (userRestricted && req.session.userID) || (!userRestricted && !req.session.userID)){
             next();
         }else if((adminRestricted && !req.session.admin) || (userRestricted && !req.session.userID)){
             res.redirect('/login');
-        }else if(!userRestricted && req.session.userID){
+        }else if(loginRestricted && req.session.userID){
             res.redirect('/users/' + req.session.userID);
+        }else{
+            next();
         }
     }
 

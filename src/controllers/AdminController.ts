@@ -4,11 +4,13 @@ import Record from '../entity/Record';
 import User from '../entity/User';
 import * as fs from 'fs';
 import {createObjectCsvWriter} from 'csv-writer';
+import Config from '../entity/Config';
 
 export default class AdminController {
 
     private recordRepo : Repository<Record>;
     private userRepo : Repository<User>;
+    private configRepo : Repository<Config>;
 
     getIndex = async (req: Request, res: Response) => {
         let visits : Record[] = await this.recordRepo.find({select: ['timestamp'], where: {category: 'session'}});
@@ -43,8 +45,40 @@ export default class AdminController {
         });
     }
 
+    postUpl = async (req: Request, res: Response) => {
+        let category;
+        let path;
+
+        if(req.files['termsPDFUpl']){
+            category = 'terms';
+            path = req.files['termsPDFUpl'].path;
+        }else if(req.files['privacyPDFUpl']){
+            category = 'privacy';
+            path = req.files['privacyPDFUpl'].path;
+        }
+
+        let existing : Config = await this.configRepo.findOne({category});
+
+        if(!existing){
+            existing = new Config({category, path});
+        }else{
+            existing.category = category;
+
+            try {
+                await fs.unlink(existing.path, () => {});
+            }catch(e){ }
+
+            existing.path = path;
+        }
+
+        await this.configRepo.save(existing);
+
+        res.redirect('/admin');
+    }
+
     constructor(){
         this.recordRepo = getRepository(Record);
         this.userRepo = getRepository(User);
+        this.configRepo = getRepository(Config);
     }
 }

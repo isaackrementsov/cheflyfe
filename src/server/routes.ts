@@ -16,7 +16,9 @@ let routes = app => {
     let userController : UserController = new UserController();
     let adminController : AdminController = new AdminController();
 
-    app.get('/', homeController.getIndex);
+    app.get('/', homeController.getIndex); //TODO: fix res.render({a: a}) -> res.render({a});
+    app.get('/terms', homeController.getTerms);
+    app.get('/privacy', homeController.getPrivacy);
     app.get('/login', userController.getLogin);
     app.get('/signup', userController.getSignup)
     app.get('/ingredients', ingredientController.getAll);
@@ -43,6 +45,7 @@ let routes = app => {
     app.post('/menus/create', menuController.postCreate);
     app.post('/posts/create', postController.postCreate);
     app.post('/recipes/create', recipeController.postCreate);
+    app.post('/admin/upl', adminController.postUpl);
 
     app.patch('/users/update', userController.patchUpdate);
     app.patch('/ingredients/update/:id', ingredientController.patchUpdate);

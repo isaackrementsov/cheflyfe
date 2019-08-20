@@ -866,3 +866,6 @@ button.edit-conversions.wide, button.edit-allergens.wide {
     font-weight: 300;
     font-style: italic;
 }
+iframe {
+    overflow-x: hidden;
+}

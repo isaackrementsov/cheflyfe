@@ -1,4 +1,57 @@
 <% include partials/header %>
+<style>
+    .container {
+      display: block;
+      position: relative;
+      padding-left: 30px;
+      margin-bottom: 30px;
+      cursor: pointer;
+      font-size: 17px;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+    }
+    .container input {
+      position: absolute;
+      opacity: 0;
+      cursor: pointer;
+      height: 0;
+      width: 0;
+    }
+    .checkmark {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 18.5px;
+      width: 18.5px;
+      border: 1px solid #8C9EFF;
+      border-radius: 5px;
+    }
+    .checkmark:after {
+      content: "";
+      position: absolute;
+      display: none;
+    }
+    .container input:checked ~ .checkmark:after {
+      display: block;
+    }
+    .container .checkmark:after {
+      left: 6px;
+      top: 1px;
+      width: 5px;
+      height: 10px;
+      border: solid #8C9EFF;
+      border-width: 0 3px 3px 0;
+      -webkit-transform: rotate(45deg);
+      -ms-transform: rotate(45deg);
+      transform: rotate(45deg);
+    }
+    .container a {
+        color: #8C9EFF;
+        font-weight: bold;
+    }
+</style>
 <div id="half"></div>
 <form class="login-form" method="POST" action="/<%= session.page %>" enctype="multipart/form-data">
     <div class="login-form-header">
@@ -52,6 +105,10 @@
                 <input type="file" name="avatarUpl" accept=".jpg,.png,.svg,.bmp" required>
                 <button class="form-upl">Upload avatar</button>
             </div>
+            <label class="container">I agree to the ChefLyfe <a href="/terms">Terms & Conditions</a> and <a href="/privacy">Privacy Policy</a>
+              <input type="checkbox" required>
+              <span class="checkmark"></span>
+            </label>
             <input type="submit" value="Let's go!">
         <% }else{ %>
             <h3>Enter your credientials</h3>

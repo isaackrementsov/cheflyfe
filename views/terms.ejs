@@ -1,0 +1,14 @@
+<% include partials/header %>
+<div class="profile-nav ingredients-header">
+    <h1>Terms & Conditions</h1>
+</div>
+<div class="profile-main recipe-main">
+    <div class="profile-feed">
+        <% if(path){ %>
+            <iframe src="<%= path %>#toolbar=0&navpanes=0&scrollbar=0" width="100%" height="800px" frameborder="0"></iframe>
+        <% }else{ %>
+            <p style="text-align: center">No terms of service available. Contact the site administrator before registering.</p>
+        <% } %>
+    </div>
+</div>
+<% include partials/footer %>

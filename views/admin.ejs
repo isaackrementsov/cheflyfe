@@ -13,6 +13,7 @@
             <button class="active" onclick="openData(0)">Visits</button>
             <button onclick="openData(1)">Database Activity</button>
             <button onclick="openData(2)">Users</button>
+            <button onclick="openData(3)">Legal</button>
         </p>
         <p><a style="display: inline; color: #8C9EFF; font-weight: bold" href="/users/<%= session.userID %>">Posts</a>
              you make will show up on the Cheflyfe news page
@@ -21,7 +22,7 @@
     <div class="profile-feed">
         <div class="post-card" style="box-shadow: none">
             <div class="post-header">
-                <span>View Data</span>
+                <span>Options & Data</span>
             </div>
             <div class="post-content grey-inputs" style="padding-bottom: 0" id="select-days-container">
                 View data from the <select id="select-days" oninput="buildChartByTime()" style="width: 200px">
@@ -89,6 +90,20 @@
                             <% } %>
                         </table>
                     </div>
+                </div>
+                <div style="display: none">
+                    <form class="post-content" method="POST" action="/admin/upl" id="admin-upl-form" enctype="multipart/form-data">
+                        <a href="/terms"><h2 style="font-weight: 300; color: #8C9EFF; text-decoration: underline">Terms & Conditions</h2></a>
+                        <div class="form-upl-wrapper" enctype="multipart/form-data">
+                            <button class="form-upl">Upload PDF</button>
+                            <input type="file" name="termsPDFUpl" accept=".pdf" oninput="submitForm('admin-upl-form')">
+                        </div>
+                        <a href="/privacy"><h2 style="font-weight: 300; color: #8C9EFF; text-decoration: underline">Privacy Policy</h2></a>
+                        <div class="form-upl-wrapper" enctype="multipart/form-data">
+                            <button class="form-upl">Upload PDF</button>
+                            <input type="file" name="privacyPDFUpl" accept=".pdf" oninput="submitForm('admin-upl-form')">
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
@@ -239,7 +254,7 @@
         dataButtons.attr('class', '');
         $(dataButtons[i]).attr('class', 'active');
 
-        if(i == 2){
+        if(i == 2 || i == 3){
             $('#select-days-container').hide();
         }else{
             $('#select-days-container').show();
