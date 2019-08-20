@@ -102,7 +102,7 @@ export default class UserController {
                     }
                 }catch(e){}
             }
-            
+
             Object.assign(req.session, update);
 
             await this.userRepo.update(req.session.userID, update);

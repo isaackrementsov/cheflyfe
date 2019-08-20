@@ -27,7 +27,7 @@
         </button>
     </div>
     <div class="profile-main">
-        <form class="profile-card" method="POST" action="/users/update?_method=PATCH&id=<%= user.id %>" enctype="multipart/form-data">
+        <form class="profile-card" method="POST" action="/users/update?_method=PATCH&id=<%= user.id %>" enctype="multipart/form-data" id="user-edit-form">
             <div class="avatar-container">
                 <% if(auth){ %>
                     <div class="avatar-overlay">
@@ -75,6 +75,38 @@
                         <option value="imperial" <% if(user.system == 'imperial'){ %>selected<% } %>>Imperial</option>
                         <option value="metric" <% if(user.system == 'metric'){ %>selected<% } %>>Metric</option>
                     </select>
+                </div>
+                <div class="post-content grey-inputs account-edit">
+                    <h3>Business Info</h3>
+                    <% if(user.businessLogo){ %>
+                        <div class="avatar-container">
+                            <% if(auth){ %>
+                                <div class="avatar-overlay" style="border-radius: 0 !important">
+                                    <div class="form-upl-wrapper" onclick="toggleEdit('user-edit')">
+                                        <input type="file" name="businessLogoUpl" accept=".jpg,.png,.svg,.bmp,.mp4" oninput="submitForm('user-edit-form')">
+                                        <button class="form-upl"><i class="material-icons">camera_alt</i></button>
+                                    </div>
+                                </div>
+                            <% } %>
+                            <div class="img" style="background-image: url(<%= user.businessLogo %>); border-radius: 0"></div>
+                        </div>
+                    <% }else{ %>
+                        <div class="form-upl-wrapper">
+                            <button class="form-upl" style="margin: 0 auto">Add logo</button>
+                            <input type="file" name="businessLogoUpl" accept=".jpg,.png,.svg,.bmp,.mp4" oninput="submitForm('user-edit-form')">
+                        </div>
+                    <% } %>
+                    <p>
+                        <span onclick="toggleEdit('user-edit', 'business-text', 'business-text-edit')" id="business-text">
+                            <% if(user.businessText){ %>
+                                <%= user.businessText %>
+                            <% }else{ %>
+                                No text
+                            <% } %>
+                        </span>
+                        <textarea id="business-text-edit" placeholder="Business Text" name="businessText"
+                        style="display: none"><% if(user.businessText){ %><%= user.businessText %><% }else{ %>No description<% } %></textarea>
+                    </p>
                 </div>
                 <p class="inline-center" id="user-edit" style="display: none">
                     <input type="submit" value="Save">

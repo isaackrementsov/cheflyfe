@@ -154,6 +154,7 @@ export default class RecipeController {
     putTransfer = async (req: Request, res: Response) => {
         let toTransfer : Recipe = await this.recipeRepo.createQueryBuilder('recipe')
             .leftJoinAndSelect('recipe.ingredients', 'ingredients')
+            .leftJoinAndSelect('ingredients.nutritionalInfo', 'ingredients_nutritionalInfo')
             .leftJoinAndSelect('recipe.subRecipes', 'subRecipes')
             .leftJoinAndSelect('recipe.sharedUsers', 'sharedUsers')
             .leftJoinAndSelect('recipe.author', 'author')

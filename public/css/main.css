@@ -760,6 +760,12 @@ a.cta:hover {
     .no-break {
         page-break-inside: avoid;
     }
+    .bottom {
+        position: fixed;
+        height: 20px;
+        margin-top: 40px;
+        bottom: 0;
+    }
 }
 .nutritionLabel {
     width: 300px !important;
@@ -844,4 +850,19 @@ button.edit-conversions.wide, button.edit-allergens.wide {
 .account-edit input, .account-edit select {
     width: 90% !important;
     margin: 10px auto;
+}
+.business-info {
+    margin: 20px;
+    margin-top: 0;
+}
+.business-info * {
+    vertical-align: middle;
+}
+.business-info img {
+    height: 30px;
+}
+.business-info span {
+    font-size: 17px;
+    font-weight: 300;
+    font-style: italic;
 }

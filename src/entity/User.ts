@@ -26,6 +26,10 @@ export default class User {
     system : 'metric' | 'imperial';
     @Column()
     currency : string;
+    @Column({nullable: true})
+    businessText : string;
+    @Column({nullable: true})
+    businessLogo : string;
     @Column()
     timestamp : Date = new Date();
     @Column('simple-json')

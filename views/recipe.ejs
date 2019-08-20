@@ -223,7 +223,7 @@ onclick="toggleEdit('edit-recipe', '', '')" onsubmit="packageJSON()" id="recipe-
                             <video controls><source src="<%= src %>"></video>
                         <% } %>
                         <% if(auth){ %>
-                            <div class="media-overlay">
+                            <div class="media-overlay PDFIgnore">
                                 <div class="center-inline">
                                     <button onclick="deleteImg('<%= src %>')"><i class="material-icons">delete</i></button>
                                 </div>
@@ -278,7 +278,7 @@ onclick="toggleEdit('edit-recipe', '', '')" onsubmit="packageJSON()" id="recipe-
                         <p id="ingredient-<%= recipe.ingredients[i].id %>" class="step flex-container brigade">
                             <span><%= recipe.quantities[i].qt %> <%= recipe.quantities[i].units %> <%= recipe.ingredients[i].name %></span>
                             <% if(auth){ %>
-                                <i class="material-icons"
+                                <i class="material-icons PDFIgnore"
                                 onclick="removeIngredient(<%= recipe.ingredients[i].id %>, <%= total %>, '<%= recipe.ingredients[i].name %>', false)">
                                     close
                                 </i>
@@ -293,7 +293,7 @@ onclick="toggleEdit('edit-recipe', '', '')" onsubmit="packageJSON()" id="recipe-
                         <p id="ingredient-<%= sub.id %>" class="step flex-container brigade">
                             <span><%= recipe.recipeQuantities[i].qt %> <%= recipe.recipeQuantities[i].units %> <%= sub.name %></span>
                             <% if(auth){ %>
-                                <i class="material-icons"
+                                <i class="material-icons PDFIgnore"
                                 onclick="removeIngredient(<%= sub.id %>, '<%= JSON.stringify(total) %>', '<%= sub.name %>', false)">
                                     close
                                 </i>
@@ -315,12 +315,12 @@ onclick="toggleEdit('edit-recipe', '', '')" onsubmit="packageJSON()" id="recipe-
                         <p id="step-<%= i %>" class="flex-container step brigade">
                             <span><%= recipe.steps[i] %></span>
                             <% if(auth){ %>
-                                <i class="material-icons" onclick="removeStep(<%= i %>)">close</i>
+                                <i class="material-icons PDFIgnore" onclick="removeStep(<%= i %>)">close</i>
                             <% } %>
                         </p>
                     <% } %>
                 </div>
-                <div class="grey-inputs small-inputs">
+                <div class="grey-inputs small-inputs" style="margin-top: 20px">
                     <h3 style="display: inline">Yield: </h3>
                     <span id="yield" onclick="toggle('yield', 'update-yield')" style="font-weight: bold; color: #8C9EFF"><%= recipe.price.qt %> <%= recipe.price.units %></span>
                     <% if(auth){ %>
@@ -344,11 +344,15 @@ onclick="toggleEdit('edit-recipe', '', '')" onsubmit="packageJSON()" id="recipe-
                 <p class="PDFIgnore">
                     <button type="button" class="form-upl" onclick="openDiv('nutrition-label')">Show nutritional label</button>
                 </p>
-                <div class="post-content PDFShow no-break" id="nutrition-label" style="display: none; padding: 0">
+                <div class="post-content PDFShow no-break" id="nutrition-label" style="display: none; padding: 0; margin-top: 40px">
                     <% if(!recipe.nutritionalInfo){ %>
                         <span style="color: coral">Not all of the ingredients have nutritional info</span>
                     <% } %>
                 </div>
+            </div>
+            <div class="business-info PDFShow no-break bottom" style="display: none">
+                <img src="<%= recipe.author.businessLogo %>">
+                <span><%= recipe.author.businessText %></span>
             </div>
             <% if(auth){ %>
                 <% if(recipe.menus.length == 0){ %>

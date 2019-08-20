@@ -119,6 +119,7 @@ onclick="toggleEdit('menu-edit')" onsubmit="packageJSON()" id="menu-update-form"
                 <% } %>
                 <div id="add-recipe-container">
                     <input type="hidden" value="<%= JSON.stringify(menu.recipes.map(r => r.id)) %>" name="recipesRelJSON" id="recipe-input">
+                    <h3>Recipes</h3>
                     <% if(auth){ %>
                         <p class="plus-button PDFIgnore"><button onclick="toggleArr(['add-recipe'], ['add-recipe-input', 'save-recipe'])" type="button">
                             <i class="material-icons" id="add-recipe">add</i>
@@ -175,7 +176,7 @@ onclick="toggleEdit('menu-edit')" onsubmit="packageJSON()" id="menu-update-form"
                                     <%= c %><%= p.val %>/<% if(p.qt != 1){ %><%= p.qt %> <% } %><%= p.units %>
                                 <% } %>
                                 <% if(auth){ %>
-                                    <i class="material-icons" onclick="removeRecipe(<%= menu.recipes[i].id %>, '<%= menu.recipes[i].name %>')">close</i>
+                                    <i class="material-icons PDFIgnore" onclick="removeRecipe(<%= menu.recipes[i].id %>, '<%= menu.recipes[i].name %>')">close</i>
                                 <% } %>
                             </div>
                         </div>
@@ -188,12 +189,16 @@ onclick="toggleEdit('menu-edit')" onsubmit="packageJSON()" id="menu-update-form"
                             <span><%= menu.ingredients[i].name %></span>
                             <div>
                                 <% let w = 1 - menu.ingredients[i].wastage/100 %>
-                                <%= menu.ingredients[i].price.qt/w %> <%= menu.ingredients[i].price.units %>,
-                                <%= c %><%= menu.ingredients[i].price.val/w %>
+                                <%= Math.round(100*menu.ingredients[i].price.qt/w)/100 %> <%= menu.ingredients[i].price.units %>,
+                                <%= c %><%= Math.round(100*menu.ingredients[i].price.val/w)/100 %>
                             </div>
                         </div>
                     <% } %>
                 </div>
+            </div>
+            <div class="business-info PDFShow no-break bottom" style="display: none">
+                <img src="<%= menu.author.businessLogo %>">
+                <span><%= menu.author.businessText %></span>
             </div>
             <% if(auth){ %>
                 <div class="post-content PDFIgnore">

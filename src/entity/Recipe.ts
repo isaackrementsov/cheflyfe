@@ -26,9 +26,9 @@ export default class Recipe {
     @Column()
     timestamp : Date = new Date();
     @Column('simple-array')
-    steps : string[];
-    @Column('simple-array')
     filePaths : string[]; //Limit to 6
+    @Column('simple-json')
+    steps : string[];
     @Column('simple-json')
     price : PricePerUnit;
     @Column('simple-json')
@@ -89,7 +89,7 @@ export default class Recipe {
         this.subRecipes = self.subRecipes || [];
     }
 
-    async getFoodCost(){//TODO: keep recipe/menu/ingredient record after delete
+    async getFoodCost(){
         let sum = 0;
 
         for(let i = 0; i < this.ingredients.length; i++){

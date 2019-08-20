@@ -125,7 +125,7 @@ export default class MenuController {
 
     putTransfer = async (req: Request, res: Response) => {
         let toTransfer : Menu = await this.menuRepo.findOne(parseInt(req.params.id), {
-            relations: ['recipes', 'recipes.ingredients']
+            relations: ['recipes', 'recipes.ingredients', 'recipes.ingredients.nutritionalInfo']
         });
 
         if(toTransfer){

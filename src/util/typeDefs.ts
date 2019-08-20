@@ -94,9 +94,14 @@ export class RecipeSearcher {
                     return this.convertSystem(this.author.system, c);
                 });
 
+                if(ingredient.nutritionalInfo){
+                    delete ingredient.nutritionalInfo['id'];
+                }
+
                 pop.ingredients.push(await this.ingredientRepo.save(ingredient));
-                pop.quantities.push(this.convertSystem(this.author.system, quantities[i]));
             }
+
+            pop.quantities.push(this.convertSystem(this.author.system, quantities[i]));
         }
 
         if(subs){
@@ -121,13 +126,15 @@ export class RecipeSearcher {
                 }else{
                     sub = await this.recipeRepo.createQueryBuilder('recipe')
                         .leftJoinAndSelect('recipe.ingredients', 'ingredients')
+                        .leftJoinAndSelect('ingredients.nutritionalInfo', 'ingredients_nutritionalInfo')
                         .leftJoinAndSelect('recipe.subRecipes', 'subRecipes')
                         .where('recipe.id = :id', {id: sub.id})
                         .getOne();
 
                     pop.subRecipes.push(await this.transferRecipe(sub));
-                    pop.subRecipes.push(this.convertSystem(this.author.system, recipeQuantities[i]));
                 }
+
+                pop.recipeQuantities.push(this.convertSystem(this.author.system, recipeQuantities[i]));
             }
         }
 
