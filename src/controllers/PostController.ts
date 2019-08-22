@@ -14,125 +14,160 @@ export default class PostController {
     private commentRepo : Repository<Comment>;
 
     getAll = async (req: Request, res: Response) => {
-        let user : User = await this.userRepo.findOne(parseInt(req.params.id), {
-            relations: ['brigade', 'requested', 'posts', 'posts.author', 'posts.comments', 'posts.comments.author', 'recipes', 'recipes.sharedUsers'],
-        });
+        let user : User;
+        try {
+            user = await this.userRepo.findOne(parseInt(req.params.id), {
+                relations: ['brigade', 'requested', 'posts', 'posts.author', 'posts.comments', 'posts.comments.author', 'recipes', 'recipes.sharedUsers'],
+            });
+        }catch(e){
+            req.flash('error', 'Error getting posts');
+        }
 
-        res.render(user ? 'user' : 'notFound', {user: user, posts: user.posts, session: req.session});
+        res.render(user ? 'user' : 'notFound', {user: user, posts: user.posts, session: req.session, error: req.flash('error')});
     }
 
     getPublic = async (req: Request, res: Response) => {
-        let posts : Post[] = await this.postRepo.createQueryBuilder('post')
-            .limit(5)
-            .leftJoinAndSelect('post.author', 'author')
-            .where('author.admin = :yes', {yes: true})
-            .getMany();
+        let posts : Post[] =  [];
 
-        res.render('news', {posts, session: req.session});
+        try {
+            posts = await this.postRepo.createQueryBuilder('post')
+                .limit(5)
+                .leftJoinAndSelect('post.author', 'author')
+                .where('author.admin = :yes', {yes: true})
+                .getMany();
+        }catch(e){
+            req.flash('error', 'There was an error getting news');
+        }
+
+        res.render('news', {posts, session: req.session, error: req.flash('error')});
     }
 
     getPublicIndex = async (req: Request, res: Response) => {
-        let post : Post = await this.postRepo.createQueryBuilder('post')
-            .leftJoinAndSelect('post.author', 'author')
-            .where('author.admin = :yes AND post.id = :id', {id: parseInt(req.params.id), yes: true})
-            .getOne();
+        try {
+            let post : Post = await this.postRepo.createQueryBuilder('post')
+                .leftJoinAndSelect('post.author', 'author')
+                .where('author.admin = :yes AND post.id = :id', {id: parseInt(req.params.id), yes: true})
+                .getOne();
 
-        res.render('newsPost', {post, session: req.session});
+                res.render('newsPost', {post, session: req.session, error: req.flash('error')});
+        }catch(e){
+            if(!res.headersSent){
+                req.flash('error', 'Error getting news');
+                res.redirect('/news');
+            }
+        }
     }
 
     postCreate = async (req: Request, res: Response) => {
-        let post : Post = new Post({
-            name: req.body.name,
-            content: req.body.contentOpt || '',
-            filePaths: req.files ? req.files['postUplMulti8'].map(p => p.path) : [],
-            author: await this.userRepo.findOne(req.session.userID),
-            comments: []
-        });
+        try {
+            let post : Post = new Post({
+                name: req.body.name,
+                content: req.body.contentOpt || '',
+                filePaths: req.files ? req.files['postUplMulti8'].map(p => p.path) : [],
+                author: await this.userRepo.findOne(req.session.userID),
+                comments: []
+            });
 
-        await this.postRepo.save(post);
+            await this.postRepo.save(post);
+        }catch(e){
+            req.flash('error', 'Error creating post');
+        }
 
         res.redirect('/users/' + req.session.userID);
     }
 
     patchUpdate = async (req: Request, res: Response) => {
-        let update = Middleware.decodeBody(req.body, req.files);
+        try {
+            let update = Middleware.decodeBody(req.body, req.files);
 
-        if(update['stars']){
-            let toUpdate : Post = await this.postRepo.createQueryBuilder()
-                .select()
-                .where('id = :id', {id: parseInt(req.params.id)})
-                .getOne();
-
-            if(toUpdate.ratings.map(r => r.userID).indexOf(req.session.userID) == -1){
-                toUpdate.ratings.push({userID: req.session.userID, val: update['stars']});
-
-                await this.postRepo.save(toUpdate);
-            }
-
-            res.redirect(req.header('referer'));
-        }else{
-            if(typeof update['filePaths'] == 'string' || (update['addedComment'] != '' && update['addedComment'])){
-                let toUpdate : Post = await this.postRepo.createQueryBuilder('post')
+            if(update['stars']){
+                let toUpdate : Post = await this.postRepo.createQueryBuilder()
                     .select()
-                    .leftJoinAndSelect('post.comments', 'comment')
-                    .where('post.authorId = :userID AND post.id = :id', {
-                        userID: typeof update['filePaths'] == 'string' ? req.session.userID : parseInt(req.query.userID),
-                        id: parseInt(req.params.id)
-                    })
+                    .where('id = :id', {id: parseInt(req.params.id)})
                     .getOne();
 
-                if(toUpdate){
-                    if(typeof update['filePaths'] == 'string'){
-                        toUpdate.filePaths.push(update['filePaths']);
-                    }else{
-                        let comment = new Comment({
-                            author: await this.userRepo.findOne(req.session.userID),
-                            content: update['addedComment']
-                        });
+                if(toUpdate.ratings.map(r => r.userID).indexOf(req.session.userID) == -1){
+                    toUpdate.ratings.push({userID: req.session.userID, val: update['stars']});
 
-                        toUpdate.comments ? toUpdate.comments.push(comment) : toUpdate.comments = [comment];
-                    }
                     await this.postRepo.save(toUpdate);
                 }
+
+                res.redirect(req.header('referer'));
             }else{
-                if(update['addedComment'] == '') delete update['addedComment'];
+                if(typeof update['filePaths'] == 'string' || (update['addedComment'] != '' && update['addedComment'])){
+                    let toUpdate : Post = await this.postRepo.createQueryBuilder('post')
+                        .select()
+                        .leftJoinAndSelect('post.comments', 'comment')
+                        .where('post.authorId = :userID AND post.id = :id', {
+                            userID: typeof update['filePaths'] == 'string' ? req.session.userID : parseInt(req.query.userID),
+                            id: parseInt(req.params.id)
+                        })
+                        .getOne();
 
-                await this.postRepo.createQueryBuilder()
-                    .update().set(update)
-                    .where('authorId = :userID AND id = :id', {
-                        userID: req.session.userID,
-                        id: parseInt(req.params.id)
-                    })
-                    .execute();
+                    if(toUpdate){
+                        if(typeof update['filePaths'] == 'string'){
+                            toUpdate.filePaths.push(update['filePaths']);
+                        }else{
+                            let comment = new Comment({
+                                author: await this.userRepo.findOne(req.session.userID),
+                                content: update['addedComment']
+                            });
+
+                            toUpdate.comments ? toUpdate.comments.push(comment) : toUpdate.comments = [comment];
+                        }
+                        await this.postRepo.save(toUpdate);
+                    }
+                }else{
+                    if(update['addedComment'] == '') delete update['addedComment'];
+
+                    await this.postRepo.createQueryBuilder()
+                        .update().set(update)
+                        .where('authorId = :userID AND id = :id', {
+                            userID: req.session.userID,
+                            id: parseInt(req.params.id)
+                        })
+                        .execute();
+                }
+
+                if(req.body.deletedMeta != '' && req.body.deletedMeta){
+                    try{
+                        fs.unlink(__dirname + '/../../public' + req.body.deletedMeta, () => {
+                            res.redirect('/users/' + req.query.userID);
+                        });
+                    }catch(e){ }
+                }else{
+                    res.redirect('/users/' + req.query.userID);
+                }
             }
-
-            if(req.body.deletedMeta != '' && req.body.deletedMeta){
-                try{
-                    fs.unlinkSync(__dirname + '/../../public' + req.body.deletedMeta);
-                }catch(e){}
+        }catch(e){
+            if(!res.headersSent){
+                req.flash('error', 'Error updating post');
+                res.redirect(req.header('Referer'));
             }
-
-            res.redirect('/users/' + req.query.userID);
         }
     }
 
     delete = async (req: Request, res: Response) => {
-        let toDelete : Post = await this.postRepo.createQueryBuilder('post')
-            .leftJoinAndSelect('post.comments', 'comments')
-            .where('post.authorId = :userID AND post.id = :id', {userID: req.session.userID, id: parseInt(req.params.id)})
-            .getOne()
+        try {
+            let toDelete : Post = await this.postRepo.createQueryBuilder('post')
+                .leftJoinAndSelect('post.comments', 'comments')
+                .where('post.authorId = :userID AND post.id = :id', {userID: req.session.userID, id: parseInt(req.params.id)})
+                .getOne()
 
-        toDelete.filePaths.map(p => {
-            try{
-                fs.unlinkSync(__dirname + '/../../public' + p);
-            }catch(e){ }
-        });
+            toDelete.filePaths.map(async p => {
+                try{
+                    await fs.unlink(__dirname + '/../../public' + p, () => { });
+                }catch(e){ }
+            });
 
-        toDelete.comments.map(async c => {
-            await this.commentRepo.delete(c);
-        });
+            toDelete.comments.map(async c => {
+                await this.commentRepo.delete(c);
+            });
 
-        await this.postRepo.delete(toDelete);
+            await this.postRepo.delete(toDelete);
+        }catch(e){
+            req.flash('error', 'There was an error deleting post');
+        }
 
         res.redirect('/users/' + req.session.userID);
     }

@@ -869,3 +869,71 @@ button.edit-conversions.wide, button.edit-allergens.wide {
 iframe {
     overflow-x: hidden;
 }
+.landing {
+    padding: 70px 40px;
+    justify-content: space-around;
+}
+.landing > * {
+    height: 500px;
+    max-width: 700px;
+}
+.landing div img {
+    max-height: 500px;
+    max-width: 700px;
+    box-shadow: 0 0px 8px 0 rgba(0,0,0,0.2);
+    border-radius: 5px;
+    vertical-align: middle;
+}
+.landing .cta {
+    padding: 15px 25px !important;
+    margin: 7px;
+    font-size: 20px;
+    border: 1.5px solid white !important;
+    color: #8C9EFF !important;
+    border-radius: 5px;
+    background-color: transparent !important;
+    border: 2px solid #8C9EFF !important;
+}
+.grad .cta {
+    color: white !important;
+    border: 2px solid white !important;
+}
+.landing .imp, .landing .cta:hover {
+    background-color: #8C9EFF !important;
+    color: white !important;
+}
+.grad .imp, .grad .cta:hover {
+    background-color: white !important;
+    color: #8C9EFF !important;
+}
+.landing h1 {
+    font-size: 60px;
+    font-weight: 200;
+    margin-top: 0;
+    margin-bottom: 20px;
+}
+.landing p, .landing .p {
+    font-size: 25px;
+    font-weight: 300;
+    line-height: 35px;
+    letter-spacing: 1px;
+    margin: 40px 0;
+    margin-bottom: 60px;
+}
+.landing p ul {
+    margin: 0 !important;
+}
+.landing p ul li {
+
+}
+.landing .buttons {
+    display: block;
+    margin-top: 50px;
+}
+.landing > * {
+    vertical-align: middle;
+}
+.grad {
+    background: linear-gradient(45deg, #8C9EFF, #304FFE);
+    color: whitesmoke;
+}

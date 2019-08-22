@@ -314,7 +314,7 @@
             let income = money(price - total(cost));;
 
             $('#price').attr('value', price);
-            profit.setAttribute('value', income);
+            profit.value = income;
 
             if(income < 0){
                 profit.style.color = 'coral';

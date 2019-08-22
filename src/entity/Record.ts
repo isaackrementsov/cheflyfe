@@ -1,5 +1,5 @@
 import {Entity, Column, PrimaryGeneratedColumn} from 'typeorm';
-import { DBCategory } from '../util/typeDefs';
+import {DBCategory} from '../util/typeDefs';
 
 @Entity()
 export default class Record {

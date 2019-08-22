@@ -5,12 +5,13 @@ import * as bodyParser from 'body-parser';
 import * as path from 'path';
 import * as redis from 'redis';
 import * as session from 'express-session';
+import * as flash from 'connect-flash-plus';
 
 import ejs from 'ejs';
 
 const client = redis.createClient();
 const app = express();
-const SESSION_SECRET = require('../redis.json').secret;
+const SESSION_SECRET = require('../config.json').secret;
 
 const RedisStore = require('connect-redis')(session);
 
@@ -32,5 +33,6 @@ app.use(session({
 }));
 app.use(express.static(path.join(__dirname, "../public")));
 app.use(methodOverride('_method'));
+app.use(flash());
 
 export default app;

@@ -1,7 +1,7 @@
 import {Entity, Column, PrimaryGeneratedColumn, ManyToOne, OneToMany} from 'typeorm';
+import {Rating} from '../util/typeDefs';
 import User from './User';
 import Comment from './Comment';
-import { Rating } from '../util/typeDefs';
 
 //TODO: convert all long strings to @Column('text')
 @Entity()
