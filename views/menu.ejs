@@ -93,7 +93,7 @@ onclick="toggleEdit('menu-edit')" onsubmit="packageJSON()" id="menu-update-form"
                             <div class="media-overlay" style="vertical-align: middle; height: 45px">
                                 <div class="center-inline">
                                     <div class="form-upl-wrapper">
-                                        <input type="file" name="logoUpl" oninput="submitForm('menu-update-form')">
+                                        <input type="file" name="logoUpl" oninput="submitForm('menu-update-form')" required>
                                         <button class="form-upl"><i class="material-icons" style="font-size: 30px !important">camera_alt</i></button>
                                     </div>
                                 </div>
@@ -103,7 +103,7 @@ onclick="toggleEdit('menu-edit')" onsubmit="packageJSON()" id="menu-update-form"
                     <span style="vertical-align: middle; display: inline"  onclick="toggle('name', 'update-name')" id="name"  style="font-size: 35px"><%= menu.name %></span>
                 </div>
                 <% if(auth){ %>
-                    <input type="text" placeholder="Title" value="<%= menu.name %>" name="name" id="update-name" style="display: none; flex: 1; margin-left: 5px">
+                    <input type="text" placeholder="Title" value="<%= menu.name %>" name="name" id="update-name" style="display: none; flex: 1; margin-left: 5px" required>
                 <% } %>
             </div>
             <div class="post-content">

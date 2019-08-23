@@ -23,15 +23,15 @@
             <label class="switch"><input type="checkbox" name="foodShareJSON"><span class="slider"></span></label>
         </div>
         <div class="checkbox flex-container">
-            <div>Labour - <%= c %><input type="number" step="0.01" name="laborJSON" value="0" id="labor-input" oninput="changeCost('labor-input', 'labor')"></div>
+            <div>Labour - <%= c %><input type="number" step="0.01" name="laborJSON" value="0" id="labor-input" oninput="changeCost('labor-input', 'labor')" required></div>
             <label class="switch"><input type="checkbox" name="laborShareJSON"><span class="slider"></span></label>
         </div>
         <div class="checkbox flex-container">
-            <div>Misc - <%= c %><input type="number" step="0.01" name="miscJSON" value="0" id="misc-input" oninput="changeCost('misc-input', 'misc')"></div>
+            <div>Misc - <%= c %><input type="number" step="0.01" name="miscJSON" value="0" id="misc-input" oninput="changeCost('misc-input', 'misc')" required></div>
             <label class="switch"><input type="checkbox" name="miscShareJSON"><span class="slider"></span></label>
         </div>
         <div class="checkbox flex-container">
-            <div>Overhead - <%= c %><input type="number" step="0.01" name="overheadJSON" value="0" id="overhead-input" oninput="changeCost('overhead-input', 'overhead')"></div>
+            <div>Overhead - <%= c %><input type="number" step="0.01" name="overheadJSON" value="0" id="overhead-input" oninput="changeCost('overhead-input', 'overhead')" required></div>
             <label class="switch"><input type="checkbox" name="overheadShareJSON"><span class="slider"></span></label>
         </div>
         <div class="checkbox flex-container">
@@ -40,7 +40,7 @@
         </div>
         <h3>Profit</h3>
         <div class="checkbox flex-container">
-            <div>Profit - <input type="number" step="0.01" name="profitMarginJSON" value="0" id="profit-margin" oninput="adjustMargin()">%</div>
+            <div>Profit - <input type="number" step="0.01" name="profitMarginJSON" value="0" id="profit-margin" oninput="adjustMargin()" required>%</div>
             <label class="switch"><input type="checkbox" name="profitMarginShareJSON"><span class="slider"></span></label>
         </div>
         <div class="checkbox flex-container">
@@ -48,7 +48,7 @@
             <label class="switch"><input type="checkbox" name="profitShareJSON"><span class="slider"></span></label>
         </div>
         <div class="checkbox flex-container">
-            <div>Price - <%= c %><input type="number" step="0.01" name="priceJSON" value="0" id="price" oninput="changePrice()"></div>
+            <div>Price - <%= c %><input type="number" step="0.01" name="priceJSON" value="0" id="price" oninput="changePrice()" required></div>
             <label class="switch"><input type="checkbox" name="priceShareJSON"><span class="slider"></span></label>
         </div>
         <h3>Other</h3>
@@ -65,7 +65,7 @@
     <div class="profile-feed">
         <div class="post-card">
             <div class="post-header">
-                <input type="text" placeholder="Title" name="name">
+                <input type="text" placeholder="Title" name="name" required>
             </div>
             <div class="post-content">
                 <p><textarea placeholder="Briefly describe your recipe (optional)" name="descriptionOpt"></textarea></p>
@@ -95,12 +95,12 @@
                 </div>
                 <div class="grey-inputs small-inputs">
                     <h3>Yield</h3>
-                    <input type="number" placeholder="# of" name="qtJSON">
-                    <input type="text" list="units-datalist" placeholder="units" name="units">
+                    <input type="number" placeholder="# of" name="qtJSON" required>
+                    <input type="text" list="units-datalist" placeholder="units" name="units" required>
                 </div>
                 <div class="grey-inputs small-inputs">
                     <h3>Serves</h3>
-                    <input type="number" min="1" placeholder="# of servings" name="servesJSON" style="width: 17.5%" oninput="changeServing()" id="serving-input">
+                    <input type="number" min="1" placeholder="# of servings" name="servesJSON" style="width: 17.5%" oninput="changeServing()" id="serving-input" required>
                 </div>
             </div>
             <div class="post-content">

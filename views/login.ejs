@@ -65,11 +65,11 @@
             <div class="form-inline">
                 <div class="login-form-input">
                     <label for="first">First name</label>
-                    <input type="text" name="first">
+                    <input type="text" name="first" required>
                 </div>
                 <div class="login-form-input">
                     <label for="last">Last name</label>
-                    <input type="text" name="last">
+                    <input type="text" name="last" required>
                 </div>
             </div>
             <h3>International</h3>
@@ -83,23 +83,23 @@
                 </div>
                 <div class="login-form-input">
                     <label for="last">Currency Symbol</label>
-                    <input type="text" name="currency" placeholder="$, €, £">
+                    <input type="text" name="currency" placeholder="$, €, £" required>
                 </div>
             </div>
             <h3>Account credientials</h3>
             <div class="form-inline">
                 <div class="login-form-input">
                     <label for="username">Username</label>
-                    <input type="text" name="username">
+                    <input type="text" name="username" required>
                 </div>
                 <div class="login-form-input">
                     <label for="last">Email</label>
-                    <input type="email" name="email">
+                    <input type="email" name="email" required>
                 </div>
             </div>
             <div class="login-form-input">
                 <label for="last">Password</label>
-                <input type="password" name="password">
+                <input type="password" name="password" required>
             </div>
             <div class="form-upl-wrapper">
                 <input type="file" name="avatarUpl" accept=".jpg,.png,.svg,.bmp" required>
@@ -114,11 +114,11 @@
             <h3>Enter your credientials</h3>
             <div class="login-form-input">
                 <label for="username">Username</label>
-                <input type="text" name="username">
+                <input type="text" name="username" required>
             </div>
             <div class="login-form-input">
                 <label for="password">Password</label>
-                <input type="password" name="password">
+                <input type="password" name="password" required>
             </div>
             <input type="submit" value="Login">
         <% } %>

@@ -5,7 +5,7 @@
             <div class="profile-header-overlay">
                 <div class="center-inline">
                     <div class="form-upl-wrapper" onclick="toggleEdit('background-edit', '', '', 'inline-block')">
-                        <input type="file" name="backgroundUpl" accept=".jpg,.png,.svg,.bmp">
+                        <input type="file" name="backgroundUpl" accept=".jpg,.png,.svg,.bmp" required>
                         <button class="form-upl"><i class="material-icons">camera_alt</i></button>
                     </div>
                     <div id="background-edit" style="display:none">
@@ -67,7 +67,7 @@
                     <span onclick="toggleEdit('user-edit', 'currency', 'currency-edit')" id="currency">
                         Currency symbol - <%= user.currency %>
                     </span>
-                    <input type="text" id="currency-edit" placeholder="Symbol" value="<%= user.currency %>" name="currency" style="display: none">
+                    <input type="text" id="currency-edit" placeholder="Symbol" value="<%= user.currency %>" name="currency" style="display: none" required>
                     <span onclick="toggleEdit('user-edit', 'measurements', 'measurements-edit')" id="measurements">
                         Units - <%= user.system %>
                     </span>
@@ -121,7 +121,7 @@
                 </button>
             <% } %>
             <form class="post-card" id="new-post" style="display: none" method="POST" action="/posts/create" enctype="multipart/form-data">
-                <div class="post-header"><input type="text" name="name" placeholder="Title"></div>
+                <div class="post-header"><input type="text" name="name" placeholder="Title" required></div>
                 <div class="post-content">
                     <textarea placeholder="Text" name="contentOpt"></textarea><br>
                 </div>
@@ -188,7 +188,7 @@
                                 </span>
                                 <% if(auth){ %>
                                     <span id="post-title-update<%= posts[i].id %>" style="display: none">
-                                        <input type="text" placeholder="Title" value="<%= posts[i].name %>" name="name">
+                                        <input type="text" placeholder="Title" value="<%= posts[i].name %>" name="name" required>
                                     </span>
                                 <% } %>
                                 <time class="timeago" datetime="<%= new Date(posts[i].timestamp).toISOString() %>"></time>
