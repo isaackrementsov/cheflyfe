@@ -1,9 +1,10 @@
 import {Request, Response} from 'express';
 import {Repository, getRepository} from 'typeorm';
+import {unlink} from '../util/typeDefs';
 import User from '../entity/User';
 import Record from '../entity/Record';
 import Middleware from '../util/Middleware';
-import * as fs from 'fs';
+import * as nodemailer from 'nodemailer';
 
 /*TODO:
     * Add payment & subscription
@@ -23,6 +24,21 @@ export default class UserController {
         res.render('login', {session: req.session, error: req.flash('error')});
     }
 
+    getSearchAll = async (req: Request, res: Response) => {
+        try {
+            let users : User[] = await this.userRepo.createQueryBuilder('user')
+                .leftJoinAndSelect('user.requested', 'requested')
+                .leftJoinAndSelect('user.brigade', 'brigade')
+                .where('user.username like :q AND user.id != :id', {q: `%${req.query.q}%`, id: req.session.userID})
+                .getMany();
+
+            res.render('usersSearch', {users, session: req.session, error: req.flash('error'), query: req.query.q});
+        }catch(e){
+            req.flash('error', 'There was an error searching users');
+            res.redirect(`/users/${req.session.userID}`)
+        }
+    }
+
     postLogin = async (req: Request, res: Response) => {
         try {
             let user : User = await this.userRepo.findOne({
@@ -39,7 +55,7 @@ export default class UserController {
                 req.session.avatar = user.avatar;
                 req.session.currency = user.currency;
                 req.session.system = user.system;
-                req.session.error = null;
+                req.session.pending = user.pending;
 
                 if(user.admin){
                     res.redirect('/admin');
@@ -73,10 +89,32 @@ export default class UserController {
 
             try {
                 await this.userRepo.save(user);
-                req.session.error = null;
+
+                /*let account = await nodemailer.createTestAccount(); TODO: figure out email & verification stuff, add pending to middleware
+                let transport = nodemailer.createTransport({
+                    host: 'smtp.ethereal.email',
+                    port: 465,
+                    secure: true,
+                    auth: {
+                        user: account.user,
+                        pass: account.pass
+                    }
+                });
+                let info = await transport.sendMail({
+                    from: 'ChefLyfe Support <support@cheflyfe.com>',
+                    to: user.email,
+                    subject: 'Verify your email',
+                    html: `To use your ChefLyfe account, please <a href="https://cheflyfe.com/verify?authKey=${user.authKey}">verify</a> that your account is ${user.email}`
+                });*/
+
                 this.postLogin(req, res);
             }catch(e){
-                req.flash('error', 'Username must be unique');
+                console.log(e);
+                try {
+                    await unlink(__dirname + '/../../public' + req.files['avatarUpl'].avatar);
+                }catch(e){ }
+
+                req.flash('error', 'Username and email must be unique');
                 res.redirect('/signup');
             }
         }catch(e){
@@ -113,10 +151,14 @@ export default class UserController {
                     let toUpdate : User = await this.userRepo.findOne(req.session.userID, {select: ['background', 'avatar']});
                     try{
                         if(update['avatar']){
-                            fs.unlinkSync(__dirname + '/../../../public' + toUpdate.avatar);
+                            try {
+                                await unlink(__dirname + '/../../public' + toUpdate.avatar);
+                            }catch(e){ }
                         }
                         if(update['background']){
-                            fs.unlinkSync(__dirname + '/../../../public' + toUpdate.background);
+                            try {
+                                await unlink(__dirname + '/../../public' + toUpdate.background);
+                            }catch(e){ }
                         }
                     }catch(e){}
                 }

@@ -24,6 +24,7 @@
             <div class="post-header">
                 <span>Options & Data</span>
             </div>
+            <% include partials/forms/error %>
             <div class="post-content grey-inputs" style="padding-bottom: 0" id="select-days-container">
                 View data from the <select id="select-days" oninput="buildChartByTime()" style="width: 200px">
                     <option value="7">Past week</option>

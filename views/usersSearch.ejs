@@ -1,0 +1,33 @@
+<% include partials/header %>
+<div class="profile-nav ingredients-header">
+    <h1>Search Results for "<%= query %>"</h1>
+</div>
+<div class="profile-main recipe-main">
+    <div class="profile-feed">
+        <% include partials/forms/error %>
+        <% if(users.length == 0){ %>
+            <p style="text-align: center">No users found</p>
+        <% } %>
+        <% for(let i = 0; i < users.length; i++){ %>
+            <div class="post-card brigade">
+                <a href="/users/<%= users[i].id %>">
+                    <img src="<%= users[i].avatar %>" style="height: 32.5px; width: 32.5px">
+                    <span><%= users[i].name.first %> <%= users[i].name.last %></span>
+                </a>
+                <% let len1 = users[i].requested.filter(u => u.id == session.userID).length %>
+                <% let len2 = users[i].brigade.filter(u => u.id == session.userID).length %>
+
+                <button disabled>
+                    <% if(len1 > 0){ %>
+                        Requested
+                    <% }else if(len2 > 0){ %>
+                        Following
+                    <% }else{ %>
+                        Not Following
+                    <% } %>
+                </button>
+            </div>
+        <% } %>
+    </div>
+</div>
+<% include partials/footer %>

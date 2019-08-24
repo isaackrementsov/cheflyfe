@@ -1,12 +1,11 @@
 import {Request, Response} from 'express';
 import {Repository, getRepository} from 'typeorm';
-import {RecipeSearcher} from '../util/typeDefs';
+import {RecipeSearcher, unlink} from '../util/typeDefs';
 import Recipe from '../entity/Recipe';
 import Ingredient from '../entity/Ingredient';
 import Menu from '../entity/Menu';
 import User from '../entity/User';
 import Middleware from '../util/Middleware';
-import * as fs from 'fs';
 
 /*TODO:
     * add basic views
@@ -141,11 +140,11 @@ export default class MenuController {
                 .getOne();
 
             if(toUpdate){
-                if(update['logo'] != toUpdate.logo){
+                /*if(update['logo'] != toUpdate.logo){
                     try{
-                        fs.unlinkSync(toUpdate.logo);
+                        await unlink(toUpdate.logo);
                     }catch(e){ }
-                }
+                }*/
 
                 Object.assign(toUpdate, update);
 

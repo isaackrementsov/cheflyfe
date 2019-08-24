@@ -1,9 +1,11 @@
 import {Repository, getRepository} from 'typeorm';
 import {imperialUnits, metricUnits, conversions} from './conversions';
+import {money} from './mathUtils';
+import {promisify} from 'util';
 import Recipe from '../entity/Recipe';
 import Ingredient from '../entity/Ingredient';
 import User from '../entity/User';
-import { money } from './mathUtils';
+import * as fs from 'fs';
 
 export type DBCategory = 'recipe' | 'user' | 'post' | 'ingredient' | 'menu' | 'session';
 
@@ -14,6 +16,8 @@ export type Info = {allergens: boolean, profitMargin: boolean, profit: boolean, 
 export type PaymentInfo = {creditCardNumber: number};
 export type PurchaseRecord = {val: number, timestamp: Date};
 export type Rating = {userID: number, val: number};
+
+export const unlink = promisify(fs.unlink);
 
 export class RecipeSearcher {
     author : User;

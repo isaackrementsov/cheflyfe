@@ -4,6 +4,7 @@ import Recipe from './Recipe';
 import Menu from './Menu';
 import Post from './Post';
 import Comment from './Comment';
+import * as shortId from 'shortid';
 
 //TODO: Add timestamps for admin analytics
 @Entity()
@@ -15,11 +16,15 @@ export default class User {
     @Column()
     admin : boolean;
     @Column()
+    pending : boolean = true;
+    @Column()
     password : string;
     @Column('text')
     bio : string = "I'm a new user to ChefLyfe!";
     @Column()
     avatar : string;
+    @Column()
+    authKey : string = shortId.generate();
     @Column()
     background : string = '';
     @Column()

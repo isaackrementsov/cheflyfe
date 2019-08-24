@@ -17,6 +17,7 @@
 <% } %>
 <div class="profile-main recipe-main">
     <div class="profile-feed">
+        <% include partials/forms/error %>
         <% if(!locals.public){ %>
             <button class="add-post" id="add-post-button" onclick="toggle('add-post-button', 'new-post')">
                 <a href="/menus/create" style="width: 100%"><i class="material-icons">add</i> Add Menu</a>

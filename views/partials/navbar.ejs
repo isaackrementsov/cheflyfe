@@ -18,7 +18,7 @@
                 <div id="avatar-link" class="avatar-link">
                     <div class="img" style="background-image: url(<%= session.avatar %>)" onclick="openDiv('menu')"></div>
                     <ul id="menu"  class="menu" style="display: none">
-                        <li><a href="/">Home</a></li><br>
+                        <li><a href="/login">Home</a></li><br>
                         <% if(session.admin){ %>
                             <li><a href="/admin">Dash</a></li><br>
                         <% } %>
@@ -29,7 +29,18 @@
             <li><a href="/ingredients">Ingredients</a></li>
             <li><a href="/recipes">Recipes</a></li>
             <li><a href="/menus">Menus</a></li>
-            <li><a><input type="text" class="search" placeholder="Search users"></a></li>
+            <li><a>
+                <form method="GET" action="/users/search" id="user-get-search-form">
+                    <input type="text" class="search" name="q" placeholder="Search users by username" id="user-get-search">
+                </form>
+            </a></li>
+            <script>
+                $('#user-get-search').keydown(e => {
+                    if(e.keyCode == 13){
+                        submitForm('user-get-search-form');
+                    }
+                });
+            </script>
         <% }else{ %>
             <li><a href="/signup" style="font-weight: bold; color: #8C9EFF">Signup</a></li>
             <li><a href="/login">Login</a></li>
@@ -38,5 +49,10 @@
         <li><a href="/signup" style="font-weight: bold; color: #8C9EFF">Signup</a></li>
         <li><a href="/login">Login</a></li>
     <% } %>
-    <li class="first"><a href="/"><p>Chef<span style="font-weight: bold">Lyfe</span></p></a></li>
+    <li class="first" id="nav-logo-text">
+        <a href="/">
+            <img src="/img/static/logo.png" style="height: 32px; vertical-align: -6px">
+            <p style="display: inline">Chef<span style="font-weight: bold">Lyfe</span></p>
+        </a>
+    </li>
 </ul>

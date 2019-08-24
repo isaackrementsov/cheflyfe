@@ -1,7 +1,7 @@
 import {Request, Response} from 'express';
 import {Repository, getRepository} from 'typeorm';
 import {createObjectCsvWriter} from 'csv-writer';
-import {UnitQt, PurchaseRecord} from '../util/typeDefs';
+import {UnitQt, PurchaseRecord, unlink} from '../util/typeDefs';
 import Ingredient from '../entity/Ingredient';
 import User from '../entity/User';
 import NutritionalInfo from '../entity/NutritionalInfo';
@@ -253,8 +253,10 @@ export default class IngredientController {
                             await this.ingredientRepo.save(ingredient);
 
                         })
-                        .on('end', () => {
-                            fs.unlinkSync(p);
+                        .on('end', async () => {
+                            try {
+                                await unlink(p);
+                            }catch(e){ }
                             res.redirect('/ingredients');
                         });
                 }catch(e){

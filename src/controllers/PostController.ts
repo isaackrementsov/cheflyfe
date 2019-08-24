@@ -1,5 +1,6 @@
 import {Request, Response} from 'express';
 import {Repository, getRepository} from 'typeorm';
+import {unlink} from '../util/typeDefs';
 import Post from '../entity/Post';
 import User from '../entity/User';
 import Comment from '../entity/Comment';
@@ -70,6 +71,12 @@ export default class PostController {
 
             await this.postRepo.save(post);
         }catch(e){
+            try {
+                req.files['postUplMulti8'].map(async p => {
+                    await unlink(__dirname + '/../../public' + p.path);
+                });
+            }catch(e){ }
+
             req.flash('error', 'Error creating post');
         }
 
@@ -154,17 +161,17 @@ export default class PostController {
                 .where('post.authorId = :userID AND post.id = :id', {userID: req.session.userID, id: parseInt(req.params.id)})
                 .getOne()
 
-            toDelete.filePaths.map(async p => {
-                try{
-                    await fs.unlink(__dirname + '/../../public' + p, () => { });
-                }catch(e){ }
-            });
+            try {
+                toDelete.filePaths.map(async p => {
+                    await unlink(__dirname + '/../../public' + p);
+                });
+            }catch(e){ }
 
             toDelete.comments.map(async c => {
                 await this.commentRepo.delete(c);
             });
 
-            await this.postRepo.delete(toDelete);
+            await this.postRepo.remove(toDelete);
         }catch(e){
             req.flash('error', 'There was an error deleting post');
         }

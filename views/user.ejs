@@ -115,6 +115,7 @@
             <% } %>
         </form>
         <div class="profile-feed" id="profile-feed-feed">
+            <% include partials/forms/error %>
             <% if(auth){ %>
                 <button class="add-post" id="add-post-button" onclick="toggle('add-post-button', 'new-post')">
                     <i class="material-icons">add</i> Add Post

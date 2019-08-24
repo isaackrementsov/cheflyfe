@@ -170,6 +170,7 @@ onclick="toggleEdit('edit-recipe', '', '')" onsubmit="packageJSON()" id="recipe-
         <% } %>
     </div>
     <div class="profile-feed" id="PDFContent">
+        <% include partials/forms/error %>
         <div class="post-card" style="box-shadow: none">
             <div class="post-header">
                 <span onclick="toggle('name', 'update-name')" id="name" style="font-size: 35px"><%= recipe.name %></span>

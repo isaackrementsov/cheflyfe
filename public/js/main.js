@@ -15,6 +15,12 @@ Element.prototype.remove = function() {
     this.parentElement.removeChild(this);
 }
 
+if(window.innerWidth < 638){
+    $('#nav-logo-text').hide();
+}else if(window.innerWidth < 766){
+    $('#nav-logo-text').find('p').hide();
+}
+
 $('time.timeago').timeago();
 
 $('.size-after').each((i, val) => {

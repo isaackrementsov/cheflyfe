@@ -50,7 +50,7 @@ export default class Middleware {
                     if((fileCount <= maxFiles || maxFiles == -1) && filename){
                         fileCount++;
                         let ext = filename.split('.')[filename.split('.').length - 1];
-                        let saveTo = path.join(__dirname, '../../public/img/upload/' + (req.body.username || shortId.generate()) + '.' + ext);
+                        let saveTo = path.join(__dirname, '../../public/img/upload/' + shortId.generate() + '.' + ext);
                         let obj = {path: saveTo.replace(/\\/g, '/').split('/public')[1]};
                         if(maxFiles != 1){
                             fields[fieldname] ? fields[fieldname].push(obj) : fields[fieldname] = [obj];

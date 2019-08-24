@@ -4,7 +4,7 @@ import {RecipeSearcher} from '../util/typeDefs';
 import Recipe from '../entity/Recipe';
 import User from '../entity/User';
 import Middleware from '../util/Middleware';
-import * as fs from 'fs';
+//import * as fs from 'fs';
 import Ingredient from '../entity/Ingredient';
 
 export default class RecipeController {

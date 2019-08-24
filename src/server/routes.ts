@@ -29,6 +29,7 @@ let routes = app => {
     app.get('/menus/:id', menuController.getIndex);
     app.get('/news', postController.getPublic);
     app.get('/news/:id', postController.getPublicIndex);
+    app.get('/users/search', userController.getSearchAll)
     app.get('/users/:id', postController.getAll);
     app.get('/recipes', recipeController.getAll);
     app.get('/recipes/create', recipeController.getCreate);

@@ -1,6 +1,7 @@
 import {Request, Response} from 'express';
 import {Repository, getRepository} from 'typeorm';
 import {createObjectCsvWriter} from 'csv-writer';
+import {unlink} from '../util/typeDefs';
 import Record from '../entity/Record';
 import User from '../entity/User';
 import Config from '../entity/Config';
@@ -78,7 +79,7 @@ export default class AdminController {
                 existing.category = category;
 
                 try {
-                    await fs.unlink(existing.path, () => {});
+                    await unlink(__dirname + '/../../public' + existing.path);
                 }catch(e){ }
 
                 existing.path = path;
