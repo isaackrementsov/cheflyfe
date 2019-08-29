@@ -1,4 +1,8 @@
 <% include partials/header %>
+<% let expired = false %>
+<% if(locals.session){ %>
+    <% expired = session.paymentStatus != 'ACTIVE' && !session.admin && session.paid %>
+<% } %>
 <div class="flex-container landing grad">
     <div>
         <h1>Welcome to ChefLyfe</h1>

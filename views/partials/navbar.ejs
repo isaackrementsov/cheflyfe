@@ -1,6 +1,6 @@
 <ul id="navbar">
     <% if(locals.session){ %>
-        <% if(session.userID){ %>
+        <% if(session.userID && !session.pending){ %>
             <li class="first">
                 <div class="avatar-link" onclick="openDiv('public-menu')" style="color: rgb(90,90,90)">
                     <i class="material-icons" style="vertical-align: -3px; color: grey">
@@ -29,6 +29,10 @@
             <li><a href="/ingredients">Ingredients</a></li>
             <li><a href="/recipes">Recipes</a></li>
             <li><a href="/menus">Menus</a></li>
+            <% if(expired){ %>
+                <li><a href="/payment">Payment</a></li>
+                <li><a href="#" style="color: lightgrey">Account expired</a></li>
+            <% } %>
             <li><a>
                 <form method="GET" action="/users/search" id="user-get-search-form">
                     <input type="text" class="search" name="q" placeholder="Search users by username" id="user-get-search">
@@ -41,6 +45,9 @@
                     }
                 });
             </script>
+        <% }else if(session.pending){ %>
+            <li><a href="/pending" style="color: lightgrey">Account disabled</a></li>
+            <li><a href="/payment">Payment</a></li>
         <% }else{ %>
             <li><a href="/signup" style="font-weight: bold; color: #8C9EFF">Signup</a></li>
             <li><a href="/login">Login</a></li>

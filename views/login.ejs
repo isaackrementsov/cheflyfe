@@ -86,7 +86,7 @@
                     <input type="text" name="currency" placeholder="$, €, £" required>
                 </div>
             </div>
-            <h3>Account credientials</h3>
+            <h3>Account details</h3>
             <div class="form-inline">
                 <div class="login-form-input">
                     <label for="username">Username</label>
@@ -111,7 +111,7 @@
             </label>
             <input type="submit" value="Let's go!">
         <% }else{ %>
-            <h3>Enter your credientials</h3>
+            <h3>Enter your details</h3>
             <div class="login-form-input">
                 <label for="username">Username</label>
                 <input type="text" name="username" required>
@@ -120,6 +120,7 @@
                 <label for="password">Password</label>
                 <input type="password" name="password" required>
             </div>
+            <a href="/reset" style="margin: 20px 0; display: block; color: #8C9EFF">Forgot password?</a>
             <input type="submit" value="Login">
         <% } %>
     </div>

@@ -817,6 +817,8 @@ a.cta:hover {
     border-radius: 0 !important;
     color: grey !important;
     font-size: 17px;
+    background-color: transparent;
+    transition: 0.2s ease-in-out;
 }
 .chart-list button:hover, .chart-list button.active {
     background-color: whitesmoke !important;
@@ -936,4 +938,70 @@ iframe {
 .grad {
     background: linear-gradient(45deg, #8C9EFF, #304FFE);
     color: whitesmoke;
+}
+.payment-header {
+    text-align: center;
+}
+.payment-header hr {
+    width:  50px;
+    border: 1px solid #8C9EFF;
+    border-bottom-style: hidden;
+}
+.payment-header h1 {
+    color: #8C9EFF;
+    font-weight: normal;
+}
+.payment-header p {
+    color: grey;
+    width: 400px;
+    margin: 20px auto;
+}
+.payment .post-card {
+    width: 300px;
+    display: inline-block;
+    margin: 10px;
+    padding: 10px;
+}
+.payment .post-card .post-content {
+    text-align: center;
+}
+.payment .post-card .post-content p:first-child {
+    font-size: 30px;
+    font-weight: bold;
+    color: #8C9EFF;
+    margin-top: 0;
+}
+.payment .post-card .post-content p:first-child i {
+    display: block;
+    margin: 15px 0;
+    font-size: 60px !important;
+}
+.payment .post-card .post-content p:nth-child(2) {
+    color: grey;
+    font-size: 22px;
+    font-weight: 300;
+}
+.payment .post-card .post-content p:nth-child(3) {
+    color: grey;
+    font-size: 22px;
+    font-weight: bold;
+    margin-bottom: 40px;
+}
+.payment .post-card .post-content a {
+    padding: 10px 20px;
+    border: 1px solid #8C9EFF;
+    color: #8C9EFF;
+    border-radius: 100vw;
+    transition: 0.2s ease-in-out;
+}
+.payment .post-card .post-content a:hover {
+    color: white;
+    background-color: #8C9EFF;
+}
+.recipes-public .post-card {
+    box-shadow: 0 0px 8px 0 rgba(0,0,0,0.05);
+    margin: 20px 0;
+}
+.recipes-public .post-header span {
+    font-size: 25px !important;
 }

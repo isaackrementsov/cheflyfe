@@ -50,8 +50,10 @@
     "random-key": "^0.3.2",
     "redis": "^2.8.0",
     "reflect-metadata": "^0.1.13",
+    "request": "^2.88.0",
     "shortid": "^2.2.14",
-    "typeorm": "^0.2.18"
+    "typeorm": "^0.2.18",
+    "typeorm-encrypted": "^0.5.1"
   },
   "devDependencies": {
     "http": "0.0.0"

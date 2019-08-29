@@ -11,6 +11,7 @@ import NutritionalInfo from '../entity/NutritionalInfo';
 import Post from '../entity/Post';
 import Recipe from '../entity/Recipe';
 import User from '../entity/User';
+import { unlink } from './typeDefs';
 
 //Check for errors when converting params, JSON, relational, file delete
 export default class Middleware {
@@ -27,6 +28,7 @@ export default class Middleware {
         if(req.headers['content-type']){
             if(req.headers['content-type'].indexOf('multipart/form-data') != -1){
                 let fields = {};
+                let maxFileObj = {};
                 let maxFiles = 1;
                 let fileCount = 0;
                 let currentField = '';
@@ -43,15 +45,18 @@ export default class Middleware {
                         if(currentField != fieldname){
                             let max = fieldname[fieldname.indexOf('Multi') + 5];
                             fileCount = 0;
-                            if(!isNaN(parseInt(max))) maxFiles = parseInt(max);
-                            else maxFiles = -1;
+                            if(!isNaN(parseInt(max))){
+                                maxFiles = parseInt(max);
+                                maxFileObj[fieldname] = parseInt(max);
+                            }else maxFiles = -1;
                         }
                     }
-                    if((fileCount <= maxFiles || maxFiles == -1) && filename){
+
+                    if(filename){
                         fileCount++;
                         let ext = filename.split('.')[filename.split('.').length - 1];
                         let saveTo = path.join(__dirname, '../../public/img/upload/' + shortId.generate() + '.' + ext);
-                        let obj = {path: saveTo.replace(/\\/g, '/').split('/public')[1]};
+                        let obj = {path: saveTo.replace(/\\/g, '/').split('/public')[1], mime: mimetype};
                         if(maxFiles != 1){
                             fields[fieldname] ? fields[fieldname].push(obj) : fields[fieldname] = [obj];
                         }else{
@@ -67,6 +72,34 @@ export default class Middleware {
 
                 busboy.on('finish', function(){
                     if(Object.keys(fields).length > 0){
+                        Object.keys(fields).map(async k => {
+                            if(fields[k].constructor == Array){
+                                let max = maxFileObj[k] || fields[k].length;
+                                let temp = fields[k].slice(0, max);
+                                let rejected = fields[k].slice(max, fields[k].length);
+
+                                fields[k] = temp.filter(f => {
+                                    let valid = f.mime.indexOf('image/') != -1 || f.mime.indexOf('video/') != -1;
+                                    if(!valid) rejected.push(f);
+                                    return valid;
+                                });
+
+                                rejected.map(async r => {
+                                    try {
+                                        await unlink(__dirname + '/../../public' + r.path);
+                                    }catch(e){ }
+                                });
+                            }else if(typeof fields[k] == 'object'){
+                                if(fields[k].mime.indexOf('image/') == -1 && fields[k].mime.indexOf('video/') == -1){
+                                    try {
+                                        await unlink(__dirname + '/../../public' + fields[k].path);
+                                    }catch(e){ }
+
+                                    delete fields[k];
+                                }
+                            }
+                        });
+
                         req.files = fields;
                     }
 
@@ -157,14 +190,20 @@ export default class Middleware {
 
     auth = (req: Request, res: Response, next: NextFunction) => {
         let adminRestricted : boolean = req.url.indexOf('/admin') != -1;
-        let loginRestricted : boolean = ['/login', '/signup'].indexOf(req.url) != -1;
-        let userRestricted : boolean = ['/', '/login', '/signup', '/terms', '/privacy'].indexOf(req.url) == -1;
+        let loginRestricted : boolean = ['/login', '/signup', '/reset'].indexOf(req.url) != -1 || req.url.indexOf('/payment') != -1 || req.url.indexOf('/pending') != -1 || req.url.indexOf('/verify') != -1;
+        let userRestricted : boolean = ['/', '/login', '/signup', '/terms', '/privacy'].indexOf(req.url) == -1 && req.url.indexOf('/reset') == -1;
 
-        if((adminRestricted && req.session.admin) || (userRestricted && req.session.userID) || (!userRestricted && !req.session.userID)){
-            next();
+        if((adminRestricted && req.session.admin) || (userRestricted && req.session.userID && !req.session.pending) || (!userRestricted && !req.session.userID)){
+            if(req.session.userID){
+                this.sendBack(req, res, next, req.session.paymentStatus != 'ACTIVE' && !req.session.admin && req.session.paid && req.method != 'GET' && req.url != '/logout');
+            }else{
+                next();
+            }
         }else if((adminRestricted && !req.session.admin) || (userRestricted && !req.session.userID)){
             res.redirect('/login');
-        }else if(loginRestricted && req.session.userID){
+        }else if(userRestricted && req.session.pending && req.url.indexOf('/payment') == -1 && req.url.indexOf('/pending') == -1 && req.url.indexOf('/verify') == -1){
+            res.redirect('/pending');
+        }else if(loginRestricted && req.session.userID && !req.session.pending){
             res.redirect('/users/' + req.session.userID);
         }else{
             next();

@@ -1,4 +1,8 @@
 <% include partials/header %>
+<% let expired = false %>
+<% if(locals.session){ %>
+    <% expired = session.paymentStatus != 'ACTIVE' && !session.admin && session.paid %>
+<% } %>
 <div class="profile-nav ingredients-header">
     <h1>Search Results for "<%= query %>"</h1>
 </div>
@@ -12,7 +16,10 @@
             <div class="post-card brigade">
                 <a href="/users/<%= users[i].id %>">
                     <img src="<%= users[i].avatar %>" style="height: 32.5px; width: 32.5px">
-                    <span><%= users[i].name.first %> <%= users[i].name.last %></span>
+                    <span style="vertical-align: top">
+                        <span style="color: #8C9EFF"> (<%= users[i].username %>)</span>
+                        <span><%= users[i].name.first %> <%= users[i].name.last %></span>
+                    </span>
                 </a>
                 <% let len1 = users[i].requested.filter(u => u.id == session.userID).length %>
                 <% let len2 = users[i].brigade.filter(u => u.id == session.userID).length %>

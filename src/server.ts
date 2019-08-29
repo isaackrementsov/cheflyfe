@@ -1,5 +1,5 @@
 import { createConnection } from 'typeorm';
-
+import { AutoEncryptSubscriber } from 'typeorm-encrypted';
 import app from './app';
 import routes from './server/routes';
 

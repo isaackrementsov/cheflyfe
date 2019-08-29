@@ -70,7 +70,11 @@ export default class RecipeController {
             req.flash('There was an error getting public recipes');
         }
 
-        res.render('recipes', {recipes: recipes, session: req.session, public: true, error: req.flash('error')});
+        res.render('recipes', {recipes: recipes.sort((a, b) => {
+            if(a.name < b.name) { return -1; }
+            if(a.name > b.name) { return 1; }
+            return 0;
+        }), session: req.session, public: true, error: req.flash('error')});
     }
 
     getCreate = async (req: Request, res: Response) => {

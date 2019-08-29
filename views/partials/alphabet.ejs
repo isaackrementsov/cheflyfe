@@ -1,0 +1,29 @@
+<h3>Find by Name</h3>
+<% let alphabet = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P'] %>
+<p class="chart-list" id="data-buttons">
+    <button class="active" onclick="findSorted('a', 0)">A</button>
+    <% for(let i = 1; i < alphabet.length; i++){ %>
+        <button onclick="findSorted('<%= alphabet[i].toLowerCase() %>', <%= i %>)"><%= alphabet[i] %></button>
+    <% } %>
+</p>
+<script style="display: none">
+    function findSorted(letter, idx){
+        let first;
+        $('#posts .post-card').each(function(i){
+            let e = $(this).find('.post-header > span');
+
+            if(e[0]){
+                e = $(e[0]);
+                if(e.text().toLowerCase()[0] == letter){
+                    let offset = $(this).offset().top - $(this).height() - 10;
+                    $('html,body').animate({scrollTop: offset}, 1000);
+
+                    return false;
+                }
+            }
+        });
+
+        $('#data-buttons button').attr('class', '');
+        $($('#data-buttons button')[idx]).attr('class', 'active');
+    }
+</script>

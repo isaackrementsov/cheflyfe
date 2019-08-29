@@ -1,1 +1,3 @@
-<p class="error" style="color: coral; height: auto"><%= error %></p>
+<% if(locals.error){ %>
+    <p class="error" style="color: coral; height: auto"><%= error %></p>
+<% } %>

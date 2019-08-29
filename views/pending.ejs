@@ -1,0 +1,17 @@
+<% include partials/header %>
+<% include partials/forms/error %>
+<div class="flex-container landing">
+    <div>
+        <h1>Your account is still pending</h1>
+        <div class="p">
+            <% if(session.paymentStatus != 'ACTIVE'){ %>
+                It seems you subscription status is not active. Please <a href="/payment" style="color: #8C9EFF">Setup Payment</a>. <br>
+            <% } %>
+            <% if(session.emailPending){ %>
+                Your email has still not been verified. If you can't find the verification email, check your spam folder.
+                Your account may be deleted in 7 days otherwise.
+            <% } %>
+        </div>
+    </div>
+</div>
+<% include partials/footer %>

@@ -1,5 +1,9 @@
 <% include partials/header %>
-    <% let auth = session.userID == user.id %>
+<% let expired = false %>
+<% if(locals.session){ %>
+    <% expired = session.paymentStatus != 'ACTIVE' && !session.admin && session.paid %>
+<% } %>
+    <% let auth = (session.userID == user.id) && !expired %>
     <form class="profile-header-container" method="POST" action="/users/update?_method=PATCH" enctype="multipart/form-data">
         <% if(auth){ %>
             <div class="profile-header-overlay">
@@ -41,7 +45,7 @@
             </div>
             <div class="card-heading">
                 <h1><%= user.name.first %> <%= user.name.last %></h1>
-                <% if(!auth){ %>
+                <% if(!auth && !expired){ %>
                     <% let b = (user.brigade && user.brigade.map(u => u.id)) || [] %>
                     <% let r = (user.requested && user.requested.map(u => u.id)) || [] %>
                     <% let following = b.indexOf(session.userID) != -1 %>
@@ -224,7 +228,7 @@
                                     <% let path = src.split('.') %>
                                     <% let ext = path[path.length - 1].toLowerCase() %>
                                     <div class="media-container">
-                                        <% if(ext == 'png' || ext == 'jpg' || ext == 'bmp' || ext == 'svg'){ %>
+                                        <% if(ext == 'png' || ext == 'jpg' || ext == 'bmp' || ext == 'svg' || ext == 'jpeg'){ %>
                                             <img src="<%= src %>">
                                         <% }else{ %>
                                             <video controls><source src="<%= src %>"></video>
@@ -238,7 +242,7 @@
                                         <% } %>
                                     </div>
                                 <% } %>
-                                <% if(auth){ %>
+                                <% if(auth && posts[i].filePaths.length < 8){ %>
                                     <div class="form-upl-wrapper" onclick="toggleEdit('post-update<%= posts[i].id %>', '', '')">
                                         <input type="file" name="filePathsUpl" accept=".jpg,.png,.svg,.bmp,.mp4" oninput="submitForm('post-form-<%= posts[i].id %>')">
                                         <button class="form-upl"><i class="material-icons">add</i> Add file</button>

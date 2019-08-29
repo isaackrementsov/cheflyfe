@@ -1,4 +1,8 @@
 <% include partials/header %>
+<% let expired = false %>
+<% if(locals.session){ %>
+    <% expired = session.paymentStatus != 'ACTIVE' && !session.admin && session.paid %>
+<% } %>
 <% if(locals.public){ %>
     <div class="profile-header-container">
         <div class="profile-header-overlay" style="color: white; opacity: 1">
@@ -15,10 +19,19 @@
         <h1>Menus</h1>
     </div>
 <% } %>
-<div class="profile-main recipe-main">
-    <div class="profile-feed">
+<div class="profile-main <% if(locals.public){ %>recipes-public add-recipe<% } %> recipe-main">
+    <% if(locals.public){ %>
+        <div class="profile-card">
+            <h1>
+                <i class="material-icons">restaurant</i>
+                Find Menus
+            </h1>
+            <% include partials/alphabet %>
+        </div>
+    <% } %>
+    <div class="profile-feed" id="posts">
         <% include partials/forms/error %>
-        <% if(!locals.public){ %>
+        <% if(!locals.public && !expired){ %>
             <button class="add-post" id="add-post-button" onclick="toggle('add-post-button', 'new-post')">
                 <a href="/menus/create" style="width: 100%"><i class="material-icons">add</i> Add Menu</a>
             </button>
@@ -45,7 +58,7 @@
                     </div>
                 <% } %>
                 <div class="post-content">
-                    <% if(!auth){ %>
+                    <% if(!auth && !expired){ %>
                         <form style="display: inline" method="POST" action="/menus/transfer/<%= menus[i].id %>?_method=PUT">
                             <button class="button-cta">Get menu</button>
                         </form>

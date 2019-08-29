@@ -1,10 +1,13 @@
 import {Entity, Column, PrimaryGeneratedColumn, Index, OneToMany, ManyToMany, JoinTable} from 'typeorm';
+import {ExtendedColumnOptions} from 'typeorm-encrypted';
 import Ingredient from './Ingredient';
 import Recipe from './Recipe';
 import Menu from './Menu';
 import Post from './Post';
 import Comment from './Comment';
 import * as shortId from 'shortid';
+
+let config = require('../../config.json');
 
 //TODO: Add timestamps for admin analytics
 @Entity()
@@ -16,15 +19,17 @@ export default class User {
     @Column()
     admin : boolean;
     @Column()
-    pending : boolean = true;
+    emailPending : boolean = true;
     @Column()
-    password : string;
+    paymentStatus : string = 'PENDING';
     @Column('text')
     bio : string = "I'm a new user to ChefLyfe!";
     @Column()
     avatar : string;
     @Column()
     authKey : string = shortId.generate();
+    @Column()
+    paymentKey : string = '';
     @Column()
     background : string = '';
     @Column()
@@ -35,6 +40,8 @@ export default class User {
     businessText : string;
     @Column({nullable: true})
     businessLogo : string;
+    @Column({nullable: true})
+    tempPassword : string;
     @Column()
     timestamp : Date = new Date();
     @Column('simple-json')
@@ -45,7 +52,17 @@ export default class User {
     email : string;
     @Index({unique: true})
     @Column()
-    username : string
+    username : string;
+
+    /*@Column(<ExtendedColumnOptions>{
+        encrypt: {
+            key: 'd85117047fd06d3afa79b6e44ee3a52eb426fc24c3a2e3667732e8da0342b4da',
+            algorithm: 'aes-256-ctr',
+            ivLength: 16
+        }
+    })*/
+    @Column()
+    password : string;
 
     @OneToMany(type => Ingredient, ingredient => ingredient.author)
     ingredients : Ingredient[];

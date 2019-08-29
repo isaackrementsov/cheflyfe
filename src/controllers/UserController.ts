@@ -4,7 +4,8 @@ import {unlink} from '../util/typeDefs';
 import User from '../entity/User';
 import Record from '../entity/Record';
 import Middleware from '../util/Middleware';
-import * as nodemailer from 'nodemailer';
+import PaymentManager from '../managers/PaymentManager';
+import EmailManager from '../managers/EmailManager';
 
 /*TODO:
     * Add payment & subscription
@@ -29,7 +30,11 @@ export default class UserController {
             let users : User[] = await this.userRepo.createQueryBuilder('user')
                 .leftJoinAndSelect('user.requested', 'requested')
                 .leftJoinAndSelect('user.brigade', 'brigade')
-                .where('user.username like :q AND user.id != :id', {q: `%${req.query.q}%`, id: req.session.userID})
+                .where('(user.username like :q OR user.username = :p) AND user.id != :id', {
+                    p: req.query.q,
+                    q: `%${req.query.q}%`,
+                    id: req.session.userID
+                })
                 .getMany();
 
             res.render('usersSearch', {users, session: req.session, error: req.flash('error'), query: req.query.q});
@@ -39,7 +44,92 @@ export default class UserController {
         }
     }
 
-    postLogin = async (req: Request, res: Response) => {
+    getPending = async (req: Request, res: Response) => {
+        res.render('pending', {session: req.session, error: req.flash('error')});
+    }
+
+    getVerify = async (req: Request, res: Response) => {
+        try {
+            let user : User = await this.userRepo.findOne({authKey: req.query.authKey});
+
+            if(user){
+                user.emailPending = false;
+
+                await this.userRepo.save(user);
+
+                req.session.emailPending = false;
+
+                res.redirect('/users/' + req.session.userID);
+            }else{
+                throw new Error();
+            }
+        }catch(e){
+            console.log(e);
+            if(!res.headersSent){
+                req.flash('error', 'There was an error verifying your email')
+                res.redirect('/pending');
+            }
+        }
+    }
+
+    getReset = async (req: Request, res: Response) => {
+        res.render('reset', {session: req.session, error: req.flash('error')})
+    }
+
+    getFinishReset = async (req: Request, res: Response) => {
+        try {
+            let user : User = await this.userRepo.findOne({authKey: req.query.authKey});
+
+            if(user){
+                if(user.tempPassword){
+                    user.password = user.tempPassword;
+                    user.tempPassword = null;
+
+                    await this.userRepo.save(user);
+                }
+            }else{
+                throw new Error();
+            }
+        }catch(e){
+            req.flash('error', 'There was an error resetting your password');
+        }
+
+        res.redirect('/login');
+    }
+
+    postSendResetEmail = async (req: Request, res: Response) => {
+        try {
+            let toUpdate : User = await this.userRepo.findOne({email: req.body.email});
+
+            if(toUpdate){
+                if(!toUpdate.emailPending){
+                    await EmailManager.sendEmail(req.body.email, {
+                        subject: 'Password Reset Requested',
+                        html: `Hi ${toUpdate.name.first} ${toUpdate.name.last},<br>
+                        A password reset has been requested for your account.
+                        To confirm this change,
+                        please <a href="https://cheflyfe.com/reset/confirm?authKey=${toUpdate.authKey}">click</a> this link.
+                        If you did not request the change, don't click the above link.<br>
+                        Regards,<br>
+                        Cheflyfe Team`
+                    });
+
+                    toUpdate.tempPassword = req.body.temp;
+                    await this.userRepo.save(toUpdate);
+                }else{
+                    throw new Error();
+                }
+            }else{
+                throw new Error();
+            }
+        }catch(e){
+            req.flash('error', 'There was an error sending reset email');
+        }
+
+        res.redirect('/login');
+    }
+
+    postLogin = async (req: Request, res: Response, created?: boolean) => {
         try {
             let user : User = await this.userRepo.findOne({
                 'username': req.body.username,
@@ -49,19 +139,46 @@ export default class UserController {
             if(user){
                 await this.recordRepo.save(new Record('session'));
 
-                req.session.username = user.username;
-                req.session.userID = user.id;
-                req.session.admin = user.admin;
-                req.session.avatar = user.avatar;
-                req.session.currency = user.currency;
-                req.session.system = user.system;
-                req.session.pending = user.pending;
+                PaymentManager.getSubscriptionStatus(user.paymentKey == '' ? 'NaN' : user.paymentKey, async status => {
+                    try {
+                        req.session.username = user.username;
+                        req.session.userID = user.id;
+                        req.session.admin = user.admin;
+                        req.session.avatar = user.avatar;
+                        req.session.currency = user.currency;
+                        req.session.system = user.system;
+                        req.session.paid = user.paymentKey != '';
+                        req.session.pending = (status != 'ACTIVE' || user.emailPending) && !user.admin && !req.session.paid;
+                        req.session.paymentStatus = user.paymentStatus;
+                        req.session.emailPending = user.emailPending;
 
-                if(user.admin){
-                    res.redirect('/admin');
-                }else{
-                    res.redirect('/users/' + user.id);
-                }
+                        if(status != user.paymentStatus){
+                            user.paymentStatus = status;
+
+                            await this.userRepo.save(user);
+                        }
+
+                        if(user.admin){
+                            res.redirect('/admin');
+                        }else{
+                            if(created){
+                                res.redirect('/payment');
+                            }else{
+                                res.redirect('/users/' + user.id);
+                            }
+                        }
+                    }catch(e){
+                        if(!res.headersSent){
+                            req.flash('error', 'There was an error logging you in');
+                            res.redirect('/login');
+                        }
+                    }
+                }, err => {
+                    if(!res.headersSent){
+                        req.flash('error', 'There was an error getting your payment status');
+                        res.redirect('/login');
+                    }
+                });
             }else{
                 req.flash('error', 'Invalid login details');
                 res.redirect('/login');
@@ -75,52 +192,71 @@ export default class UserController {
     }
 
     postSignup = async (req: Request, res: Response) => {
+        let user : User = new User({
+            admin: false,
+            password: req.body.password,
+            email: req.body.email,
+            avatar: req.files['avatarUpl'].path,
+            name: {first: req.body.first, last: req.body.last},
+            username: req.body.username,
+            system: req.body.system,
+            currency: req.body.currency
+        });
+
         try {
-            let user : User = new User({
-                admin: false,
-                password: req.body.password,
-                email: req.body.email,
-                avatar: req.files['avatarUpl'].path,
-                name: {first: req.body.first, last: req.body.last},
-                username: req.body.username,
-                system: req.body.system,
-                currency: req.body.currency
-            });
+            let {id} = await this.userRepo.save(user);
 
             try {
-                await this.userRepo.save(user);
-
-                /*let account = await nodemailer.createTestAccount(); TODO: figure out email & verification stuff, add pending to middleware
-                let transport = nodemailer.createTransport({
-                    host: 'smtp.ethereal.email',
-                    port: 465,
-                    secure: true,
-                    auth: {
-                        user: account.user,
-                        pass: account.pass
-                    }
-                });
-                let info = await transport.sendMail({
-                    from: 'ChefLyfe Support <support@cheflyfe.com>',
-                    to: user.email,
+                await EmailManager.sendEmail(user.email, {
                     subject: 'Verify your email',
-                    html: `To use your ChefLyfe account, please <a href="https://cheflyfe.com/verify?authKey=${user.authKey}">verify</a> that your account is ${user.email}`
-                });*/
+                    html: `Hello ${user.name.first} ${user.name.last},<br>
+                    To use your ChefLyfe account,
+                    please <a href="https://cheflyfe.com/verify?authKey=${user.authKey}">verify</a> that your email is ${user.email}.
+                    Your account may be deleted if you do not confirm.<br>
+                    Regards,<br>
+                    Cheflyfe Team`
+                });
 
-                this.postLogin(req, res);
+                this.postLogin(req, res, true);
             }catch(e){
-                console.log(e);
                 try {
-                    await unlink(__dirname + '/../../public' + req.files['avatarUpl'].avatar);
+                    await this.userRepo.delete(id);
+                    await unlink(__dirname + '/../../public' + req.files['avatarUpl'].path);
                 }catch(e){ }
 
-                req.flash('error', 'Username and email must be unique');
+                req.flash('error', 'There was an error verifying your email');
                 res.redirect('/signup');
             }
         }catch(e){
-            if(!res.headersSent){
-                req.flash('error', 'There was an error signing you up');
-                res.redirect('/signup');
+            if(e.errno == 1062){
+                try {
+                    let duplicate = await this.userRepo.findOne({email: req.body.email});
+
+                    if(duplicate){
+                        let daysAgo = (new Date().valueOf() - new Date(duplicate.timestamp).valueOf())/86400000;
+
+                        if(daysAgo >= 4 && duplicate.emailPending && !duplicate.admin){
+                            await this.userRepo.remove(duplicate);
+                            await this.userRepo.save(user);
+                        }else{
+                            throw new Error();
+                        }
+
+                        this.postLogin(req, res, true);
+                    }else{
+                        throw new Error();
+                    }
+                }catch(e){
+                    if(!res.headersSent){
+                        req.flash('error', 'Username and email must be unique');
+                        res.redirect('/signup');
+                    }
+                }
+            }else{
+                if(!res.headersSent){
+                    req.flash('error', 'There was an error signing you up');
+                    res.redirect('/signup');
+                }
             }
         }
     }
@@ -138,6 +274,14 @@ export default class UserController {
     patchUpdate = async (req: Request, res: Response) => {
         try {
             let update = Middleware.decodeBody(req.body, req.files);
+
+            delete update['admin'];
+            delete update['paymentKey'];
+            delete update['paymentStatus'];
+            delete update['emailPending'];
+            delete update['password'];
+            delete update['email'];
+            delete update['username'];
 
             if(update['requested'] || update['brigade']){
                 let toUpdate : User = await this.userRepo.findOne(req.query.id ? parseInt(req.query.id) : req.session.userID);

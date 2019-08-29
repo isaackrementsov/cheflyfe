@@ -72,7 +72,6 @@ export default class MenuController {
 
         try {
             menus = await this.menuRepo.createQueryBuilder('menu')
-                .limit(5)
                 .leftJoinAndSelect('menu.author', 'author')
                 .where('author.admin = :yes', {yes: true})
                 .getMany();
@@ -80,7 +79,16 @@ export default class MenuController {
             req.flash('error', 'Error getting public menus');
         }
 
-        res.render('menus', {menus: menus, session: req.session, public: true, error: req.flash('error')});
+        res.render('menus', {
+            menus: menus.sort((a, b) => {
+                if(a.name < b.name) { return -1; }
+                if(a.name > b.name) { return 1; }
+                return 0;
+            }), 
+            session: req.session,
+            public: true,
+            error: req.flash('error')
+        });
     }
 
     getCreate = async (req: Request, res: Response) => {

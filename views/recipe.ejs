@@ -1,6 +1,10 @@
 <% include partials/header %>
+<% let expired = false %>
+<% if(locals.session){ %>
+    <% expired = session.paymentStatus != 'ACTIVE' && !session.admin && session.paid %>
+<% } %>
 <% include partials/lists/units %> <!-- TODO: add ingredient brands -->
-<% let auth = recipe.author.id == session.userID %>
+<% let auth = (recipe.author.id == session.userID) && !expired %>
 <% let c = recipe.author.currency %>
 <div class="profile-nav ingredients-header">
     <h1>View Recipe</h1>
@@ -52,7 +56,7 @@ onclick="toggleEdit('edit-recipe', '', '')" onsubmit="packageJSON()" id="recipe-
         <% } %>
         <% if(auth || recipe.sharingPermissions.labor){ %>
             <div class="checkbox flex-container">
-                <div>Labour - <%= c %><input type="number" step="0.01" value="<%= recipe.costs.labor %>" id="labor-input"
+                <div>Labour - <%= c %><input type="number" step="0.01" min="0" max="100000" value="<%= recipe.costs.labor %>" id="labor-input"
                 oninput="changeCost('labor-input', 'labor')" <% if(!auth){ %>disabled<% } %> required></div>
                 <% if(auth){ %>
                     <label class="switch"><input type="checkbox"
@@ -65,7 +69,7 @@ onclick="toggleEdit('edit-recipe', '', '')" onsubmit="packageJSON()" id="recipe-
         <% if(auth || recipe.sharingPermissions.misc){ %>
             <div class="checkbox flex-container">
                 <div>Misc - <%= c %>
-                    <input type="number" step="0.01" value="<%= recipe.costs.misc %>" id="misc-input" oninput="changeCost('misc-input', 'misc')"
+                    <input type="number" step="0.01" min="0" max="100000" value="<%= recipe.costs.misc %>" id="misc-input" oninput="changeCost('misc-input', 'misc')"
                     <% if(!auth){ %>disabled<% } %> required>
                 </div>
                 <% if(auth){ %>
@@ -78,7 +82,7 @@ onclick="toggleEdit('edit-recipe', '', '')" onsubmit="packageJSON()" id="recipe-
         <% } %>
         <% if(auth || recipe.sharingPermissions.overhead){ %>
             <div class="checkbox flex-container">
-                <div>Overhead - <%= c %><input type="number" step="0.01" value="<%= recipe.costs.overhead %>" id="overhead-input"
+                <div>Overhead - <%= c %><input type="number" min="0" max="100000" step="0.01" value="<%= recipe.costs.overhead %>" id="overhead-input"
                 oninput="changeCost('overhead-input', 'overhead')" <% if(!auth){ %>disabled<% } %> required></div>
                 <% if(auth){ %>
                     <label class="switch"><input type="checkbox"
@@ -133,7 +137,7 @@ onclick="toggleEdit('edit-recipe', '', '')" onsubmit="packageJSON()" id="recipe-
         <% } %>
         <% if(auth || recipe.sharingPermissions.price){ %>
             <div class="checkbox flex-container">
-                <div>Price - <%= c %><input type="number" step="0.01" value="<%= recipe.price.val %>" id="price" oninput="changePrice()"
+                <div>Price - <%= c %><input type="number" step="0.01" min="0" max="100000" value="<%= recipe.price.val %>" id="price" oninput="changePrice()"
                 <% if(!auth){ %>disabled<% } %> required></div>
                 <% if(auth){ %>
                     <label class="switch"><input type="checkbox"
@@ -217,7 +221,7 @@ onclick="toggleEdit('edit-recipe', '', '')" onsubmit="packageJSON()" id="recipe-
                     <% let path = src.split('.') %>
                     <% let ext = path[path.length - 1].toLowerCase() %>
                     <div class="media-container">
-                        <% if(ext == 'png' || ext == 'jpg' || ext == 'bmp' || ext == 'svg'){ %>
+                        <% if(ext == 'png' || ext == 'jpg' || ext == 'bmp' || ext == 'svg' || ext == 'jpeg'){ %>
                             <img src="<%= src %>">
                         <% }else{ %>
                             <video controls><source src="<%= src %>"></video>
@@ -232,7 +236,7 @@ onclick="toggleEdit('edit-recipe', '', '')" onsubmit="packageJSON()" id="recipe-
                     </div>
                 <% } %>
             </div>
-            <% if(auth){ %>
+            <% if(auth && recipe.filePaths.length < 6){ %>
                 <div class="post-content PDFIgnore" style="margin-bottom: 0">
                     <div class="form-upl-wrapper">
                         <input type="file" name="recipeUpl" accept=".jpg,.png,.svg,.bmp,.mp4" oninput="submitForm('recipe-form')">
@@ -325,7 +329,7 @@ onclick="toggleEdit('edit-recipe', '', '')" onsubmit="packageJSON()" id="recipe-
                     <span id="yield" onclick="toggle('yield', 'update-yield')" style="font-weight: bold; color: #8C9EFF"><%= recipe.price.qt %> <%= recipe.price.units %></span>
                     <% if(auth){ %>
                         <span id="update-yield" style="display: none">
-                            <input type="number" value="<%= recipe.price.qt %>" id="qt" required>
+                            <input type="number" min="0" max="100000" value="<%= recipe.price.qt %>" id="qt" required>
                             <input type="text" list="units-datalist" value="<%= recipe.price.units %>" id="units" disabled>
                         </span>
                     <% } %>

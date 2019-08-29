@@ -5,6 +5,7 @@ import PostController from '../controllers/PostController';
 import RecipeController from '../controllers/RecipeController';
 import UserController from '../controllers/UserController';
 import AdminController from '../controllers/AdminController';
+import PaymentController from '../controllers/PaymentController';
 
 //TODO: Make url params integers for ids in controllers
 let routes = app => {
@@ -15,12 +16,19 @@ let routes = app => {
     let recipeController : RecipeController = new RecipeController();
     let userController : UserController = new UserController();
     let adminController : AdminController = new AdminController();
+    let paymentController : PaymentController = new PaymentController();
 
     app.get('/', homeController.getIndex); //TODO: fix res.render({a: a}) -> res.render({a});
     app.get('/terms', homeController.getTerms);
     app.get('/privacy', homeController.getPrivacy);
     app.get('/login', userController.getLogin);
     app.get('/signup', userController.getSignup)
+    app.get('/pending', userController.getPending);
+    app.get('/verify', userController.getVerify);
+    app.get('/reset', userController.getReset);
+    app.get('/reset/confirm', userController.getFinishReset);
+    app.get('/payment', paymentController.getPayment);
+    app.get('/payment/post', paymentController.getPostPayment);
     app.get('/ingredients', ingredientController.getAll);
     app.get('/ingredients/export', ingredientController.getExport)
     app.get('/menus', menuController.getAll);
@@ -41,6 +49,7 @@ let routes = app => {
     app.post('/login', userController.postLogin);
     app.post('/signup', userController.postSignup);
     app.post('/logout', userController.postLogout);
+    app.post('/reset', userController.postSendResetEmail);
     app.post('/ingredients/create', ingredientController.postCreate);
     app.post('/ingredients/createCSV', ingredientController.postCreateCSV);
     app.post('/menus/create', menuController.postCreate);

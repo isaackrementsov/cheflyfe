@@ -1,5 +1,9 @@
 <% include partials/header %>
-<% let auth = menu.author.id == session.userID %>
+<% let expired = false %>
+<% if(locals.session){ %>
+    <% expired = session.paymentStatus != 'ACTIVE' && !session.admin && session.paid %>
+<% } %>
+<% let auth = (menu.author.id == session.userID) && !expired %>
 <% let c = menu.author.currency %>
 <div class="profile-nav ingredients-header">
     <h1>View Menu</h1>
@@ -138,7 +142,7 @@ onclick="toggleEdit('menu-edit')" onsubmit="packageJSON()" id="menu-update-form"
                                     <% let src = menu.recipes[i].filePaths[k] %>
                                     <% let path = src.split('.') %>
                                     <% let ext = path[path.length - 1].toLowerCase() %>
-                                    <% if(ext == 'png' || ext == 'jpg' || ext == 'bmp' || ext == 'svg'){ %>
+                                    <% if(ext == 'png' || ext == 'jpg' || ext == 'bmp' || ext == 'svg' || ext == 'jpeg'){ %>
                                         <% found = src %>
                                     <% } %>
                                 <% } %>

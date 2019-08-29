@@ -1,118 +1,129 @@
 <% include partials/header %>
-<% include partials/lists/units %>
-<% let c = session.currency %>
-<div class="profile-nav ingredients-header">
-    <h1><% if(session.admin){ %>Post a Public Recipe<% }else{ %>Create Recipe<% } %></h1>
-</div>
-<form class="profile-main add-recipe" method="POST" action="/recipes/create" enctype="multipart/form-data">
-    <div class="profile-card">
-        <h1><i class="material-icons">people</i>Sharing Settings</h1>
-        <input type="hidden" id="viewer-input" value="[]" name="sharedUsersRelJSON">
-        <% if(!session.admin){ %>
-            <div class="allergens flex-container" id="add-viewer-container" style="margin-bottom: 0">
-                <div class="flex-container add-allergen">
-                    <input type="text" list="user-datalist" placeholder="Add viewer" id="add-viewer-input">
-                    <button type="button" onclick="addViewer()"><i class="material-icons">done</i></button>
-                </div>
-            </div>
-        <% } %>
-        <h2>Display to Viewers</h2>
-        <h3>Costs</h3>
-        <div class="checkbox flex-container">
-            <div>Food - <%= c %><input type="number" step="0.01" name="foodJSON" id="food-input" value="0" disabled></div>
-            <label class="switch"><input type="checkbox" name="foodShareJSON"><span class="slider"></span></label>
-        </div>
-        <div class="checkbox flex-container">
-            <div>Labour - <%= c %><input type="number" step="0.01" name="laborJSON" value="0" id="labor-input" oninput="changeCost('labor-input', 'labor')" required></div>
-            <label class="switch"><input type="checkbox" name="laborShareJSON"><span class="slider"></span></label>
-        </div>
-        <div class="checkbox flex-container">
-            <div>Misc - <%= c %><input type="number" step="0.01" name="miscJSON" value="0" id="misc-input" oninput="changeCost('misc-input', 'misc')" required></div>
-            <label class="switch"><input type="checkbox" name="miscShareJSON"><span class="slider"></span></label>
-        </div>
-        <div class="checkbox flex-container">
-            <div>Overhead - <%= c %><input type="number" step="0.01" name="overheadJSON" value="0" id="overhead-input" oninput="changeCost('overhead-input', 'overhead')" required></div>
-            <label class="switch"><input type="checkbox" name="overheadShareJSON"><span class="slider"></span></label>
-        </div>
-        <div class="checkbox flex-container">
-            <div>Portion - <%= c %><input type="number" step="0.01" value="0" id="serving-cost-input" disabled></div>
-            <label class="switch"><input type="checkbox" name="servingShareJSON"><span class="slider"></span></label>
-        </div>
-        <h3>Profit</h3>
-        <div class="checkbox flex-container">
-            <div>Profit - <input type="number" step="0.01" name="profitMarginJSON" value="0" id="profit-margin" oninput="adjustMargin()" required>%</div>
-            <label class="switch"><input type="checkbox" name="profitMarginShareJSON"><span class="slider"></span></label>
-        </div>
-        <div class="checkbox flex-container">
-            <div>Profit - <%= c %><input type="number" step="0.01" name="profitJSON" value="0" id="profit" disabled></div>
-            <label class="switch"><input type="checkbox" name="profitShareJSON"><span class="slider"></span></label>
-        </div>
-        <div class="checkbox flex-container">
-            <div>Price - <%= c %><input type="number" step="0.01" name="priceJSON" value="0" id="price" oninput="changePrice()" required></div>
-            <label class="switch"><input type="checkbox" name="priceShareJSON"><span class="slider"></span></label>
-        </div>
-        <h3>Other</h3>
-        <div class="checkbox flex-container">
-            <div>Allergens</div>
-            <label class="switch"><input type="checkbox" name="allergensShareJSON"><span class="slider"></span></label>
-        </div>
-        <h2>Public</h2>
-        <div class="checkbox flex-container">
-            <div>Display in feed</div>
-            <label class="switch"><input type="checkbox" name="postShareJSON"><span class="slider"></span></label>
-        </div>
+<% let expired = false %>
+<% if(locals.session){ %>
+    <% expired = session.paymentStatus != 'ACTIVE' && !session.admin && session.paid %>
+<% } %>
+<% if(expired){ %>
+    <% include partials/expired %>
+<% }else{ %>
+    <% include partials/lists/units %>
+    <% let c = session.currency %>
+    <div class="profile-nav ingredients-header">
+        <h1><% if(session.admin){ %>Post a Public Recipe<% }else{ %>Create Recipe<% } %></h1>
     </div>
-    <div class="profile-feed">
-        <% include partials/forms/error %>
-        <div class="post-card">
-            <div class="post-header">
-                <input type="text" placeholder="Title" name="name" required>
-            </div>
-            <div class="post-content">
-                <p><textarea placeholder="Briefly describe your recipe (optional)" name="descriptionOpt"></textarea></p>
-                <div id="add-ingredient-container">
-                    <input type="hidden" value="[]" name="ingredientsRelJSON" id="ingredient-input">
-                    <input type="hidden" value="[]" name="recipesRelJSON" id="subrecipe-input">
-                    <input type="hidden" value="[]" name="quantitiesJSON" id="quantity-input">
-                    <input type="hidden" value="[]" name="recipeQuantitiesJSON" id="recipe-quantity-input">
-                    <p class="plus-button"><button onclick="toggleArr(['add-ingredient'], ['add-ingredient-input', 'save-ingredient'])" type="button">
-                        <i class="material-icons" id="add-ingredient">add</i>
-                        <i class="material-icons" id="save-ingredient" style="display: none" onclick="addIngredient()">done</i>
-                    </button> Add ingredient</p>
-                    <div id="add-ingredient-input" style="display: none" class="grey-inputs">
-                        <input type="text" placeholder="Ingredient or subrecipe name" oninput="getUnits()" list="ingredient-datalist">
-                        <input type="number" placeholder="# of">
-                        <select>
-                        </select>
+    <form class="profile-main add-recipe" method="POST" action="/recipes/create" enctype="multipart/form-data">
+        <div class="profile-card">
+            <h1><i class="material-icons">people</i>Sharing Settings</h1>
+            <input type="hidden" id="viewer-input" value="[]" name="sharedUsersRelJSON">
+            <% if(!session.admin){ %>
+                <div class="allergens flex-container" id="add-viewer-container" style="margin-bottom: 0">
+                    <div class="flex-container add-allergen">
+                        <input type="text" list="user-datalist" placeholder="Add viewer" id="add-viewer-input">
+                        <button type="button" onclick="addViewer()"><i class="material-icons">done</i></button>
                     </div>
                 </div>
-                <div id="add-step-container">
-                    <input type="hidden" value="[]" name="stepsJSON" id="step-input">
-                    <p class="plus-button"><button onclick="toggleArr(['add-step'], ['add-step-input', 'save-step'])" type="button">
-                        <i class="material-icons" id="add-step">add</i>
-                        <i class="material-icons" id="save-step" style="display: none" onclick="addStep()">done</i>
-                    </button> Add steps</p>
-                    <textarea id="add-step-input" placeholder="Describe recipe step" style="display: none"></textarea>
-                </div>
-                <div class="grey-inputs small-inputs">
-                    <h3>Yield</h3>
-                    <input type="number" placeholder="# of" name="qtJSON" required>
-                    <input type="text" list="units-datalist" placeholder="units" name="units" required>
-                </div>
-                <div class="grey-inputs small-inputs">
-                    <h3>Serves</h3>
-                    <input type="number" min="1" placeholder="# of servings" name="servesJSON" style="width: 17.5%" oninput="changeServing()" id="serving-input" required>
-                </div>
+            <% } %>
+            <h2>Display to Viewers</h2>
+            <h3>Costs</h3>
+            <div class="checkbox flex-container">
+                <div>Food - <%= c %><input type="number" step="0.01" name="foodJSON" id="food-input" value="0" disabled></div>
+                <label class="switch"><input type="checkbox" name="foodShareJSON"><span class="slider"></span></label>
             </div>
-            <div class="post-content">
-                <div class="form-upl-wrapper">
-                    <input type="file" name="recipeUplMulti6" accept=".jpg,.png,.svg,.bmp,.mp4" multiple required>
-                    <button class="form-upl" type="button">Add photos and videos</button>
-                </div><br>
-                <input type="submit" class="cta" value="Publish">
+            <div class="checkbox flex-container">
+                <div>Labour - <%= c %>
+                    <input type="number" step="0.01" name="laborJSON" min="0" max="100000"
+                    value="0" id="labor-input" oninput="changeCost('labor-input', 'labor')" required>
+                </div>
+                <label class="switch"><input type="checkbox" name="laborShareJSON"><span class="slider"></span></label>
+            </div>
+            <div class="checkbox flex-container">
+                <div>Misc - <%= c %><input type="number" step="0.01" name="miscJSON" value="0" id="misc-input" oninput="changeCost('misc-input', 'misc')" required></div>
+                <label class="switch"><input type="checkbox" min="0" max="100000" name="miscShareJSON"><span class="slider"></span></label>
+            </div>
+            <div class="checkbox flex-container">
+                <div>Overhead - <%= c %><input type="number" step="0.01" name="overheadJSON" min="0" max="100000" value="0" id="overhead-input" oninput="changeCost('overhead-input', 'overhead')" required></div>
+                <label class="switch"><input type="checkbox" name="overheadShareJSON"><span class="slider"></span></label>
+            </div>
+            <div class="checkbox flex-container">
+                <div>Portion - <%= c %><input type="number" step="0.01" value="0" id="serving-cost-input" disabled></div>
+                <label class="switch"><input type="checkbox" name="servingShareJSON"><span class="slider"></span></label>
+            </div>
+            <h3>Profit</h3>
+            <div class="checkbox flex-container">
+                <div>Profit - <input type="number" step="0.01" name="profitMarginJSON" value="0" id="profit-margin" oninput="adjustMargin()" required>%</div>
+                <label class="switch"><input type="checkbox" name="profitMarginShareJSON"><span class="slider"></span></label>
+            </div>
+            <div class="checkbox flex-container">
+                <div>Profit - <%= c %><input type="number" step="0.01" name="profitJSON" value="0" id="profit" disabled></div>
+                <label class="switch"><input type="checkbox" name="profitShareJSON"><span class="slider"></span></label>
+            </div>
+            <div class="checkbox flex-container">
+                <div>Price - <%= c %><input type="number" step="0.01" name="priceJSON" min="0" max="100000" value="0" id="price" oninput="changePrice()" required></div>
+                <label class="switch"><input type="checkbox" name="priceShareJSON"><span class="slider"></span></label>
+            </div>
+            <h3>Other</h3>
+            <div class="checkbox flex-container">
+                <div>Allergens</div>
+                <label class="switch"><input type="checkbox" name="allergensShareJSON"><span class="slider"></span></label>
+            </div>
+            <h2>Public</h2>
+            <div class="checkbox flex-container">
+                <div>Display in feed</div>
+                <label class="switch"><input type="checkbox" name="postShareJSON"><span class="slider"></span></label>
             </div>
         </div>
-    </div>
-</form>
-<% include partials/js/recipeJs %>
+        <div class="profile-feed">
+            <% include partials/forms/error %>
+            <div class="post-card">
+                <div class="post-header">
+                    <input type="text" placeholder="Title" name="name" required>
+                </div>
+                <div class="post-content">
+                    <p><textarea placeholder="Briefly describe your recipe (optional)" name="descriptionOpt"></textarea></p>
+                    <div id="add-ingredient-container">
+                        <input type="hidden" value="[]" name="ingredientsRelJSON" id="ingredient-input">
+                        <input type="hidden" value="[]" name="recipesRelJSON" id="subrecipe-input">
+                        <input type="hidden" value="[]" name="quantitiesJSON" id="quantity-input">
+                        <input type="hidden" value="[]" name="recipeQuantitiesJSON" id="recipe-quantity-input">
+                        <p class="plus-button"><button onclick="toggleArr(['add-ingredient'], ['add-ingredient-input', 'save-ingredient'])" type="button">
+                            <i class="material-icons" id="add-ingredient">add</i>
+                            <i class="material-icons" id="save-ingredient" style="display: none" onclick="addIngredient()">done</i>
+                        </button> Add ingredient</p>
+                        <div id="add-ingredient-input" style="display: none" class="grey-inputs">
+                            <input type="text" placeholder="Ingredient or subrecipe name" oninput="getUnits()" list="ingredient-datalist">
+                            <input type="number" placeholder="# of">
+                            <select>
+                            </select>
+                        </div>
+                    </div>
+                    <div id="add-step-container">
+                        <input type="hidden" value="[]" name="stepsJSON" id="step-input">
+                        <p class="plus-button"><button onclick="toggleArr(['add-step'], ['add-step-input', 'save-step'])" type="button">
+                            <i class="material-icons" id="add-step">add</i>
+                            <i class="material-icons" id="save-step" style="display: none" onclick="addStep()">done</i>
+                        </button> Add steps</p>
+                        <textarea id="add-step-input" placeholder="Describe recipe step" style="display: none"></textarea>
+                    </div>
+                    <div class="grey-inputs small-inputs">
+                        <h3>Yield</h3>
+                        <input type="number" min="0" max="100000" placeholder="# of" name="qtJSON" required>
+                        <input type="text" list="units-datalist" placeholder="units" name="units" required>
+                    </div>
+                    <div class="grey-inputs small-inputs">
+                        <h3>Serves</h3>
+                        <input type="number" min="1" placeholder="# of servings" name="servesJSON" style="width: 17.5%" oninput="changeServing()" id="serving-input" required>
+                    </div>
+                </div>
+                <div class="post-content">
+                    <div class="form-upl-wrapper">
+                        <input type="file" name="recipeUplMulti6" accept=".jpg,.png,.svg,.bmp,.mp4" multiple required>
+                        <button class="form-upl" type="button">Add photos and videos</button>
+                    </div><br>
+                    <input type="submit" class="cta" value="Publish">
+                </div>
+            </div>
+        </div>
+    </form>
+    <% include partials/js/recipeJs %>
+<% } %>
 <% include partials/footer %>
