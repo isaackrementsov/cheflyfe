@@ -15,7 +15,7 @@ export default class HomeController { //TODO: cleanup imports
             .limit(3)
             .getMany();
 
-        res.render('index', {posts, session: req.session, error: req.flash('error')});
+        res.render('index', {posts, session: req.session, error: req.flash('error'), home: true});
     }
 
     getTerms = async (req: Request, res: Response) => {
