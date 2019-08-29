@@ -20,7 +20,7 @@
             </div>
         <% } %>
         <div class="profile-header"
-         style="background: <% if(user.background != ''){ %> url(<%= user.background %>) <% }else{ %> linear-gradient(45deg, #8C9EFF, #304FFE) <% } %>;background-size: cover !important;"></div>
+         style="background: <% if(user.background != ''){ %> url(<%= user.background %>) <% }else{ %> linear-gradient(45deg, #8C9EFF, #304FFE) <% } %>;background-size: cover !important; background-position: center"></div>
     </form>
     <div class="profile-nav" id="profile-nav-uq">
         <button class="profile-nav-button active" id="posts" onclick="toggleActivate('profile-feed-feed', 'profile-feed-brigade')">

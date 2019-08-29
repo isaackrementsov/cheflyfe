@@ -6,6 +6,7 @@ import Record from '../entity/Record';
 import User from '../entity/User';
 import Config from '../entity/Config';
 import * as fs from 'fs';
+import Middleware from '../util/Middleware';
 
 export default class AdminController {
 

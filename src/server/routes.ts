@@ -48,6 +48,7 @@ let routes = app => {
 
     app.post('/login', userController.postLogin);
     app.post('/signup', userController.postSignup);
+    app.post('/admin/signup', userController.postAdminSignup)
     app.post('/logout', userController.postLogout);
     app.post('/reset', userController.postSendResetEmail);
     app.post('/ingredients/create', ingredientController.postCreate);

@@ -148,8 +148,8 @@ export default class UserController {
                         req.session.currency = user.currency;
                         req.session.system = user.system;
                         req.session.paid = user.paymentKey != '';
-                        req.session.pending = (status != 'ACTIVE' || user.emailPending) && !user.admin && !req.session.paid;
-                        req.session.paymentStatus = user.paymentStatus;
+                        req.session.paymentStatus = user.paymentNotRequired ? 'ACTIVE' : status;
+                        req.session.pending = (req.session.paymentStatus != 'ACTIVE' || user.emailPending) && !user.admin && !req.session.paid;
                         req.session.emailPending = user.emailPending;
 
                         if(status != user.paymentStatus){
@@ -161,7 +161,7 @@ export default class UserController {
                         if(user.admin){
                             res.redirect('/admin');
                         }else{
-                            if(created){
+                            if(created === true){
                                 res.redirect('/payment');
                             }else{
                                 res.redirect('/users/' + user.id);
@@ -259,6 +259,31 @@ export default class UserController {
                 }
             }
         }
+    }
+
+    postAdminSignup = async (req: Request, res: Response) => {
+        try {
+            let user : User = new User({
+                admin: false,
+                password: req.body.password,
+                email: req.body.email,
+                avatar: req.files['avatarUpl'].path,
+                name: {first: req.body.first, last: req.body.last},
+                username: req.body.username,
+                system: req.body.system,
+                currency: req.body.currency,
+                paymentNotRequired: true,
+                emailPending: false,
+                paymentStatus: 'ACTIVE',
+            });
+
+            await this.userRepo.save(user);
+        }catch(e){
+            console.log(e);
+            req.flash('error', 'There was an error saving user. Make sure email and password are unique');
+        }
+
+        res.redirect('/admin');
     }
 
     postLogout = async (req: Request, res: Response) => {

@@ -22,6 +22,8 @@ export default class User {
     emailPending : boolean = true;
     @Column()
     paymentStatus : string = 'PENDING';
+    @Column()
+    paymentNotRequired : boolean = false;
     @Column('text')
     bio : string = "I'm a new user to ChefLyfe!";
     @Column()

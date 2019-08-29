@@ -1005,3 +1005,22 @@ iframe {
 .recipes-public .post-header span {
     font-size: 25px !important;
 }
+.landing-news {
+    margin-top: 50px;
+    justify-content: space-around;
+}
+.landing-news .post-card {
+    width: 400px;
+    background-color: white;
+    color: grey;
+    margin: 10px;
+}
+.landing-news img {
+    box-shadow: none !important;
+}
+.post-bg, .media-container {
+    width: 100%;
+    height: 200px;
+    background-size: cover;
+    background-position: center;
+}

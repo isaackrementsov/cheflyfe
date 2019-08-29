@@ -1,13 +1,21 @@
 import {Request, Response} from 'express';
 import {Repository, getRepository} from 'typeorm';
 import Config from '../entity/Config';
+import Post from '../entity/Post';
 
 export default class HomeController { //TODO: cleanup imports
 
+    postRepo : Repository<Post>;
     configRepo : Repository<Config>;
 
-    getIndex = (req: Request, res: Response) => {
-        res.render('index', {session: req.session, error: req.flash('error')});
+    getIndex = async (req: Request, res: Response) => {
+        let posts : Post[] = await this.postRepo.createQueryBuilder('post')
+            .leftJoinAndSelect('post.author', 'author')
+            .where('author.admin = :yes', {yes: true})
+            .limit(3)
+            .getMany();
+
+        res.render('index', {posts, session: req.session, error: req.flash('error')});
     }
 
     getTerms = async (req: Request, res: Response) => {
@@ -29,6 +37,7 @@ export default class HomeController { //TODO: cleanup imports
     }
 
     constructor(){
+        this.postRepo = getRepository(Post);
         this.configRepo = getRepository(Config);
     }
 

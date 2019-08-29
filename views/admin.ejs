@@ -64,6 +64,58 @@
                              <span style="vertical-align: middle">Export all to MailChimp</span>
                          </button>
                     </form>
+                    <div class="post-content">
+                        <button class="form-upl" onclick="openDiv('add-free-user-form')"><i class="material-icons">add</i> Add free user</button>
+                    </div>
+                    <form class="post-content" id="add-free-user-form" method="POST" action="/admin/signup" style="display: none" enctype="multipart/form-data">
+                        <div class="login-form-wrapper" style="padding: 0">
+                            <h3>Basic info</h3>
+                            <div class="form-inline">
+                                <div class="login-form-input">
+                                    <label for="first">First name</label>
+                                    <input type="text" name="first" required>
+                                </div>
+                                <div class="login-form-input">
+                                    <label for="last">Last name</label>
+                                    <input type="text" name="last" required>
+                                </div>
+                            </div>
+                            <h3>International</h3>
+                            <div class="form-inline">
+                                <div class="login-form-input">
+                                    <label for="username">Measurement System</label>
+                                    <select name="system">
+                                        <option value="imperial">Imperial</option>
+                                        <option value="metric">Metric</option>
+                                    </select>
+                                </div>
+                                <div class="login-form-input">
+                                    <label for="last">Currency Symbol</label>
+                                    <input type="text" name="currency" placeholder="$, €, £" required>
+                                </div>
+                            </div>
+                            <h3>Account details</h3>
+                            <div class="form-inline">
+                                <div class="login-form-input">
+                                    <label for="username">Username</label>
+                                    <input type="text" name="username" required>
+                                </div>
+                                <div class="login-form-input">
+                                    <label for="last">Email</label>
+                                    <input type="email" name="email" required>
+                                </div>
+                            </div>
+                            <div class="login-form-input">
+                                <label for="last">Password</label>
+                                <input type="password" name="password" required>
+                            </div>
+                            <div class="form-upl-wrapper">
+                                <input type="file" name="avatarUpl" accept=".jpg,.png,.svg,.bmp" required>
+                                <button class="form-upl">Upload avatar</button>
+                            </div>
+                            <input type="submit" value="Add">
+                        </div>
+                    </form>
                     <div class="post-content grey-inputs" style="padding-bottom: 0" id="select-days-container">
                         Find by <select id="select-column" style="width: 150px;">
                             <option value="0">Email</option>
@@ -86,7 +138,7 @@
                                     <td><%= userData[i].email %></td>
                                     <td><%= userData[i].username %></td>
                                     <td><%= userData[i].name.first %> <%= userData[i].name.last %></td>
-                                    <td>Active</td>
+                                    <td><%= userData[i].paymentStatus %></td>
                                 </tr>
                             <% } %>
                         </table>

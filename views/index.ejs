@@ -40,5 +40,40 @@
         </div>
     </div>
 </div>
+<div class="flex-container landing grad">
+    <div style="height: auto; width: 100%; max-width: 100%; text-align: center">
+        <h1>Recent News</h1>
+        <% if(posts.length == 0){ %>
+            <p>No news right now</p>
+        <% } %>
+        <div class="flex-container landing-news">
+            <% for(let i = 0; i < posts.length; i++){ %>
+                <div class="post-card">
+                    <div class="post-header">
+                        <span><%= posts[i].name %></span>
+                    </div>
+                    <% if(posts[i].filePaths.length > 0){ %>
+                        <div class="post-content media">
+                            <% let src = posts[i].filePaths[0] %>
+                            <% let path = src.split('.') %>
+                            <% let ext = path[path.length - 1].toLowerCase() %>
+                            <div class="media-container">
+                                <% if(ext == 'png' || ext == 'jpg' || ext == 'bmp' || ext == 'svg'){ %>
+                                    <div style="background-image: url(<%= src %>); background-size: cover" class="post-bg"></div>
+                                <% }else{ %>
+                                    <video style="width: 100%" controls><source src="<%= src %>"></video>
+                                <% } %>
+                            </div>
+                        </div>
+                    <% } %>
+                    <div class="post-content">
+                        <%- posts[i].content.substring(0, 300) %>
+                        <% if(posts[i].content.length > 300){ %>...<% } %>
+                    </div>
+                </div>
+            <% } %>
+        </div>
+    </div>
+</div>
 <% include partials/forms/error %>
 <% include partials/footer %>

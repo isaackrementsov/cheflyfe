@@ -37,6 +37,14 @@
     color: grey;
     transition: 0.2s ease-in-out;
 }
+.post-content .login-form-input input[type=text] {
+    border: 1px grey solid !important;
+    padding: 10px !important;
+    width: 330px;
+    max-width: 80vw;
+    font-weight: normal !important;
+    font-size: 15px !important;
+}
 .login-form-input input:focus, .login-form-input select:focus {
     outline: none;
     border-color: #8C9EFF;
