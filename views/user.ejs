@@ -130,6 +130,14 @@
                 <div class="post-content">
                     <textarea placeholder="Text" name="contentOpt"></textarea><br>
                 </div>
+                <% if(session.admin){ %>
+                    <div class="post-content">
+                        <label class="switch">
+                            <input type="checkbox" name="landingJSON"><span class="slider"></span>
+                        </label>
+                        <span>Show on landing page (max 3 posts)</span>
+                    </div>
+                <% } %>
                 <div class="post-content">
                     <div class="form-upl-wrapper">
                         <input type="file" name="postUplMulti8" accept=".jpg,.png,.svg,.bmp,.mp4" multiple>
@@ -221,6 +229,14 @@
                             <% } %>
                             <input type="hidden" name="filePathsJSON" id="filePaths<%= posts[i].id %>"
                             value="<%= JSON.stringify(posts[i].filePaths) %>">
+                            <% if(session.admin && auth){ %>
+                                <div class="post-content">
+                                    <label class="switch">
+                                        <input type="checkbox" name="landingJSON" <% if(posts[i].landing){ %>checked<% } %> onclick="openDiv('post-update<%= posts[i].id %>')"><span class="slider"></span>
+                                    </label>
+                                    <span>Show on landing page (max 3 posts)</span>
+                                </div>
+                            <% } %>
                             <input type="hidden" name="deletedMeta" id="deleted<%= posts[i].id %>" value="">
                             <div class="post-content media">
                                 <% for(let k = 0; k < posts[i].filePaths.length; k++) { %>

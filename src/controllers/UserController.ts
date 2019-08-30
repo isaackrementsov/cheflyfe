@@ -174,6 +174,7 @@ export default class UserController {
                         }
                     }
                 }, err => {
+                    console.log(err);
                     if(!res.headersSent){
                         req.flash('error', 'There was an error getting your payment status');
                         res.redirect('/login');

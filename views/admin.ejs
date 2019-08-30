@@ -14,6 +14,7 @@
             <button onclick="openData(1)">Database Activity</button>
             <button onclick="openData(2)">Users</button>
             <button onclick="openData(3)">Legal</button>
+            <button onclick="openData(4)">Landing Page</button
         </p>
         <p><a style="display: inline; color: #8C9EFF; font-weight: bold" href="/users/<%= session.userID %>">Posts</a>
              you make will show up on the Cheflyfe news page
@@ -155,6 +156,33 @@
                         <div class="form-upl-wrapper" enctype="multipart/form-data">
                             <button class="form-upl">Upload PDF</button>
                             <input type="file" name="privacyPDFUpl" accept=".pdf" oninput="submitForm('admin-upl-form')">
+                        </div>
+                    </form>
+                </div>
+                <div style="display: none">
+                    <form class="post-content" method="POST" action="/admin/update?_method=PATCH">
+                        <div class="login-form-wrapper" style="padding: 0">
+                            <h3>Headers</h3>
+                            <div class="form-inline">
+                                <div class="login-form-input">
+                                    <label for="first">Header 1</label>
+                                    <input type="text" name="header1" value="<%= landing.header1 %>" required>
+                                </div>
+                                <div class="login-form-input">
+                                    <label for="last">Header 2</label>
+                                    <input type="text" name="header2" value="<%= landing.header2 %>" required>
+                                </div>
+                            </div>
+                            <h3>Blurbs</h3>
+                            <div class="login-form-input">
+                                <label for="username">Blurb 1</label>
+                                <textarea name="blurb1" required><%= landing.blurb1 %></textarea>
+                            </div>
+                            <div class="login-form-input">
+                                <label for="last">Blurb 2</label>
+                                <textarea name="blurb2" required><%= landing.blurb2 %></textarea>
+                            </div>
+                            <input type="submit" value="Update">
                         </div>
                     </form>
                 </div>
@@ -307,7 +335,7 @@
         dataButtons.attr('class', '');
         $(dataButtons[i]).attr('class', 'active');
 
-        if(i == 2 || i == 3){
+        if(i == 2 || i == 3 || i == 4){
             $('#select-days-container').hide();
         }else{
             $('#select-days-container').show();

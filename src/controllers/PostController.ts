@@ -62,6 +62,7 @@ export default class PostController {
     postCreate = async (req: Request, res: Response) => {
         try {
             let post : Post = new Post({
+                landing: req.body.landingJSON || false,
                 name: req.body.name,
                 content: req.body.contentOpt || '',
                 filePaths: req.files ? req.files['postUplMulti8'].map(p => p.path) : [],
@@ -126,6 +127,7 @@ export default class PostController {
                     }
                 }else{
                     if(update['addedComment'] == '') delete update['addedComment'];
+                    if(!update['landing']) update['landing'] = false;
 
                     await this.postRepo.createQueryBuilder()
                         .update().set(update)

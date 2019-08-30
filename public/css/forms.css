@@ -27,7 +27,7 @@
     margin-bottom: 15px;
     margin-top: 5px;
 }
-.login-form-input input, .login-form-input select {
+.login-form-input input, .login-form-input select, .login-form-input textarea {
     padding: 10px;
     margin: 10px 0;
     width: 330px;
@@ -36,6 +36,9 @@
     border-radius: 3px;
     color: grey;
     transition: 0.2s ease-in-out;
+}
+.login-form-input textarea {
+    height: 200px;
 }
 .post-content .login-form-input input[type=text] {
     border: 1px grey solid !important;

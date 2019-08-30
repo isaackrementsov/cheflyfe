@@ -63,6 +63,7 @@ let routes = app => {
     app.patch('/menus/update/:id', menuController.patchUpdate);
     app.patch('/posts/update/:id', postController.patchUpdate);
     app.patch('/recipes/update/:id', recipeController.patchUpdate);
+    app.patch('/admin/update', adminController.patchUpdate);
 
     app.put('/recipes/transfer/:id', recipeController.putTransfer);
     app.put('/menus/transfer/:id', menuController.putTransfer);

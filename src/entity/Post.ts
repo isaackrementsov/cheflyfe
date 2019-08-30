@@ -11,6 +11,8 @@ export default class Post {
     id : number;
 
     @Column()
+    landing : boolean = false;
+    @Column()
     name : string;
     @Column('text')
     content : string;

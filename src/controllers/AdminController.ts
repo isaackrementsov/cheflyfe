@@ -6,7 +6,8 @@ import Record from '../entity/Record';
 import User from '../entity/User';
 import Config from '../entity/Config';
 import * as fs from 'fs';
-import Middleware from '../util/Middleware';
+
+let landingJSON = require('../util/landing.json');
 
 export default class AdminController {
 
@@ -28,7 +29,7 @@ export default class AdminController {
             userData = await this.userRepo.find();
         }catch(e){ }
 
-        res.render('admin', {visits, ingredients, recipes, menus, posts, users, userData, session: req.session, error: req.flash('error')});
+        res.render('admin', {visits, ingredients, recipes, menus, posts, users, userData, landing: landingJSON, session: req.session, error: req.flash('error')});
     }
 
     getExportEmails = async (req: Request, res: Response) => { //TODO: make path joining consistent and efficient
@@ -95,6 +96,14 @@ export default class AdminController {
                 res.redirect(req.header('Referer'));
             }
         }
+    }
+
+    patchUpdate = (req: Request, res: Response) => {
+        Object.assign(landingJSON, req.body);
+
+        fs.writeFile(__dirname + '/../util/landing.json', JSON.stringify(landingJSON), () => {
+            res.redirect('/admin');
+        });
     }
 
     constructor(){

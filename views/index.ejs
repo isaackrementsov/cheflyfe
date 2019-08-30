@@ -5,14 +5,9 @@
 <% } %>
 <div class="flex-container landing grad">
     <div>
-        <h1>Welcome to ChefLyfe</h1>
+        <h1><%- landing.header1 %></h1>
         <p>
-            ChefLyfe is a platform for chefs and foodservice employees
-            that automates food cost calculation. Easily add menus,
-            recipes, and ingredients with our intuitive interface,
-            CSV uploads, and USDA searches. Add people to your brigade
-            to share menus and recipes with them, and share interesting
-            news and posts to your feed.
+            <%- landing.blurb1 %>
         </p>
         <div class="buttons">
             <a href="/login" class="cta">Login</a>
@@ -28,15 +23,9 @@
         <img src="/img/static/recipeLanding.PNG">
     </div>
     <div>
-        <h1>Digital Recipes & Menus</h1>
+        <h1><%- landing.header2 %></h1>
         <div class="p">
-            Use ChefLyfe easy automated features for menus and recipes, such as
-            <ul>
-                <li>Sharing and importing among your brigade</li>
-                <li>Automatic nutrition panel generation</li>
-                <li>Shopping lists</li>
-                <li>Profit & food cost calculations</li>
-            </ul>
+            <%- landing.blurb2 %>
         </div>
     </div>
 </div>
@@ -69,6 +58,9 @@
                     <div class="post-content">
                         <%- posts[i].content.substring(0, 300) %>
                         <% if(posts[i].content.length > 300){ %>...<% } %>
+                    </div>
+                    <div class="post-content">
+                        <a class="cta" href="/news/<%= posts[i].id %>">View</a>
                     </div>
                 </div>
             <% } %>
