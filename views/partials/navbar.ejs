@@ -21,6 +21,9 @@
                         <li><a href="/login">Home</a></li><br>
                         <% if(session.admin){ %>
                             <li><a href="/admin">Dash</a></li><br>
+                        <% }else{ %>
+                            <li><a href="/terms">Terms</a></li><br>
+                            <li><a href="/privacy">Privacy</a></li><br>
                         <% } %>
                         <li><form method="POST" action="/logout"><input type="submit" value="Logout"></form></li>
                     </ul>

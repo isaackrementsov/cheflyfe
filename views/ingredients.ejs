@@ -23,7 +23,7 @@
             <div class="post-header"><input type="text" style="width: 100%" placeholder="Product name" id="search-db-input"></div>
             <div class="post-content grey-inputs small-input" style="margin: 10px; padding: 0">
                 <div class="checkbox flex-container">
-                    <span style="color: grey; font-weight: bold; margin-right: 5px">Conversions</span>
+                    <span style="color: grey; font-weight: bold; margin-right: 5px">Include available conversions</span>
                     <label class="switch"><input type="checkbox" id="search-db-conversions"><span class="slider"></span></label>
                 </div>
                 <button type="button" class="cta" style="vertical-align: middle" onclick="searchDB()"><i class="material-icons">arrow_forward</i></button>
@@ -83,17 +83,17 @@
             <div class="post-content">
                 <button type="button" onclick="openDiv('nutritional-info-form')" class="normal-button"><i class="material-icons">add</i> Add nutritonal facts</button>
                 <div id="nutritional-info-form" style="display: none">
-                    <p class="small-input smaller-input">Calories <input type="number" min="0" name="calsOptJSON" step="0.01"> - Calories from fat
-                        <input type="number" min="0" name="fatCalsOptJSON" step="0.01"></p>
-                    <p class="small-input smaller-input">Total fat <input type="number" min="0" name="fatOptJSON" step="0.01">g - Sat
-                        <input type="number" min="0" name="satFatOptJSON" step="0.01"> Trans <input type="number" min="0" name="transFatOptJSON" step="0.01">
+                    <p class="small-input smaller-input">Calories <input type="number" min="0" name="calsOptJSON" step="0.0001"> - Calories from fat
+                        <input type="number" min="0" name="fatCalsOptJSON" step="0.0001"></p>
+                    <p class="small-input smaller-input">Total fat <input type="number" min="0" name="fatOptJSON" step="0.0001">g - Sat
+                        <input type="number" min="0" name="satFatOptJSON" step="0.0001"> Trans <input type="number" min="0" name="transFatOptJSON" step="0.0001">
                     </p>
-                    <p class="small-input smaller-input">Cholesterol <input type="number" min="0" name="cholOptJSON" step="0.01">mg</p>
-                    <p class="small-input smaller-input">Sodium <input type="number" min="0" name="sodOptJSON" step="0.01">mg</p>
-                    <p class="small-input smaller-input">Total Carbs <input type="number" min="0" name="carbsOptJSON" step="0.01">g -
-                        <input type="number" min="0" name="fibOptJSON" step="0.01"> Fiber <input type="number" min="0" name="sugOptJSON" step="0.01"> Sugar
+                    <p class="small-input smaller-input">Cholesterol <input type="number" min="0" name="cholOptJSON" step="0.0001">mg</p>
+                    <p class="small-input smaller-input">Sodium <input type="number" min="0" name="sodOptJSON" step="0.0001">mg</p>
+                    <p class="small-input smaller-input">Total Carbs <input type="number" min="0" name="carbsOptJSON" step="0.0001">g -
+                        <input type="number" min="0" name="fibOptJSON" step="0.0001"> Fiber <input type="number" min="0" name="sugOptJSON" step="0.0001"> Sugar
                     </p>
-                    <p class="small-input smaller-input">Protein <input type="number" min="0" name="protOptJSON" step="0.01">g</p>
+                    <p class="small-input smaller-input">Protein <input type="number" min="0" name="protOptJSON" step="0.0001">g</p>
                 </div>
             </div>
             <div class="post-content">

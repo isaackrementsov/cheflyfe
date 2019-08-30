@@ -10,7 +10,7 @@ export default class PaymentManager {
     static token : {value: string, generated: Date};
     static options = {
         method: 'GET',
-        headers: {'merchant': '7616', 'Authorization': `Bearer peen`}
+        headers: {'merchant': '7616', 'Authorization': `Bearer kaDGoAMmB1ur15mcmw9m4OhMh14pIV`}
     };
 
     static generateToken(cb){

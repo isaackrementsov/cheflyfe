@@ -144,8 +144,13 @@ export default class Middleware {
                 if(key.indexOf('JSON') != -1 && req.body[key] != ''){
                     try {
                         req.body[key] = JSON.parse(req.body[key]);
+                    }catch(e){
+                        let n = parseFloat(req.body[key]);
+                        if(!isNaN(n)) req.body[key] = n;
+                        else{
+                            invalid = true;                            
+                        }
                     }
-                    catch(e){ invalid = true; }
                 }
 
                 if(key.indexOf('Rel') != -1){
