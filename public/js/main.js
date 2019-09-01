@@ -127,3 +127,53 @@ function sortedIndex(array, value) {
 
     return low;
 }
+
+function previewCreate(input, media){
+    previewImage(input, e => {
+        $(`#${media}`).append(`
+            <div class="media" style="vertical-align: middle; height: 45px; display: inline-block; margin-right: 10px">
+                <img src="${e.target.result}" style="vertical-align: middle; height: 45px">
+            </div>
+        `);
+    });
+}
+
+function previewUpdate(input, media){
+    previewImage(input, e => {
+        $(`#${media}`).css({'background': `url(${e.target.result})`, 'background-size': 'cover', 'background-position': 'center'});
+    });
+}
+
+function previewMedia(input, media){
+    $(`#${media}`).html('');
+
+    previewImage(input, e => {
+        let type = e.target.result.split('data:')[1].split('/')[0];
+        let html = type == 'image' ?
+            `<img src="${e.target.result}">` :
+            `<video controls><source src="${e.target.result}"></video>`;
+
+        $(`#${media}`).append(`
+            <div class="media-container">
+                ${html}
+            </div>
+        `);
+    });
+}
+
+function previewImage(input, cb){
+    let i = document.getElementById(input);
+
+    if(i.files && i.files[0]){
+
+        for(let k = 0; k < i.files.length; k++){
+            let reader = new FileReader();
+
+            reader.onload = function(e){
+                cb(e);
+            };
+
+            reader.readAsDataURL(i.files[k]);
+        }
+    }
+}

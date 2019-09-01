@@ -68,7 +68,7 @@ let routes = app => {
     app.put('/recipes/transfer/:id', recipeController.putTransfer);
     app.put('/menus/transfer/:id', menuController.putTransfer);
 
-    app.delete('/users/delete', userController.delete);
+    app.delete('/users/delete/:id', userController.delete);
     app.delete('/ingredients/delete/:id', ingredientController.delete);
     app.delete('/menus/delete/:id', menuController.delete);
     app.delete('/posts/delete/:id', postController.delete);

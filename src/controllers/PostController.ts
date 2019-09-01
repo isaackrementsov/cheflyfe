@@ -16,15 +16,21 @@ export default class PostController {
 
     getAll = async (req: Request, res: Response) => {
         let user : User;
+
         try {
             user = await this.userRepo.findOne(parseInt(req.params.id), {
-                relations: ['brigade', 'requested', 'posts', 'posts.author', 'posts.comments', 'posts.comments.author', 'recipes', 'recipes.sharedUsers'],
+                where: {admin: req.session.admin && (req.session.userID == req.params.id)},
+                relations: ['brigade', 'requested', 'posts', 'posts.author', 'posts.comments', 'posts.comments.author', 'recipes', 'recipes.sharedUsers']
             });
         }catch(e){
             req.flash('error', 'Error getting posts');
         }
 
-        res.render(user ? 'user' : 'notFound', {user: user, posts: user.posts, session: req.session, error: req.flash('error')});
+        try {
+            res.render('user', {user: user, posts: user.posts, session: req.session, error: req.flash('error')});
+        }catch(e){
+            res.render('notFound', {error: req.flash('error'), session: req.session})
+        }
     }
 
     getPublic = async (req: Request, res: Response) => {

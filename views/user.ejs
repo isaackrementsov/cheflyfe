@@ -9,7 +9,7 @@
             <div class="profile-header-overlay">
                 <div class="center-inline">
                     <div class="form-upl-wrapper" onclick="toggleEdit('background-edit', '', '', 'inline-block')">
-                        <input type="file" name="backgroundUpl" accept=".jpg,.png,.svg,.bmp" required>
+                        <input id="background-media-upl" type="file" name="backgroundUpl" accept=".jpg,.png,.svg,.bmp,.jpeg" oninput="previewUpdate('background-media-upl', 'background-media')" required>
                         <button class="form-upl"><i class="material-icons">camera_alt</i></button>
                     </div>
                     <div id="background-edit" style="display:none">
@@ -19,7 +19,7 @@
                 </div>
             </div>
         <% } %>
-        <div class="profile-header"
+        <div class="profile-header" id="background-media"
          style="background: <% if(user.background != ''){ %> url(<%= user.background %>) <% }else{ %> linear-gradient(45deg, #8C9EFF, #304FFE) <% } %>;background-size: cover !important; background-position: center"></div>
     </form>
     <div class="profile-nav" id="profile-nav-uq">
@@ -36,12 +36,12 @@
                 <% if(auth){ %>
                     <div class="avatar-overlay">
                         <div class="form-upl-wrapper" onclick="toggleEdit('user-edit')">
-                            <input type="file" name="avatarUpl" accept=".jpg,.png,.svg,.bmp">
+                            <input type="file" name="avatarUpl" accept=".jpg,.png,.svg,.bmp,.jpeg" id="avatar-media-upl" oninput="previewUpdate('avatar-media-upl', 'avatar-media')">
                             <button class="form-upl"><i class="material-icons">camera_alt</i></button>
                         </div>
                     </div>
                 <% } %>
-                <div class="img" style="background-image: url(<%= user.avatar %>)"></div>
+                <div class="img" id="avatar-media" style="background-image: url(<%= user.avatar %>)"></div>
             </div>
             <div class="card-heading">
                 <h1><%= user.name.first %> <%= user.name.last %></h1>
@@ -138,9 +138,10 @@
                         <span>Show on landing page (max 3 posts)</span>
                     </div>
                 <% } %>
+                <div class="post-content media" id="media-container-0"></div>
                 <div class="post-content">
                     <div class="form-upl-wrapper">
-                        <input type="file" name="postUplMulti8" accept=".jpg,.png,.svg,.bmp,.mp4" multiple>
+                        <input type="file" name="postUplMulti8" accept=".jpg,.png,.svg,.bmp,.mp4" id="post-file-0" oninput="previewMedia('post-file-0', 'media-container-0')" multiple>
                         <button class="form-upl">Add photos and videos</button>
                     </div><br>
                     <input type="submit" value="Post">

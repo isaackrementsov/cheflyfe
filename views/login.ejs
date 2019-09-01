@@ -101,8 +101,9 @@
                 <label for="last">Password</label>
                 <input type="password" name="password" required>
             </div>
+            <div id="avatar-media"></div>
             <div class="form-upl-wrapper">
-                <input type="file" name="avatarUpl" accept=".jpg,.png,.svg,.bmp" required>
+                <input type="file" name="avatarUpl" accept=".jpg,.png,.svg,.bmp" id="avatar-media-upload" oninput="previewCreate('avatar-media-upload', 'avatar-media')" required>
                 <button class="form-upl">Upload avatar</button>
             </div>
             <label class="container">I agree to the ChefLyfe <a href="/terms">Terms & Conditions</a> and <a href="/privacy">Privacy Policy</a>

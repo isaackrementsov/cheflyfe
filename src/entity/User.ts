@@ -46,6 +46,8 @@ export default class User {
     tempPassword : string;
     @Column()
     timestamp : Date = new Date();
+    @Column({nullable: true})
+    expires : Date = new Date();
     @Column('simple-json')
     name : {first: string, last: string};
 

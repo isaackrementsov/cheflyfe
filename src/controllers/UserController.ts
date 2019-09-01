@@ -6,6 +6,11 @@ import Record from '../entity/Record';
 import Middleware from '../util/Middleware';
 import PaymentManager from '../managers/PaymentManager';
 import EmailManager from '../managers/EmailManager';
+import Ingredient from '../entity/Ingredient';
+import Recipe from '../entity/Recipe';
+import Menu from '../entity/Menu';
+import Post from '../entity/Post';
+import Comment from '../entity/Comment';
 
 /*TODO:
     * Add payment & subscription
@@ -14,6 +19,11 @@ export default class UserController {
 
     private userRepo : Repository<User>;
     private recordRepo : Repository<Record>;
+    private ingredientRepo : Repository<Ingredient>;
+    private recipeRepo : Repository<Recipe>;
+    private menuRepo : Repository<Menu>;
+    private postRepo : Repository<Post>;
+    private commentRepo : Repository<Comment>;
 
     getLogin = (req: Request, res: Response) => {
         req.session.page = 'login';
@@ -30,10 +40,11 @@ export default class UserController {
             let users : User[] = await this.userRepo.createQueryBuilder('user')
                 .leftJoinAndSelect('user.requested', 'requested')
                 .leftJoinAndSelect('user.brigade', 'brigade')
-                .where('(user.username like :q OR user.username = :p) AND user.id != :id', {
+                .where('(user.username like :q OR user.username = :p) AND user.id != :id AND user.admin = :no', {
                     p: req.query.q,
                     q: `%${req.query.q}%`,
-                    id: req.session.userID
+                    id: req.session.userID,
+                    no: false
                 })
                 .getMany();
 
@@ -141,6 +152,15 @@ export default class UserController {
 
                 PaymentManager.getSubscriptionStatus(user.paymentKey == '' ? 'NaN' : user.paymentKey, async status => {
                     try {
+                        let expired = false;
+
+                        if(user.paymentNotRequired && user.expires){
+                            if(new Date(user.expires).valueOf() >= new Date().valueOf()){
+                                expired = true;
+                                status = 'MISSING';
+                            }
+                        }
+
                         req.session.username = user.username;
                         req.session.userID = user.id;
                         req.session.admin = user.admin;
@@ -155,6 +175,10 @@ export default class UserController {
                         if(status != user.paymentStatus){
                             user.paymentStatus = status;
 
+                            if(expired){
+                                user.paymentNotRequired = false;
+                                user.expires = null;
+                            }
                             await this.userRepo.save(user);
                         }
 
@@ -265,7 +289,7 @@ export default class UserController {
     postAdminSignup = async (req: Request, res: Response) => {
         try {
             let user : User = new User({
-                admin: false,
+                admin: req.body.adminJSON || false,
                 password: req.body.password,
                 email: req.body.email,
                 avatar: req.files['avatarUpl'].path,
@@ -276,11 +300,12 @@ export default class UserController {
                 paymentNotRequired: true,
                 emailPending: false,
                 paymentStatus: 'ACTIVE',
+                paymentKey: 'NaN',
+                expires: req.body.adminJSON && req.body.expiresOpt ? null : new Date(req.body.expiresOpt)
             });
 
             await this.userRepo.save(user);
         }catch(e){
-            console.log(e);
             req.flash('error', 'There was an error saving user. Make sure email and password are unique');
         }
 
@@ -344,20 +369,66 @@ export default class UserController {
         res.redirect('/users/' + (req.query.id || req.session.userID));
     }
 
-    delete = async (req: Request, res: Response) => {
+    delete = async (req: Request, res: Response, external?: boolean) => {
         try {
-            await this.userRepo.delete(req.session.userID);
-            await req.session.destroy(() => {});
+            if(external == true || req.session.admin){
+                let toDelete = await this.userRepo.findOne(external == true ? req.session.userID : req.params.id);
+
+                if(toDelete){
+                    if(toDelete.ingredients){
+                        for(let i = 0; i < toDelete.ingredients.length; i++){
+                            await this.ingredientRepo.remove(toDelete.ingredients[i]);
+                        }
+                    }
+
+                    if(toDelete.recipes){
+                        for(let i = 0; i < toDelete.recipes.length; i++){
+                            await this.recipeRepo.remove(toDelete.recipes[i]);
+                        }
+                    }
+
+                    if(toDelete.menus){
+                        for(let i = 0; i < toDelete.menus.length; i++){
+                            await this.menuRepo.remove(toDelete.menus[i]);
+                        }
+                    }
+
+                    if(toDelete.posts){
+                        for(let i = 0; i < toDelete.posts.length; i++){
+                            await this.postRepo.remove(toDelete.posts[i]);
+                        }
+                    }
+
+                    if(toDelete.comments){
+                        for(let i = 0; i < toDelete.comments.length; i++){
+                            await this.commentRepo.remove(toDelete.comments[i]);
+                        }
+                    }
+
+                    await this.userRepo.remove(toDelete);
+                }
+
+                if(external == true){
+                    await req.session.destroy(() => {});
+                }
+            }
         }catch(e){
-            req.flash('error', 'There was an error deleting your account');
+            req.flash('error', 'There was an error deleting account');
         }
 
-        res.redirect('/login');
+        if(external != true){
+            res.redirect('/admin');
+        }
     }
 
     constructor(){
         this.userRepo = getRepository(User);
         this.recordRepo = getRepository(Record);
+        this.ingredientRepo = getRepository(Ingredient);
+        this.recipeRepo = getRepository(Recipe);
+        this.menuRepo = getRepository(Menu);
+        this.postRepo = getRepository(Post);
+        this.commentRepo = getRepository(Comment);
     }
 
 }

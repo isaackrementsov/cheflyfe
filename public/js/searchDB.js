@@ -1,5 +1,6 @@
 let key = 'rfLFsPbM3Ym3WhFPZg3zAbc7v0Pv9nhuX7MIxSJo';
 let offset = 0;
+let currentTerm;
 let header = $('#search-db-header');
 let more = $('#search-db-more')
 let container = $('#search-db-container');
@@ -11,7 +12,8 @@ function searchDB(){
     if(term != '' || offset != 0){
         header.html('<div class="brigade"><span>Name</span><span style="width: 20%">Brand</span></div>');
 
-        if(offset == 0){
+        if(term != currentTerm){
+            currentTerm = term;
             container.html('');
         }
 
@@ -61,7 +63,8 @@ function loadMore(){
 
 function addDB(name, brand, id){
     toggle('search-db', 'search-db-form');
-    toggle('add-ingredient', 'add-ingredient-form');
+    $('#add-ingredient').hide();
+    $('#add-ingredient-form').show();
 
     $('#add-ingredient-form input[name="name"]').val(name);
     $('#add-ingredient-form input[name="brandOpt"]').val(brand);

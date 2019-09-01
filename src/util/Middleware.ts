@@ -148,7 +148,7 @@ export default class Middleware {
                         let n = parseFloat(req.body[key]);
                         if(!isNaN(n)) req.body[key] = n;
                         else{
-                            invalid = true;                            
+                            invalid = true;
                         }
                     }
                 }
@@ -194,11 +194,11 @@ export default class Middleware {
     }
 
     auth = (req: Request, res: Response, next: NextFunction) => {
-        let adminRestricted : boolean = req.url.indexOf('/admin') != -1;
+        /*let adminRestricted : boolean = req.url.indexOf('/admin') != -1;
         let loginRestricted : boolean = ['/login', '/signup', '/reset'].indexOf(req.url) != -1 || req.url.indexOf('/payment') != -1 || req.url.indexOf('/pending') != -1 || req.url.indexOf('/verify') != -1;
         let userRestricted : boolean = ['/', '/login', '/signup', '/terms', '/privacy'].indexOf(req.url) == -1 && req.url.indexOf('/reset') == -1 && req.url.indexOf('/news') == -1;
-
-        if((adminRestricted && req.session.admin) || (userRestricted && req.session.userID && !req.session.pending) || (!userRestricted && !req.session.userID)){
+        console.log(loginRestricted);
+        if((adminRestricted && req.session.admin) || (userRestricted && req.session.userID && !req.session.pending && !loginRestricted) || (!userRestricted && !req.session.userID)){
             if(req.session.userID){
                 this.sendBack(req, res, next, req.session.paymentStatus != 'ACTIVE' && !req.session.admin && req.session.paid && req.method != 'GET' && req.url != '/logout');
             }else{
@@ -212,7 +212,30 @@ export default class Middleware {
             res.redirect('/users/' + req.session.userID);
         }else{
             next();
+        }*/
+        let adminRestricted = req.url.indexOf('/admin') != -1;
+        let loginRestricted = ['/login', '/signup', '/reset'].indexOf(req.url) != -1;
+        let pendingRestricted =  req.url == '/pending';
+        let paymentPendingRestricted = req.url.indexOf('/payment') != -1 || pendingRestricted;
+        let emailPendingRestricted = req.url.indexOf('/verify') != -1 || pendingRestricted;
+        let userRestricted = ['/', '/login', '/signup', '/terms', '/privacy'].indexOf(req.url) == -1 && req.url.indexOf('/reset') == -1 && req.url.indexOf('/news') == -1;
+        let expired = req.session.paymentStatus != 'ACTIVE' && !req.session.admin && req.session.paid;
+        let expiredRestricted = expired && req.method != 'GET' && req.url != '/logout';
+
+        if((adminRestricted && req.session.admin) || (req.session.paymentPending && !req.session.admin && paymentPendingRestricted) || (req.session.emailPending && !req.session.admin && emailPendingRestricted) || (expired && paymentPendingRestricted && !pendingRestricted)){
+            next();
+        }else if(!loginRestricted && req.session.userID && !req.session.pending && !expiredRestricted && !paymentPendingRestricted && !emailPendingRestricted){
+            next();
+        }else if(req.session.pending){
+            res.redirect('/pending');
+        }else if(req.session.userID){
+            res.redirect('/users/' + req.session.userID)
+        }else if((!req.session.userID && userRestricted) && (!req.session.admin && adminRestricted)){
+            res.redirect('/login');
+        }else{
+            next();
         }
+
     }
 
     errorHandler = (err: Error, req: Request, res: Response, next: NextFunction) => {

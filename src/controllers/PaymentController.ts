@@ -15,12 +15,16 @@ export default class PaymentController {
     getPostPayment = async (req: Request, res: Response) => {
         try {
             let toUpdate : User = await this.userRepo.findOne(req.session.userID);
-
+            console.log({
+                url: `https://api.ezypay.com/api/v1/customers?firstname=${toUpdate.name.first}&surname=${toUpdate.name.last}`,
+                ...PaymentManager.options
+            });
             if(toUpdate){
                 request({
-                    url: `https://api-global.ezypay.com/v2/customers?firstname=${toUpdate.name.first}&lastname=${toUpdate.name.last}`,
+                    url: `https://api.ezypay.com/api/v1/customers?firstname=${toUpdate.name.first}&surname=${toUpdate.name.last}`,
                     ...PaymentManager.options
                 }, async (err, r, b) => {
+                    console.log(b);
                     try {
                         if(err) throw new Error(err);
                         let users = b.data;

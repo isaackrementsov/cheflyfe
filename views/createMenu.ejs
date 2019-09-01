@@ -62,8 +62,10 @@
         <div class="profile-feed">
             <% include partials/forms/error %>
             <div class="post-card">
-                <div class="post-header">
-                    <input type="text" placeholder="Title" name="name" required>
+                <div class="post-header flex-container">
+                    <div class="media" style="vertical-align: middle; height: 45px; display: inline-block; margin-right: 10px" id="logo-media">
+                    </div>
+                    <input type="text" placeholder="Title" name="name" style="display: inline; flex: 1" required>
                 </div>
                 <div class="post-content">
                     <div id="add-recipe-container">
@@ -79,7 +81,7 @@
                 </div>
                 <div class="post-content">
                     <div class="form-upl-wrapper">
-                        <input type="file" name="logoUpl" accept=".jpg,.png,.svg,.bmp,.mp4" required>
+                        <input type="file" name="logoUpl" id="logo-media-upload" oninput="previewCreate('logo-media-upload', 'logo-media')" accept=".jpg,.png,.svg,.bmp,.mp4" required>
                         <button class="form-upl" type="button">Add a logo</button>
                     </div><br>
                     <input type="submit" class="cta" value="Publish">
