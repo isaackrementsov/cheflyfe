@@ -25,7 +25,7 @@
                             <li><a href="/terms">Terms</a></li><br>
                             <li><a href="/privacy">Privacy</a></li><br>
                             <li><a href="/how-tos">Help</a></li><br>
-                            <% if(session.paymentStatus == 'ACTIVE'){ %>
+                            <% if(session.paymentStatus == 'ACTIVE' && !session.paymentNotRequired){ %>
                                 <li><a href="/subscription">Subscription</a></li><br>
                             <% } %>
                         <% } %>
@@ -58,6 +58,7 @@
         <% }else{ %>
             <li><a href="/signup" style="font-weight: bold; color: #8C9EFF">Signup</a></li>
             <li><a href="/login">Login</a></li>
+            <li><a href="/how-tos">Help</a></li>
         <% } %>
     <% }else{ %>
         <li><a href="/signup" style="font-weight: bold; color: #8C9EFF">Signup</a></li>

@@ -1,7 +1,6 @@
 import {Request, Response} from 'express';
 import {Repository, getRepository} from 'typeorm';
 import User from '../entity/User';
-import * as request from 'request';
 import PaymentManager from '../managers/PaymentManager';
 
 export default class PaymentController {
@@ -10,10 +9,11 @@ export default class PaymentController {
 
     getPayment = async (req: Request, res: Response) => {
         let plans = [];
-
+        console.log('getting payment')
         try {
             plans = await PaymentManager.getAllPlans(4);
         }catch(e){
+            console.log(e);
             req.flash('error', 'There was an error getting payment plans');
         }
 
@@ -42,7 +42,6 @@ export default class PaymentController {
             res.render('subscription', {subscription, session: req.session, error: req.flash('error')});
         }catch(e){
             if(!res.headersSent){
-                console.log(e);
                 req.flash('error', 'There was an error getting subscription');
                 res.redirect(`/users/${req.session.userID}`);
             }

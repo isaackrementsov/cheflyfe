@@ -154,7 +154,7 @@ export default class UserController {
                 let expired = false;
 
                 if(user.paymentNotRequired && user.expires){
-                    if(new Date(user.expires).valueOf() >= new Date().valueOf()){
+                    if(new Date(user.expires).valueOf() <= new Date().valueOf()){
                         user.paymentNotRequired = false;
                         expired = true;
                         status = 'MISSING';
@@ -167,6 +167,7 @@ export default class UserController {
                 req.session.avatar = user.avatar;
                 req.session.currency = user.currency;
                 req.session.system = user.system;
+                req.session.paymentNotRequired = user.paymentNotRequired;
                 req.session.paid = user.paymentKey != '';
                 req.session.paymentStatus = user.paymentNotRequired ? 'ACTIVE' : status;
                 req.session.pending = (req.session.paymentStatus != 'ACTIVE' || user.emailPending) && !user.admin && !req.session.paid;

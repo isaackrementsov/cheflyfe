@@ -49,7 +49,7 @@ export default class HomeController { //TODO: cleanup imports
             req.flash('error', 'There was an error getting how-tos');
         }
 
-        res.render('howTos', {howTos});
+        res.render('howTos', {howTos, session: req.session});
     }
 
     constructor(){

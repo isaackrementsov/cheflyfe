@@ -1,5 +1,4 @@
 import {Entity, Column, PrimaryGeneratedColumn, Index, OneToMany, ManyToMany, JoinTable} from 'typeorm';
-import {ExtendedColumnOptions} from 'typeorm-encrypted';
 import Ingredient from './Ingredient';
 import Recipe from './Recipe';
 import Menu from './Menu';
