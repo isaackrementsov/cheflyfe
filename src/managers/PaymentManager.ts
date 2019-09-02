@@ -1,4 +1,3 @@
-import * as request from 'request';
 import * as stripe from 'stripe';
 import { getRepository, Repository } from 'typeorm';
 import User from '../entity/User';
