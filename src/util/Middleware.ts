@@ -194,25 +194,6 @@ export default class Middleware {
     }
 
     auth = (req: Request, res: Response, next: NextFunction) => {
-        /*let adminRestricted : boolean = req.url.indexOf('/admin') != -1;
-        let loginRestricted : boolean = ['/login', '/signup', '/reset'].indexOf(req.url) != -1 || req.url.indexOf('/payment') != -1 || req.url.indexOf('/pending') != -1 || req.url.indexOf('/verify') != -1;
-        let userRestricted : boolean = ['/', '/login', '/signup', '/terms', '/privacy'].indexOf(req.url) == -1 && req.url.indexOf('/reset') == -1 && req.url.indexOf('/news') == -1;
-        console.log(loginRestricted);
-        if((adminRestricted && req.session.admin) || (userRestricted && req.session.userID && !req.session.pending && !loginRestricted) || (!userRestricted && !req.session.userID)){
-            if(req.session.userID){
-                this.sendBack(req, res, next, req.session.paymentStatus != 'ACTIVE' && !req.session.admin && req.session.paid && req.method != 'GET' && req.url != '/logout');
-            }else{
-                next();
-            }
-        }else if((adminRestricted && !req.session.admin) || (userRestricted && !req.session.userID)){
-            res.redirect('/login');
-        }else if(userRestricted && req.session.pending && req.url.indexOf('/payment') == -1 && req.url.indexOf('/pending') == -1 && req.url.indexOf('/verify') == -1){
-            res.redirect('/pending');
-        }else if(loginRestricted && req.session.userID && !req.session.pending){
-            res.redirect('/users/' + req.session.userID);
-        }else{
-            next();
-        }*/
         let adminRestricted = req.url.indexOf('/admin') != -1;
         let loginRestricted = ['/login', '/signup', '/reset'].indexOf(req.url) != -1;
         let pendingRestricted =  req.url == '/pending';
@@ -230,7 +211,7 @@ export default class Middleware {
             res.redirect('/pending');
         }else if(req.session.userID){
             res.redirect('/users/' + req.session.userID)
-        }else if((!req.session.userID && userRestricted) && (!req.session.admin && adminRestricted)){
+        }else if((!req.session.userID && userRestricted) || (!req.session.admin && adminRestricted)){
             res.redirect('/login');
         }else{
             next();
