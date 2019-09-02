@@ -2,6 +2,7 @@
 /local
 /public/img/upload/*
 package-lock.json
-ormconfig.js
+ormconfig.json
+config.json
 
 !/public/img/upload/a.txt
