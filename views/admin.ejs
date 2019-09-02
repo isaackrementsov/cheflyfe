@@ -14,7 +14,8 @@
             <button onclick="openData(1)">Database Activity</button>
             <button onclick="openData(2)">Users</button>
             <button onclick="openData(3)">Legal</button>
-            <button onclick="openData(4)">Landing Page</button
+            <button onclick="openData(4)">Landing Page</button>
+            <button onclick="openData(5)">How-To</button>
         </p>
         <p><a style="display: inline; color: #8C9EFF; font-weight: bold" href="/users/<%= session.userID %>">Posts</a>
              you make will show up on the Cheflyfe news page
@@ -217,6 +218,27 @@
                         </div>
                     </form>
                 </div>
+                <div style="display: none">
+                    <div class="post-content" style="margin: 0; padding-top: 0; padding-bottom: 0">
+                        <h3>How-To Videos</h3>
+                    </div>
+                    <form class="post-content grey-inputs" method="POST" action="/admin/howtos/create">
+                        <input type="text" name="link" placeholder="Video link" style="width: 200px; max-width: 30%" required>
+                        <input type="text" name="description" placeholder="Video description" style="width: 200px; max-width: 30%" required>
+                        <input type="submit" value="Add" style="margin: 5px 0; padding: 8px 15px !important; font-size: 16px">
+                    </form>
+                    <div class="post-content">
+                        <% for(let i = 0; i < howTos.length; i++){ %>
+                            <form style="display: none" method="POST" action="/admin/howtos/delete/<%= howTos[i].id %>?_method=DELETE" id="delete-howto-<%= howTos[i].id %>"></form>
+                            <div class="brigade post-content">
+                                <span>
+                                    <a href="<%= howTos[i].link %>" style="color: #8C9EFF; text-decoration: underline"><%= howTos[i].description %></a>
+                                </span>
+                                <span><i class="material-icons" onclick="submitForm('delete-howto-<%= howTos[i].id %>')">delete</i></span>
+                            </div>
+                        <% } %>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -366,7 +388,7 @@
         dataButtons.attr('class', '');
         $(dataButtons[i]).attr('class', 'active');
 
-        if(i == 2 || i == 3 || i == 4){
+        if(i == 2 || i == 3 || i == 4 || i == 5){
             $('#select-days-container').hide();
         }else{
             $('#select-days-container').show();

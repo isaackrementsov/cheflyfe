@@ -2,6 +2,7 @@ import {Request, Response} from 'express';
 import {Repository, getRepository} from 'typeorm';
 import Config from '../entity/Config';
 import Post from '../entity/Post';
+import HowTo from '../entity/HowTo';
 
 let landingJSON = require('../util/landing.json');
 
@@ -9,6 +10,7 @@ export default class HomeController { //TODO: cleanup imports
 
     postRepo : Repository<Post>;
     configRepo : Repository<Config>;
+    howToRepo : Repository<HowTo>;
 
     getIndex = async (req: Request, res: Response) => {
         let posts : Post[] = await this.postRepo.createQueryBuilder('post')
@@ -38,9 +40,22 @@ export default class HomeController { //TODO: cleanup imports
         res.render('privacy', {path: config ? config.path : null, session: req.session, error: req.flash('error')});
     }
 
+    getHowTo = async (req: Request, res: Response) => {
+        let howTos : HowTo[] = [];
+
+        try {
+            howTos = await this.howToRepo.find();
+        }catch(e){
+            req.flash('error', 'There was an error getting how-tos');
+        }
+
+        res.render('howTos', {howTos});
+    }
+
     constructor(){
         this.postRepo = getRepository(Post);
         this.configRepo = getRepository(Config);
+        this.howToRepo = getRepository(HowTo);
     }
 
 }

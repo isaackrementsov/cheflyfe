@@ -21,6 +21,7 @@ let routes = app => {
     app.get('/', homeController.getIndex); //TODO: fix res.render({a: a}) -> res.render({a});
     app.get('/terms', homeController.getTerms);
     app.get('/privacy', homeController.getPrivacy);
+    app.get('/how-tos', homeController.getHowTo);
     app.get('/login', userController.getLogin);
     app.get('/signup', userController.getSignup)
     app.get('/pending', userController.getPending);
@@ -28,7 +29,8 @@ let routes = app => {
     app.get('/reset', userController.getReset);
     app.get('/reset/confirm', userController.getFinishReset);
     app.get('/payment', paymentController.getPayment);
-    app.get('/payment/post', paymentController.getPostPayment);
+    app.get('/payment/signup/:id', paymentController.getSignup);
+    app.get('/subscription', paymentController.getSubscription);
     app.get('/ingredients', ingredientController.getAll);
     app.get('/ingredients/export', ingredientController.getExport)
     app.get('/menus', menuController.getAll);
@@ -57,6 +59,9 @@ let routes = app => {
     app.post('/posts/create', postController.postCreate);
     app.post('/recipes/create', recipeController.postCreate);
     app.post('/admin/upl', adminController.postUpl);
+    app.post('/admin/howtos/create', adminController.postCreateHowTo);
+    app.post('/payment/signup/:id', paymentController.postSignup);
+    app.post('/subscription/cancel/:id', paymentController.postCancelSubscription);
 
     app.patch('/users/update', userController.patchUpdate);
     app.patch('/ingredients/update/:id', ingredientController.patchUpdate);
@@ -73,6 +78,7 @@ let routes = app => {
     app.delete('/menus/delete/:id', menuController.delete);
     app.delete('/posts/delete/:id', postController.delete);
     app.delete('/recipes/delete/:id', recipeController.delete);
+    app.delete('/admin/howtos/delete/:id', adminController.deleteHowTo);
 }
 
 export default routes;

@@ -1,0 +1,127 @@
+<% include partials/header %>
+<script src="https://js.stripe.com/v3/"></script>
+<style>
+    .StripeElement {
+      box-sizing: border-box;
+      height: 40px;
+      padding: 10px 12px;
+      margin: 20px 0;
+      border: 1px solid lightgrey;
+      border-radius: 4px;
+      background-color: white;
+      -webkit-transition: box-shadow 150ms ease;
+      transition: box-shadow 150ms ease;
+    }
+    .StripeElement--focus {
+        border: 1px solid #8C9EFF;
+    }
+    .StripeElement--invalid {
+      border-color: #fa755a;
+    }
+    .StripeElement--webkit-autofill {
+      background-color: #fefde5 !important;
+    }
+</style>
+<div class="payment-header">
+    <% include partials/forms/error %>
+    <h1>Signup for the <%= plan.nickname %> plan</h1>
+    <hr>
+    <p><%= plan.description %></p>
+</div>
+<div class="profile-main recipe-main payment">
+    <div class="post-card" style="width: 500px; max-width: 95%">
+        <div class="post-header"><span>Enter Payment Info</span></div>
+        <form action="/payment/signup/<%= plan.id %>" method="POST" id="payment-form" class="post-content">
+            <% if(existing){ %>
+                <div class="form-row" style="text-align: left" id="already-row">
+                    <label for="open-element">
+                        You've already added a payment method
+                    </label><br>
+                    <button type="button" style="margin: 15px 0" onclick="createCard()">Change payment method</button>
+                </div>
+            <% } %>
+            <div class="form-row" style="text-align: left; display: none" id="card-row">
+                <label for="card-element">
+                  Credit or debit card
+                </label>
+                <div id="card-element"></div>
+                <div id="card-errors" role="alert"></div>
+            </div>
+            <% let cond = plan.interval_count != 1%>
+            <input type="submit"
+            value="Submit Payment (AUD <%= (plan.amount/100).toFixed(2) %> every <%= cond && plan.interval_count %> <%= plan.interval %><%= cond && 's' %>)"
+            style="float: left; margin-bottom: 10px">
+        </form>
+    </div>
+</div>
+<script>
+    var stripe = Stripe('pk_test_bOygl4JjGdT6OcNpMXnNNssi00OtRvTfSk');
+    var elements = stripe.elements();
+    var existing = <%- existing ? true : false %>;
+
+    var style = {
+      base: {
+        color: '#32325d',
+        fontFamily: '"Helvetica Neue", Helvetica, sans-serif',
+        fontSmoothing: 'antialiased',
+        fontSize: '16px',
+        '::placeholder': {
+          color: '#aab7c4'
+        }
+      },
+      invalid: {
+        color: '#fa755a',
+        iconColor: '#fa755a'
+      }
+    };
+
+    function createCard(){
+        try {
+            $('#card-row').show();
+            $('#already-row').hide();
+        }catch(e){ }
+
+        var card = elements.create('card', {style: style});
+
+        card.mount('#card-element');
+
+        card.addEventListener('change', function(event) {
+          var displayError = document.getElementById('card-errors');
+          if (event.error) {
+            displayError.textContent = event.error.message;
+          } else {
+            displayError.textContent = '';
+          }
+        });
+
+        var form = document.getElementById('payment-form');
+        form.addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            stripe.createToken(card).then(function(result) {
+                if (result.error) {
+                    var errorElement = document.getElementById('card-errors');
+                    errorElement.textContent = result.error.message;
+                } else {
+                    stripeTokenHandler(result.token);
+                }
+            });
+        });
+    }
+
+    function stripeTokenHandler(token) {
+        var form = document.getElementById('payment-form');
+        var hiddenInput = document.createElement('input');
+        hiddenInput.setAttribute('type', 'hidden');
+        hiddenInput.setAttribute('name', 'stripeToken');
+        hiddenInput.setAttribute('value', token.id);
+        form.appendChild(hiddenInput);
+
+        form.submit();
+    }
+
+    if(!existing){
+        createCard();
+    }
+</script>
+<% include partials/footer %>

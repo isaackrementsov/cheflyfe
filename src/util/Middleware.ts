@@ -194,16 +194,17 @@ export default class Middleware {
     }
 
     auth = (req: Request, res: Response, next: NextFunction) => {
+        let paymentPending = req.session.paymentStatus != 'ACTIVE';
         let adminRestricted = req.url.indexOf('/admin') != -1;
         let loginRestricted = ['/login', '/signup', '/reset'].indexOf(req.url) != -1;
         let pendingRestricted =  req.url == '/pending';
         let paymentPendingRestricted = req.url.indexOf('/payment') != -1 || pendingRestricted;
         let emailPendingRestricted = req.url.indexOf('/verify') != -1 || pendingRestricted;
-        let userRestricted = ['/', '/login', '/signup', '/terms', '/privacy'].indexOf(req.url) == -1 && req.url.indexOf('/reset') == -1 && req.url.indexOf('/news') == -1;
-        let expired = req.session.paymentStatus != 'ACTIVE' && !req.session.admin && req.session.paid;
-        let expiredRestricted = expired && req.method != 'GET' && req.url != '/logout';
+        let userRestricted = ['/', '/login', '/signup', '/terms', '/privacy', '/how-tos'].indexOf(req.url) == -1 && req.url.indexOf('/reset') == -1 && req.url.indexOf('/news') == -1;
+        let expired = req.session.paymentStatus != 'ACTIVE' && !req.session.admin && req.session.paid && !req.session.emailPending;
+        let expiredRestricted = expired && (req.method != 'GET' || req.url.indexOf('/payment') != -1) && req.url != '/logout';
 
-        if((adminRestricted && req.session.admin) || (req.session.paymentPending && !req.session.admin && paymentPendingRestricted) || (req.session.emailPending && !req.session.admin && emailPendingRestricted) || (expired && paymentPendingRestricted && !pendingRestricted)){
+        if((adminRestricted && req.session.admin) || (paymentPending && !req.session.admin && paymentPendingRestricted && req.session.userID) || (req.session.emailPending && !req.session.admin && emailPendingRestricted && req.session.userID) || (expired && paymentPendingRestricted && !pendingRestricted && req.session.userID)){
             next();
         }else if(!loginRestricted && req.session.userID && !req.session.pending && !expiredRestricted && !paymentPendingRestricted && !emailPendingRestricted){
             next();

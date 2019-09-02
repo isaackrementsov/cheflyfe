@@ -1,7 +1,7 @@
 <% include partials/header %>
 <% let expired = false %>
 <% if(locals.session){ %>
-    <% expired = session.paymentStatus != 'ACTIVE' && !session.admin && session.paid %>
+    <% expired = session.paymentStatus != 'ACTIVE' && !session.admin && session.paid && !session.emailPending %>
 <% } %>
     <% let auth = (session.userID == user.id) && !expired %>
     <form class="profile-header-container" method="POST" action="/users/update?_method=PATCH" enctype="multipart/form-data">

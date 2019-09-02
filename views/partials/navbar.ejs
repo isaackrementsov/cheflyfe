@@ -24,6 +24,10 @@
                         <% }else{ %>
                             <li><a href="/terms">Terms</a></li><br>
                             <li><a href="/privacy">Privacy</a></li><br>
+                            <li><a href="/how-tos">Help</a></li><br>
+                            <% if(session.paymentStatus == 'ACTIVE'){ %>
+                                <li><a href="/subscription">Subscription</a></li><br>
+                            <% } %>
                         <% } %>
                         <li><form method="POST" action="/logout"><input type="submit" value="Logout"></form></li>
                     </ul>
@@ -58,6 +62,7 @@
     <% }else{ %>
         <li><a href="/signup" style="font-weight: bold; color: #8C9EFF">Signup</a></li>
         <li><a href="/login">Login</a></li>
+        <li><a href="/how-tos">Help</a></li>
     <% } %>
     <li class="first" id="nav-logo-text">
         <a href="/">

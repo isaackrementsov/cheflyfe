@@ -4,7 +4,7 @@
 <% let c = session.currency %>
 <% let expired = false %>
 <% if(locals.session){ %>
-    <% expired = session.paymentStatus != 'ACTIVE' && !session.admin && session.paid %>
+    <% expired = session.paymentStatus != 'ACTIVE' && !session.admin && session.paid && !session.emailPending %>
 <% } %>
 <div class="profile-nav ingredients-header">
     <h1>Ingredients</h1>

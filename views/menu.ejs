@@ -1,7 +1,7 @@
 <% include partials/header %>
 <% let expired = false %>
 <% if(locals.session){ %>
-    <% expired = session.paymentStatus != 'ACTIVE' && !session.admin && session.paid %>
+    <% expired = session.paymentStatus != 'ACTIVE' && !session.admin && session.paid && !session.emailPending %>
 <% } %>
 <% let auth = (menu.author.id == session.userID) && !expired %>
 <% let c = menu.author.currency %>

@@ -1,0 +1,54 @@
+<% include partials/header %>
+<% let plan;
+    try {
+        plan = subscription.items.data[0].plan;
+    }catch(e){
+        plan = {};
+    } %>
+
+<% if(plan && subscription){ %>
+    <style>
+        .payment .post-content {
+            text-align: left !important;
+            margin: 0;
+            font-weight: 300;
+        }
+
+        form {
+            margin-top: 0 !important;
+            padding-top: 0 !important;
+        }
+    </style>
+    <div class="payment-header">
+        <% include partials/forms/error %>
+        <h1>You are using the <%= plan.nickname %> plan</h1>
+        <hr>
+        <p></p>
+    </div>
+    <div class="profile-main recipe-main payment">
+        <div class="post-card" style="width: 500px; max-width: 95%">
+            <div class="post-header"><span>Subscription Info</span></div>
+            <% let cond = plan.interval_count != 1 %>
+            <p class="post-content">AUD <%= (plan.amount/100).toFixed(2) %> every <%= cond && plan.interval_count %> <%= plan.interval %><%= cond && 's' %></p>
+            <% let color = subscription.status == 'active' ? '#00E676' : 'grey'; %>
+            <p class="post-content">Status: <span style="color: <%= color %>"><%= subscription.status.toUpperCase() %></span></p>
+            <% let d = new Date(1000*subscription.current_period_end) %>
+            <% if(subscription.cancel_at_period_end){ %>
+                <p class="post-content" style="color: #8C9EFF; margin: 0">Subscription will end on <%= d.getMonth() + 1 %>/<%= d.getDate() %>/<%= d.getFullYear() %></p>
+            <% }else{ %>
+                <p class="post-content">Billing period ends <%= d.getMonth() + 1 %>/<%= d.getDate() %>/<%= d.getFullYear() %></p>
+                <form action="/subscription/cancel/<%= subscription.id %>" method="POST" id="payment-form" class="post-content" style="padding-top: 0">
+                    <input type="submit" value="Cancel Subscription" style="float: left; margin-bottom: 10px">
+                </form>
+            <% } %>
+        </div>
+    </div>
+<% }else{ %>
+    <div class="payment-header">
+        <% include partials/forms/error %>
+        <h1>We couldn't find your subscription</h1>
+        <hr>
+        <p>Contact site administrators if you think this is a mistake</p>
+    </div>
+<% } %>
+<% include partials/footer %>

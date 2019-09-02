@@ -69,13 +69,13 @@ export default class UserController {
                 await this.userRepo.save(user);
 
                 req.session.emailPending = false;
+                req.session.pending = req.session.emailPending || req.session.paymentStatus != 'ACTIVE';
 
                 res.redirect('/users/' + req.session.userID);
             }else{
                 throw new Error();
             }
         }catch(e){
-            console.log(e);
             if(!res.headersSent){
                 req.flash('error', 'There was an error verifying your email')
                 res.redirect('/pending');
@@ -150,60 +150,46 @@ export default class UserController {
             if(user){
                 await this.recordRepo.save(new Record('session'));
 
-                PaymentManager.getSubscriptionStatus(user.paymentKey == '' ? 'NaN' : user.paymentKey, async status => {
-                    try {
-                        let expired = false;
+                let status = await PaymentManager.getSubscriptionStatus(user.paymentKey);
+                let expired = false;
 
-                        if(user.paymentNotRequired && user.expires){
-                            if(new Date(user.expires).valueOf() >= new Date().valueOf()){
-                                expired = true;
-                                status = 'MISSING';
-                            }
-                        }
-
-                        req.session.username = user.username;
-                        req.session.userID = user.id;
-                        req.session.admin = user.admin;
-                        req.session.avatar = user.avatar;
-                        req.session.currency = user.currency;
-                        req.session.system = user.system;
-                        req.session.paid = user.paymentKey != '';
-                        req.session.paymentStatus = user.paymentNotRequired ? 'ACTIVE' : status;
-                        req.session.pending = (req.session.paymentStatus != 'ACTIVE' || user.emailPending) && !user.admin && !req.session.paid;
-                        req.session.emailPending = user.emailPending;
-
-                        if(status != user.paymentStatus){
-                            user.paymentStatus = status;
-
-                            if(expired){
-                                user.paymentNotRequired = false;
-                                user.expires = null;
-                            }
-                            await this.userRepo.save(user);
-                        }
-
-                        if(user.admin){
-                            res.redirect('/admin');
-                        }else{
-                            if(created === true){
-                                res.redirect('/payment');
-                            }else{
-                                res.redirect('/users/' + user.id);
-                            }
-                        }
-                    }catch(e){
-                        if(!res.headersSent){
-                            req.flash('error', 'There was an error logging you in');
-                            res.redirect('/login');
-                        }
+                if(user.paymentNotRequired && user.expires){
+                    if(new Date(user.expires).valueOf() >= new Date().valueOf()){
+                        user.paymentNotRequired = false;
+                        expired = true;
+                        status = 'MISSING';
                     }
-                }, err => {
-                    console.log(err);
-                    if(!res.headersSent){
-                        req.flash('error', 'There was an error getting your payment status');
-                        res.redirect('/login');
+                }
+
+                req.session.username = user.username;
+                req.session.userID = user.id;
+                req.session.admin = user.admin;
+                req.session.avatar = user.avatar;
+                req.session.currency = user.currency;
+                req.session.system = user.system;
+                req.session.paid = user.paymentKey != '';
+                req.session.paymentStatus = user.paymentNotRequired ? 'ACTIVE' : status;
+                req.session.pending = (req.session.paymentStatus != 'ACTIVE' || user.emailPending) && !user.admin && !req.session.paid;
+                req.session.emailPending = user.emailPending;
+
+                if(status != user.paymentStatus){
+                    user.paymentStatus = status;
+
+                    if(expired){
+                        user.expires = null;
                     }
-                });
+                    await this.userRepo.save(user);
+                }
+
+                if(user.admin){
+                    res.redirect('/admin');
+                }else{
+                    if(created === true){
+                        res.redirect('/payment');
+                    }else{
+                        res.redirect('/users/' + user.id);
+                    }
+                }
             }else{
                 req.flash('error', 'Invalid login details');
                 res.redirect('/login');
@@ -375,35 +361,11 @@ export default class UserController {
                 let toDelete = await this.userRepo.findOne(external == true ? req.session.userID : req.params.id);
 
                 if(toDelete){
-                    if(toDelete.ingredients){
-                        for(let i = 0; i < toDelete.ingredients.length; i++){
-                            await this.ingredientRepo.remove(toDelete.ingredients[i]);
-                        }
-                    }
-
-                    if(toDelete.recipes){
-                        for(let i = 0; i < toDelete.recipes.length; i++){
-                            await this.recipeRepo.remove(toDelete.recipes[i]);
-                        }
-                    }
-
-                    if(toDelete.menus){
-                        for(let i = 0; i < toDelete.menus.length; i++){
-                            await this.menuRepo.remove(toDelete.menus[i]);
-                        }
-                    }
-
-                    if(toDelete.posts){
-                        for(let i = 0; i < toDelete.posts.length; i++){
-                            await this.postRepo.remove(toDelete.posts[i]);
-                        }
-                    }
-
-                    if(toDelete.comments){
-                        for(let i = 0; i < toDelete.comments.length; i++){
-                            await this.commentRepo.remove(toDelete.comments[i]);
-                        }
-                    }
+                    if(toDelete.ingredients) await this.ingredientRepo.remove(toDelete.ingredients);
+                    if(toDelete.recipes) await this.recipeRepo.remove(toDelete.recipes);
+                    if(toDelete.menus) await this.menuRepo.remove(toDelete.menus);
+                    if(toDelete.posts) await this.postRepo.remove(toDelete.posts);
+                    if(toDelete.comments) await this.commentRepo.remove(toDelete.comments);
 
                     await this.userRepo.remove(toDelete);
                 }

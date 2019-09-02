@@ -7,12 +7,13 @@
         <link rel="icon" type="image/png" sizes="16x16" href="/img/static/favicon.ico">
         <script src="/js/jquery.min.js" type="text/javascript"></script>
         <script src="/js/jquery.timeago.js" type="text/javascript"></script>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
         <title>ChefLyfe</title>
     </head>
     <body>
         <% let expired = false %>
         <% if(locals.session){ %>
-            <% expired = session.paymentStatus != 'ACTIVE' && !session.admin && session.paid %>
+            <% expired = session.paymentStatus != 'ACTIVE' && !session.admin && session.paid && !session.emailPending %>
         <% } %>
         <% include navbar %>
         <div id="content">
@@ -25,6 +26,6 @@
                     margin: auto;
                 }
             </style>
-            <% if(expired){ %>
+            <% if(expired && !locals.payment){ %>
                 <script data-cfasync='false' type='text/javascript' src='//p364985.clksite.com/adServe/banners?tid=364985_715461_1'></script>
             <% } %>

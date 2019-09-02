@@ -1,0 +1,33 @@
+<% include partials/header %>
+<div class="profile-header-container">
+    <div class="profile-header-overlay" style="color: white; opacity: 1">
+        <div class="center-inline">
+            <h1 style="font-weight: 300; font-size: 45px">How-Tos</h1>
+        </div>
+    </div>
+    <div class="profile-header"
+     style="background: url(/img/static/how-tos.jpg); background-size: cover">
+    </div>
+</div>
+<div class="profile-main recipe-main">
+    <div class="profile-feed">
+        <% include partials/forms/error %>
+        <% if(howTos.length == 0){ %>
+            <p style="text-align: center">No how-tos available right now</p>
+        <% } %>
+        <% for(let i = howTos.length - 1; i >= 0; i--){ %>
+            <div class="post-card">
+                <div class="post-header">
+                    <span><%= howTos[i].description %></span>
+                </div>
+                <% let id = howTos[i].link.split('?v=')[1] %>
+                <div class="post-content media">
+                    <iframe height="400"
+                    src="https://www.youtube.com/embed/<%= id %>" style="width: 100%; border-style: hidden">
+                    </iframe>
+                </div>
+            </div>
+        <% } %>
+    </div>
+</div>
+<% include partials/footer %>

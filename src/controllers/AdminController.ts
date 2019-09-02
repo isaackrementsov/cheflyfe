@@ -5,6 +5,7 @@ import {unlink} from '../util/typeDefs';
 import Record from '../entity/Record';
 import User from '../entity/User';
 import Config from '../entity/Config';
+import HowTo from '../entity/HowTo';
 import * as fs from 'fs';
 
 let landingJSON = require('../util/landing.json');
@@ -14,10 +15,12 @@ export default class AdminController {
     private recordRepo : Repository<Record>;
     private userRepo : Repository<User>;
     private configRepo : Repository<Config>;
+    private howToRepo : Repository<HowTo>;
 
     getIndex = async (req: Request, res: Response) => {
         let visits, ingredients, recipes, menus, posts, users : Record[] = [];
-        let userData : User[];
+        let userData : User[] = [];
+        let howTos : HowTo[] = [];
 
         try {
             visits = await this.recordRepo.find({select: ['timestamp'], where: {category: 'session'}});
@@ -27,9 +30,10 @@ export default class AdminController {
             posts = await this.recordRepo.find({select: ['timestamp'], where: {category: 'post'}});
             users = await this.recordRepo.find({select: ['timestamp'], where: {category: 'user'}});
             userData = await this.userRepo.find();
+            howTos = await this.howToRepo.find();
         }catch(e){ }
 
-        res.render('admin', {visits, ingredients, recipes, menus, posts, users, userData, landing: landingJSON, session: req.session, error: req.flash('error')});
+        res.render('admin', {visits, ingredients, recipes, menus, posts, users, userData, howTos, landing: landingJSON, session: req.session, error: req.flash('error')});
     }
 
     getExportEmails = async (req: Request, res: Response) => { //TODO: make path joining consistent and efficient
@@ -98,6 +102,18 @@ export default class AdminController {
         }
     }
 
+    postCreateHowTo = async (req: Request, res: Response) => {
+        try {
+            let howTo : HowTo = new HowTo({link: req.body.link, description: req.body.description});
+
+            await this.howToRepo.save(howTo);
+        }catch(e){
+            req.flash('error', 'There was an error saving how-to');
+        }
+
+        res.redirect('/admin');
+    }
+
     patchUpdate = (req: Request, res: Response) => {
         Object.assign(landingJSON, req.body);
 
@@ -106,9 +122,20 @@ export default class AdminController {
         });
     }
 
+    deleteHowTo = async (req: Request, res: Response) => {
+        try {
+            await this.howToRepo.delete(parseInt(req.params.id));
+        }catch(e){
+            req.flash('error', 'There was an error deleting how-to');
+        }
+
+        res.redirect('/admin');
+    }
+
     constructor(){
         this.recordRepo = getRepository(Record);
         this.userRepo = getRepository(User);
         this.configRepo = getRepository(Config);
+        this.howToRepo = getRepository(HowTo);
     }
 }
