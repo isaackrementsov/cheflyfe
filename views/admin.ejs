@@ -163,9 +163,17 @@
                                             N
                                         <% } %>
                                     </td>
-                                    <td><%= userData[i].admin ? 'Y' : 'N' %></td>
                                     <td>
-                                        <% if(userData[i].paymentNotRequired){ %>
+                                        <form style="display: none" id="promote-demote-form-<%= userData[i].id %>" method="POST" action="/admin/status/<%= userData[i].id %>?_method=PATCH"></form>
+                                        <% if(userData[i].admin){ %>
+                                            Y<% if(userData[i].id != session.userID){ %><i class="material-icons" onclick="submitForm('promote-demote-form-<%= userData[i].id %>')" style="cursor: pointer">arrow_downward</i>
+                                            <% } %>
+                                        <% }else{ %>
+                                            N<i class="material-icons" onclick="submitForm('promote-demote-form-<%= userData[i].id %>')" style="cursor: pointer">arrow_upward</i>
+                                        <% } %>
+                                    </td>
+                                    <td>
+                                        <% if(userData[i].paymentStatus != 'ACTIVE' && userData[i].paymentStatus != 'TRIALING' && userData[i].id != session.userID){ %>
                                             <form style="display: none" method="POST" action="/users/delete/<%= userData[i].id %>?_method=DELETE" id="delete-<%= userData[i].id %>"></form>
                                             <i class="material-icons" style="color: grey; cursor: pointer" onclick="submitForm('delete-<%= userData[i].id %>')">delete</i>
                                         <% }else{ %>

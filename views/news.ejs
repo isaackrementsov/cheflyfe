@@ -40,11 +40,6 @@
                     <% } %>
                 </div>
                 <div class="post-content">
-                    <% if(!session.admin){ %>
-                        <form style="display: inline" method="POST" action="/recipes/transfer/<%= recipes[i].id %>?_method=PUT">
-                            <button class="button-cta">Get recipe</button>
-                        </form>
-                    <% } %>
                     <a class="cta" href="/news/<%= posts[i].id %>">View</a>
                 </div>
             </div>

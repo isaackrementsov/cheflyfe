@@ -1,12 +1,10 @@
 <% include partials/header %>
 <div class="payment-header">
     <% include partials/forms/error %>
-    <h1>Pricing Plans</h1>
+    <h1>Pricing System</h1>
     <hr>
-    <p>Choose a subscription option based on how long you plan to use our platform</p>
-    <% if(!session.hasUsedFreeTrial){ %>
-        <p style="color: #8C9EFF">All options will include a 7-day free trial</p>
-    <% } %>
+    <p>ChefLyfe offers different subscription options based on how long you plan to use our platform</p>
+    <p style="color: #8C9EFF">All options initially include a 7-day free trial</p>
 </div>
 <div class="profile-main recipe-main payment">
     <% for(let i = 0; i < plans.length; i++){ %>
@@ -15,9 +13,11 @@
                 <p><i class="material-icons"><%= plans[i].icon %></i><%= plans[i].nickname %></p>
                 <p><%= plans[i].description %></p>
                 <p>$<%= plans[i].amount %></p>
-                <a href="/payment/signup/<%= plans[i].id %>">Choose</a>
             </div>
         </div>
     <% } %>
+</div>
+<div class="flex-container" style="justify-content: center; margin: 20px 0">
+    <a href="/signup" id="get-started">Get Started</a>
 </div>
 <% include partials/footer %>

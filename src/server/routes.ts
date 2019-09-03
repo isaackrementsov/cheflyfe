@@ -22,6 +22,7 @@ let routes = app => {
     app.get('/terms', homeController.getTerms);
     app.get('/privacy', homeController.getPrivacy);
     app.get('/how-tos', homeController.getHowTo);
+    app.get('/pricing', homeController.getPricing);
     app.get('/login', userController.getLogin);
     app.get('/signup', userController.getSignup)
     app.get('/pending', userController.getPending);
@@ -69,6 +70,7 @@ let routes = app => {
     app.patch('/posts/update/:id', postController.patchUpdate);
     app.patch('/recipes/update/:id', recipeController.patchUpdate);
     app.patch('/admin/update', adminController.patchUpdate);
+    app.patch('/admin/status/:id', adminController.patchPromoteDemote);
 
     app.put('/recipes/transfer/:id', recipeController.putTransfer);
     app.put('/menus/transfer/:id', menuController.putTransfer);

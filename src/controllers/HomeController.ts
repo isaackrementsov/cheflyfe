@@ -3,6 +3,7 @@ import {Repository, getRepository} from 'typeorm';
 import Config from '../entity/Config';
 import Post from '../entity/Post';
 import HowTo from '../entity/HowTo';
+import PaymentManager from '../managers/PaymentManager';
 
 let landingJSON = require('../util/landing.json');
 
@@ -38,6 +39,17 @@ export default class HomeController { //TODO: cleanup imports
         }catch(e){ }
 
         res.render('privacy', {path: config ? config.path : null, session: req.session, error: req.flash('error')});
+    }
+
+    getPricing = async (req: Request, res: Response) => {
+        let plans = [];
+        try {
+            plans = await PaymentManager.getAllPlans(4);
+        }catch(e){
+            req.flash('error', 'There was an error getting subscription options');
+        }
+
+        res.render('pricing', {plans, session: req.session, error: req.flash('error')});
     }
 
     getHowTo = async (req: Request, res: Response) => {

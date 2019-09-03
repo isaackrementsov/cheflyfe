@@ -987,14 +987,14 @@ iframe {
     font-weight: bold;
     margin-bottom: 40px;
 }
-.payment .post-card .post-content a {
+.payment .post-card .post-content a, a#get-started {
     padding: 10px 20px;
     border: 1px solid #8C9EFF;
     color: #8C9EFF;
     border-radius: 100vw;
     transition: 0.2s ease-in-out;
 }
-.payment .post-card .post-content a:hover {
+.payment .post-card .post-content a:hover, a#get-started:hover {
     color: white;
     background-color: #8C9EFF;
 }

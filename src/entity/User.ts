@@ -18,6 +18,8 @@ export default class User {
     @Column()
     admin : boolean;
     @Column()
+    hasUsedFreeTrial : boolean = false;
+    @Column()
     emailPending : boolean = true;
     @Column()
     paymentStatus : string = 'PENDING';

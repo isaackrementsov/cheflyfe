@@ -151,6 +151,7 @@ export default class UserController {
                 await this.recordRepo.save(new Record('session'));
 
                 let status = await PaymentManager.getSubscriptionStatus(user.paymentKey);
+
                 let expired = false;
 
                 if(user.paymentNotRequired && user.expires){
@@ -160,6 +161,8 @@ export default class UserController {
                         status = 'MISSING';
                     }
                 }
+
+                if(status == 'TRIALING') status = 'ACTIVE';
 
                 req.session.username = user.username;
                 req.session.userID = user.id;
@@ -172,6 +175,7 @@ export default class UserController {
                 req.session.paymentStatus = user.paymentNotRequired ? 'ACTIVE' : status;
                 req.session.pending = (req.session.paymentStatus != 'ACTIVE' || user.emailPending) && !user.admin && !req.session.paid;
                 req.session.emailPending = user.emailPending;
+                req.session.hasUsedFreeTrial = user.hasUsedFreeTrial;
 
                 if(status != user.paymentStatus){
                     user.paymentStatus = status;
@@ -316,6 +320,8 @@ export default class UserController {
             delete update['admin'];
             delete update['paymentKey'];
             delete update['paymentStatus'];
+            delete update['hasUsedFreeTrial'];
+            delete update['paymentNotRequired'];
             delete update['emailPending'];
             delete update['password'];
             delete update['email'];
@@ -362,6 +368,8 @@ export default class UserController {
                 let toDelete = await this.userRepo.findOne(external == true ? req.session.userID : req.params.id);
 
                 if(toDelete){
+                    if(toDelete.paymentKey != '') await PaymentManager.cancelUserSubscription(toDelete.paymentKey);
+
                     if(toDelete.ingredients) await this.ingredientRepo.remove(toDelete.ingredients);
                     if(toDelete.recipes) await this.recipeRepo.remove(toDelete.recipes);
                     if(toDelete.menus) await this.menuRepo.remove(toDelete.menus);

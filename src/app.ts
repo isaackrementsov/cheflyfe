@@ -25,6 +25,9 @@ app.use(session({
     resave: true,
     saveUninitialized: true,
     secret: SESSION_SECRET,
+    cookie: {
+        maxAge: 3600000
+    },
     store: new RedisStore({
         client: client,
         host: 'localhost',

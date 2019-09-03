@@ -29,14 +29,28 @@
         <div class="post-card" style="width: 500px; max-width: 95%">
             <div class="post-header"><span>Subscription Info</span></div>
             <% let cond = plan.interval_count != 1 %>
-            <p class="post-content">AUD <%= (plan.amount/100).toFixed(2) %> every <%= cond && plan.interval_count %> <%= plan.interval %><%= cond && 's' %></p>
-            <% let color = subscription.status == 'active' ? '#00E676' : 'grey'; %>
+            <% let discount; %>
+            <% if(subscription.discount && subscription.discount.coupon && subscription.discount.coupon.valid){
+                let coupon = subscription.discount.coupon;
+
+                if(coupon.percent_off){
+                    discount = coupon.percent_off + "%"
+                }else if(coupon.amount_off){
+                    discount = "$" + coupon.amount;
+                }
+             } %>
+            <p class="post-content">
+                AUD <%= (plan.amount/100).toFixed(2) %> every <%= cond && plan.interval_count %> <%= plan.interval %><%= cond && 's' %>
+                <span style="color: #00E676; font-weight: bold">-<%= discount %></span>
+            </p>
+            <% let color = (subscription.status == 'active' || subscription.status == 'trialing') ? '#00E676' : 'coral'; %>
             <p class="post-content">Status: <span style="color: <%= color %>"><%= subscription.status.toUpperCase() %></span></p>
             <% let d = new Date(1000*subscription.current_period_end) %>
             <% if(subscription.cancel_at_period_end){ %>
                 <p class="post-content" style="color: #8C9EFF; margin: 0">Subscription will end on <%= d.getMonth() + 1 %>/<%= d.getDate() %>/<%= d.getFullYear() %></p>
             <% }else{ %>
-                <p class="post-content">Billing period ends <%= d.getMonth() + 1 %>/<%= d.getDate() %>/<%= d.getFullYear() %></p>
+                <% let str = subscription.status == 'trialing' ? 'Free trial' : 'Billing period' %>
+                <p class="post-content"><%= str %> ends <%= d.getMonth() + 1 %>/<%= d.getDate() %>/<%= d.getFullYear() %></p>
                 <form action="/subscription/cancel/<%= subscription.id %>" method="POST" id="payment-form" class="post-content" style="padding-top: 0">
                     <input type="submit" value="Cancel Subscription" style="float: left; margin-bottom: 10px">
                 </form>

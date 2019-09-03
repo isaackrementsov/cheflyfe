@@ -1,19 +1,21 @@
 <% include partials/header %>
 <script src="https://js.stripe.com/v3/"></script>
 <style>
-    .StripeElement {
+    .StripeElement, input[type=text]#couponCode {
       box-sizing: border-box;
       height: 40px;
-      padding: 10px 12px;
+      padding: 10px 12px !important;
       margin: 20px 0;
-      border: 1px solid lightgrey;
+      border: 1px solid lightgrey !important;
       border-radius: 4px;
       background-color: white;
+      font-weight: normal !important;
+      font-size: 15px !important;
       -webkit-transition: box-shadow 150ms ease;
       transition: box-shadow 150ms ease;
     }
-    .StripeElement--focus {
-        border: 1px solid #8C9EFF;
+    .StripeElement--focus, input[type=number]:focus {
+        border: 1px solid #8C9EFF !important;
     }
     .StripeElement--invalid {
       border-color: #fa755a;
@@ -32,6 +34,12 @@
     <div class="post-card" style="width: 500px; max-width: 95%">
         <div class="post-header"><span>Enter Payment Info</span></div>
         <form action="/payment/signup/<%= plan.id %>" method="POST" id="payment-form" class="post-content">
+            <div class="form-row" style="text-align: left">
+                <label for="open-element">
+                    Apply a coupon code (optional)
+                </label><br>
+                <input type="text" style="width: 100%" id="couponCode" name="couponCode" placeholder="Ex. DEAL123">
+            </div>
             <% if(existing){ %>
                 <div class="form-row" style="text-align: left" id="already-row">
                     <label for="open-element">
@@ -47,6 +55,13 @@
                 <div id="card-element"></div>
                 <div id="card-errors" role="alert"></div>
             </div>
+            <% if(!session.hasUsedFreeTrial){ %>
+                <div class="form-row" style="text-align: left; margin-bottom: 15px">
+                    <label for="open-element" style="color: #8C9EFF; font-weight: 300">
+                        You have access to a 7 day free trial. If you don't cancel before the 7 days are up, the paid subscription will begin
+                    </label>
+                </div>
+            <% } %>
             <% let cond = plan.interval_count != 1%>
             <input type="submit"
             value="Submit Payment (AUD <%= (plan.amount/100).toFixed(2) %> every <%= cond && plan.interval_count %> <%= plan.interval %><%= cond && 's' %>)"

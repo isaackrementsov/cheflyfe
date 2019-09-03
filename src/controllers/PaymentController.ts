@@ -9,11 +9,10 @@ export default class PaymentController {
 
     getPayment = async (req: Request, res: Response) => {
         let plans = [];
-        console.log('getting payment')
+
         try {
             plans = await PaymentManager.getAllPlans(4);
         }catch(e){
-            console.log(e);
             req.flash('error', 'There was an error getting payment plans');
         }
 
@@ -38,7 +37,7 @@ export default class PaymentController {
         try {
             let user = await this.userRepo.findOne(req.session.userID);
             let subscription = await PaymentManager.getActiveSubscription(user.paymentKey);
-
+            
             res.render('subscription', {subscription, session: req.session, error: req.flash('error')});
         }catch(e){
             if(!res.headersSent){
@@ -51,12 +50,17 @@ export default class PaymentController {
     postSignup = async (req: Request, res: Response) => {
         try {
             let status = await PaymentManager.signupForPlan(req.params.id, {
+                freeTrial: !req.session.hasUsedFreeTrial,
                 userID: req.session.userID,
                 token: req.body.stripeToken,
+                code: req.body.couponCode
             });
 
-            req.session.pending = status != 'ACTIVE' || req.session.emailPending;
+            if(status == 'TRIALING') status = 'ACTIVE';
+
+            req.session.hasUsedFreeTrial = true;
             req.session.paymentStatus = status;
+            req.session.pending = status != 'ACTIVE' || req.session.emailPending;
             req.session.paid = true;
 
             res.redirect('/subscription');
@@ -71,6 +75,7 @@ export default class PaymentController {
     postCancelSubscription = async (req: Request, res: Response) => {
         try {
             await PaymentManager.cancelSubscription(req.params.id);
+
             res.redirect('/subscription');
         }catch(e){
             if(!res.headersSent){

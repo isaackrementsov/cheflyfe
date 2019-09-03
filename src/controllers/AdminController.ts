@@ -7,6 +7,7 @@ import User from '../entity/User';
 import Config from '../entity/Config';
 import HowTo from '../entity/HowTo';
 import * as fs from 'fs';
+import PaymentManager from '../managers/PaymentManager';
 
 let landingJSON = require('../util/landing.json');
 
@@ -120,6 +121,23 @@ export default class AdminController {
         fs.writeFile(__dirname + '/../util/landing.json', JSON.stringify(landingJSON), () => {
             res.redirect('/admin');
         });
+    }
+
+    patchPromoteDemote = async (req: Request, res: Response) => {
+        try {
+            let toUpdate = await this.userRepo.findOne(parseInt(req.params.id));
+            let key = toUpdate.paymentKey;
+
+            toUpdate.admin = !toUpdate.admin;
+
+            await this.userRepo.save(toUpdate);
+            
+            if(key != '') await PaymentManager.cancelUserSubscription(key);
+        }catch(e){
+            req.flash('error', 'There was an error changing user status')
+        }
+
+        res.redirect('/admin');
     }
 
     deleteHowTo = async (req: Request, res: Response) => {
