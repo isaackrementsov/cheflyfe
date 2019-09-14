@@ -77,6 +77,7 @@ export default abstract class PaymentManager {
 
             paymentKey = user.paymentKey;
         }
+
         try {
             user = await PaymentManager.stripe.customers.retrieve(paymentKey);
         }catch(e){ user = null; }

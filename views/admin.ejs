@@ -126,7 +126,10 @@
                                 <label>Expiration date (does not apply for admin users)</label>
                                 <input type="date" name="expiresOpt">
                             </div>
-                            <input type="submit" value="Add">
+                            <div class="form-upl-wrapper">
+                                <input type="submit" value="Add">
+                                <button style="padding: 10px 15px !important; font-size: 20px" onclick="cancelEdit()">Cancel</button>
+                            </div>
                         </div>
                     </form>
                     <div class="post-content grey-inputs" style="padding-bottom: 0" id="select-days-container">
@@ -157,8 +160,11 @@
                                     <td><%= userData[i].paymentNotRequired ? 'FREE' : userData[i].paymentStatus %></td>
                                     <td>
                                         <% if(userData[i].expires){ %>
+                                            <% let convertTwoDigit = date => date.toString().length > 1 ? date : "0" + date  %>
                                             <% let date = new Date(userData[i].expires) %>
-                                            <%= date.getUTCMonth() + 1 %>/<%= date.getDate() %>/<%= date.getFullYear() %>
+                                            <% let mm = convertTwoDigit(date.getUTCMonth() + 1) %>
+                                            <% let dd = convertTwoDigit(date.getDate()) %>
+                                            <%= mm %>/<%= dd %>/<%= date.getFullYear() %>
                                         <% }else{ %>
                                             N
                                         <% } %>

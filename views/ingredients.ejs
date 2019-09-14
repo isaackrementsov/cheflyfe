@@ -114,13 +114,13 @@
         <form class="post-card ingredient" onclick="toggleEdit('ingredient-update-<%= ingredients[i].id %>', '', '')" method="POST" action="/ingredients/update/<%= ingredients[i].id %>?_method=PATCH"
             onsubmit="prepareJSON(<%= ingredients[i].id %>)">
             <div class="post-header">
-                <span id="header-<%= ingredients[i].id %>" onclick="toggle('header-<%= ingredients[i].id %>', 'header-update-<%= ingredients[i].id %>')">
+                <span class="<% if(!expired){%>editable<% } %>" id="header-<%= ingredients[i].id %>" onclick="toggle('header-<%= ingredients[i].id %>', 'header-update-<%= ingredients[i].id %>')">
                     <%= ingredients[i].name %>
                 </span>
                 <% if(!expired){ %>
                     <input type="text" name="name" id="header-update-<%= ingredients[i].id %>" style="display: none" value="<%= ingredients[i].name %>" required>
                 <% } %>
-                <h4 id="brand-<%= ingredients[i].id %>" onclick="toggle('brand-<%= ingredients[i].id %>', 'brand-update-<%= ingredients[i].id %>')">
+                <h4 id="brand-<%= ingredients[i].id %>" class="<% if(!expired){%>editable<% } %>" onclick="toggle('brand-<%= ingredients[i].id %>', 'brand-update-<%= ingredients[i].id %>')">
                     <%= ingredients[i].brand %>
                 </h4>
                 <% if(!expired){ %>
@@ -143,7 +143,7 @@
             <div class="post-content" id="ingredient-content-<%= ingredients[i].id %>" style="display: none">
                 <% let color = ingredients[i].nutritionalInfo ? '#00E676' : 'coral' %>
                 <p style="color: <%= color %>"><% if(ingredients[i].nutritionalInfo){ %>Has nutritional info<% }else{ %>No nutritonal info<% } %></p>
-                <p id="description-<%= ingredients[i].id %>" onclick="toggle('description-<%= ingredients[i].id %>', 'description-update-<%= ingredients[i].id %>')">
+                <p id="description-<%= ingredients[i].id %>" class="<% if(!expired){%>editable<% } %>" onclick="toggle('description-<%= ingredients[i].id %>', 'description-update-<%= ingredients[i].id %>')">
                     <%= ingredients[i].description %>
                 </p>
                 <% if(!expired){ %>
@@ -236,7 +236,7 @@
                 </div>
             <% } %>
             <div class="post-content flex-container icons">
-                <span class="small-input smaller-input">
+                <span class="small-input smaller-input <% if(!expired){%>editable<% } %>">
                     <i class="material-icons">delete</i>
                     <span id="wastage-<%= ingredients[i].id %>" onclick="toggle('wastage-<%= ingredients[i].id %>', 'wastage-update-<%= ingredients[i].id %>')">
                         <%= ingredients[i].wastage %>
@@ -247,7 +247,7 @@
                      % wastage
                 </span>
                 <input type="hidden" name="priceJSON" id="price-input-<%= ingredients[i].id %>">
-                <span class="small-input smaller-input"><i class="material-icons">shopping_basket</i>
+                <span class="small-input smaller-input <% if(!expired){%>editable<% } %>"><i class="material-icons">shopping_basket</i>
                     <span id="price-<%= ingredients[i].id %>" onclick="toggle('price-<%= ingredients[i].id %>', 'price-update-<%= ingredients[i].id %>')">
                         <%= c %><%= ingredients[i].price.val %> per <% if(ingredients[i].price.qt != 1){ %>
                             <%= ingredients[i].price.qt %> <% } %><%= ingredients[i].price.units %>

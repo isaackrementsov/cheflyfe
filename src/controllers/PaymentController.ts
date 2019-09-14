@@ -37,7 +37,7 @@ export default class PaymentController {
         try {
             let user = await this.userRepo.findOne(req.session.userID);
             let subscription = await PaymentManager.getActiveSubscription(user.paymentKey);
-            
+
             res.render('subscription', {subscription, session: req.session, error: req.flash('error')});
         }catch(e){
             if(!res.headersSent){
@@ -53,7 +53,7 @@ export default class PaymentController {
                 freeTrial: !req.session.hasUsedFreeTrial,
                 userID: req.session.userID,
                 token: req.body.stripeToken,
-                code: req.body.couponCode
+                code: req.body.couponCodeOpt
             });
 
             if(status == 'TRIALING') status = 'ACTIVE';

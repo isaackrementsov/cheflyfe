@@ -32,8 +32,10 @@ export default class Middleware {
                 let maxFiles = 1;
                 let fileCount = 0;
                 let currentField = '';
+                let errored = false;
+                let self = this;
 
-                let busboy = new Busboy({headers: req.headers});
+                let busboy = new Busboy({headers: req.headers, limits: {fileSize: 5000000}});
                 req.pipe(busboy);
 
                 busboy.on('field', (key, val) => {
@@ -41,6 +43,16 @@ export default class Middleware {
                 });
 
                 busboy.on('file', (fieldname, file, filename, encoding, mimetype) => { //TODO: Add mime check
+                    let ext = filename.split('.')[filename.split('.').length - 1];
+                    let saveTo = path.join(__dirname, '../../public/img/upload/' + shortId.generate() + '.' + ext);
+
+                    file.on('limit', async () => {
+                        try {
+                            await unlink(saveTo);
+                            errored = true;
+                        }catch(e){ }
+                    });
+
                     if(fieldname.indexOf('Multi') != -1){
                         if(currentField != fieldname){
                             let max = fieldname[fieldname.indexOf('Multi') + 5];
@@ -54,8 +66,6 @@ export default class Middleware {
 
                     if(filename){
                         fileCount++;
-                        let ext = filename.split('.')[filename.split('.').length - 1];
-                        let saveTo = path.join(__dirname, '../../public/img/upload/' + shortId.generate() + '.' + ext);
                         let obj = {path: saveTo.replace(/\\/g, '/').split('/public')[1], mime: mimetype};
                         if(maxFiles != 1){
                             fields[fieldname] ? fields[fieldname].push(obj) : fields[fieldname] = [obj];
@@ -71,7 +81,7 @@ export default class Middleware {
                 });
 
                 busboy.on('finish', function(){
-                    if(Object.keys(fields).length > 0){
+                    if(Object.keys(fields).length > 0 && !errored){
                         Object.keys(fields).map(async k => {
                             if(fields[k].constructor == Array){
                                 let max = maxFileObj[k] || fields[k].length;
@@ -90,7 +100,7 @@ export default class Middleware {
                                     }catch(e){ }
                                 });
                             }else if(typeof fields[k] == 'object'){
-                                if(fields[k].mime.indexOf('image/') == -1 && fields[k].mime.indexOf('video/') == -1){
+                                if(fields[k].mime.indexOf('image/') == -1 && fields[k].mime.indexOf('video/') == -1 && (fields[k].mime.indexOf('pdf') == -1 || !req.session.admin)){
                                     try {
                                         await unlink(__dirname + '/../../public' + fields[k].path);
                                     }catch(e){ }
@@ -103,7 +113,7 @@ export default class Middleware {
                         req.files = fields;
                     }
 
-                    next();
+                    self.sendBack(req, res, next, errored, 'File limit is 5MB');
                 });
             }else{
                 next();

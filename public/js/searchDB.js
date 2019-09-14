@@ -27,7 +27,7 @@ function searchDB(){
                         for(let ingredient of ingredients){
                             container.append(`
                                 <div class="brigade" style="font-size: 13px">
-                                    <i class="material-icons" style="color: #8C9EFF"
+                                    <i class="material-icons" style="color: #8C9EFF; cursor: pointer"
                                     onclick="addDB(` + '`' + ingredient.name + '`, `' + ingredient.manu + '`, `' + ingredient.ndbno + '`)">' + `
                                         add
                                     </i>
@@ -41,7 +41,7 @@ function searchDB(){
 
                         more.html(`
                             <div class="brigade">
-                                <span style="color: #8C9EFF" onclick="loadMore()">Load more</span>
+                                <span style="color: #8C9EFF; cursor: pointer" onclick="loadMore()">Load more</span>
                             </div>
                         `)
                     }else{

@@ -177,7 +177,7 @@ onclick="toggleEdit('edit-recipe', '', '')" onsubmit="packageJSON()" id="recipe-
         <% include partials/forms/error %>
         <div class="post-card" style="box-shadow: none">
             <div class="post-header">
-                <span onclick="toggle('name', 'update-name')" id="name" style="font-size: 35px"><%= recipe.name %></span>
+                <span onclick="toggle('name', 'update-name')" id="name" style="font-size: 35px" class="<% if(auth){ %>editable<% } %>"><%= recipe.name %></span>
                 <% if(auth){ %><input type="text" value="<%= recipe.name %>" name="name" style="display: none" id="update-name" required><% } %>
             </div>
             <p class="PDFShow" style="display: none">
@@ -245,7 +245,7 @@ onclick="toggleEdit('edit-recipe', '', '')" onsubmit="packageJSON()" id="recipe-
                 </div>
             <% } %>
             <div class="post-content">
-                <p id="description" onclick="toggle('description', 'update-description')"><%= recipe.description || 'no description' %></p>
+                <p id="description" onclick="toggle('description', 'update-description')" class="<% if(auth){ %>editable<% } %>"><%= recipe.description || 'no description' %></p>
                 <p id="update-description" style="display: none">
                     <textarea name="description" placeholder="Description"><%= recipe.description %></textarea>
                 </p>
@@ -326,7 +326,7 @@ onclick="toggleEdit('edit-recipe', '', '')" onsubmit="packageJSON()" id="recipe-
                 </div>
                 <div class="grey-inputs small-inputs" style="margin-top: 20px">
                     <h3 style="display: inline">Yield: </h3>
-                    <span id="yield" onclick="toggle('yield', 'update-yield')" style="font-weight: bold; color: #8C9EFF"><%= recipe.price.qt %> <%= recipe.price.units %></span>
+                    <span id="yield" onclick="toggle('yield', 'update-yield')" style="font-weight: bold; color: #8C9EFF" class="<% if(auth){ %>editable<% } %>"><%= recipe.price.qt %> <%= recipe.price.units %></span>
                     <% if(auth){ %>
                         <span id="update-yield" style="display: none">
                             <input type="number" min="0" max="100000" value="<%= recipe.price.qt %>" id="qt" required>
@@ -338,7 +338,7 @@ onclick="toggleEdit('edit-recipe', '', '')" onsubmit="packageJSON()" id="recipe-
                 <% if(auth || recipe.shareServingCost){ %>
                     <div class="grey-inputs small-inputs">
                         <h3 style="display: inline">Serves: </h3>
-                        <span id="serves" onclick="toggle('serves', 'serving-input')" style="font-weight: bold; color: #8C9EFF"><%= recipe.serves %></span>
+                        <span id="serves" onclick="toggle('serves', 'serving-input')" style="font-weight: bold; color: #8C9EFF" class="<% if(auth){ %>editable<% } %>"><%= recipe.serves %></span>
                         <% if(auth){ %>
                             <input type="number" min="1" placeholder="# of servings" name="servesJSON" value="<%= recipe.serves %>"
                             style="width: 17.5%; display: none" oninput="changeServing()" id="serving-input" required>

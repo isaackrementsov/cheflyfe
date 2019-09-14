@@ -62,20 +62,20 @@
                 <% } %>
             </div>
             <p>
-                <span id="bio" onclick="toggleEdit('user-edit', 'bio', 'bio-edit')"><%= user.bio %></span>
+                <span id="bio" class="<% if(auth){ %>editable<% } %>" onclick="toggleEdit('user-edit', 'bio', 'bio-edit')"><%= user.bio %></span>
                 <% if(auth){ %><textarea id="bio-edit" name="bio" style="display: none"><%= user.bio %></textarea><% } %>
             </p>
             <% if(auth){ %>
                 <div class="post-content grey-inputs account-edit">
                     <h3>Account Info</h3>
-                    <span onclick="toggleEdit('user-edit', 'currency', 'currency-edit')" id="currency">
+                    <span class="<% if(auth){ %>editable<% } %>" onclick="toggleEdit('user-edit', 'currency', 'currency-edit')" id="currency">
                         Currency symbol - <%= user.currency %>
                     </span>
                     <input type="text" id="currency-edit" placeholder="Symbol" value="<%= user.currency %>" name="currency" style="display: none" required>
-                    <span onclick="toggleEdit('user-edit', 'measurements', 'measurements-edit')" id="measurements">
+                    <span onclick="toggleEdit('user-edit', 'measurements', 'measurements-edit')" id="measurements" class="<% if(auth){ %>editable<% } %>">
                         Units - <%= user.system %>
                     </span>
-                    <select  id="measurements-edit" name="system" style="display: none">
+                    <select id="measurements-edit" name="system" style="display: none">
                         <option value="imperial" <% if(user.system == 'imperial'){ %>selected<% } %>>Imperial</option>
                         <option value="metric" <% if(user.system == 'metric'){ %>selected<% } %>>Metric</option>
                     </select>
@@ -196,7 +196,7 @@
                         <form method="POST"
                         action="/posts/update/<%= posts[i].id %>?_method=PATCH&userID=<%= user.id %>" class="post-card" enctype="multipart/form-data" id="post-form-<%= posts[i].id %>">
                             <div class="post-header">
-                                <span id="post-title<%= posts[i].id %>"
+                                <span class="<% if(auth){ %>editable<% } %>" id="post-title<%= posts[i].id %>"
                                 onclick="toggleEdit('post-update<%= posts[i].id %>', 'post-title<%= posts[i].id %>', 'post-title-update<%= posts[i].id %>')">
                                     <%= posts[i].name %>
                                 </span>
@@ -216,7 +216,7 @@
                                     <%= posts[i].ratings.length == 0 ? 'No ratings' : Math.round(10*sum/posts[i].ratings.length)/10 %>
                                 </span>
                             </div>
-                            <div class="post-content" id="post-text<%= posts[i].id %>" onclick="toggleEdit('post-update<%= posts[i].id %>', 'post-text<%= posts[i].id %>', 'post-text-edit<%= posts[i].id %>')">
+                            <div class="post-content <% if(auth){ %>editable<% } %>" id="post-text<%= posts[i].id %>" onclick="toggleEdit('post-update<%= posts[i].id %>', 'post-text<%= posts[i].id %>', 'post-text-edit<%= posts[i].id %>')">
                                 <% if(posts[i].author.admin){ %>
                                     <%- posts[i].content %>
                                 <% }else{ %>

@@ -61,6 +61,18 @@ if(navbar){
     }
 }
 
+$('.editable').hover(function(){
+    let found = $(this).find('.edit-icon');
+    let icon = found.length > 0 ? found : $('<i class="material-icons edit-icon" style="opacity: 0.8">edit</i>').hide();
+
+    $(this).append(icon);
+    icon.show('normal');
+}, function(){
+    let icon = $(this).find('.edit-icon');
+
+    icon.hide('normal');
+});
+
 function toggle(id1, id2){
     let div1 = document.getElementById(id1);
     let div2 = document.getElementById(id2);
