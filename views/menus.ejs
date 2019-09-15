@@ -32,7 +32,7 @@
     <div class="profile-feed" id="posts">
         <% include partials/forms/error %>
         <% if(!locals.public && !expired){ %>
-            <button class="add-post" id="add-post-button" onclick="toggle('add-post-button', 'new-post')">
+            <button class="add-post" id="add-post-button">
                 <a href="/menus/create" style="width: 100%"><i class="material-icons">add</i> Add Menu</a>
             </button>
         <% } %>

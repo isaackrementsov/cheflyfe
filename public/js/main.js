@@ -111,6 +111,10 @@ function cancelEdit(){
     location.reload();
 }
 
+function redirect(url){
+    window.location.href = window.location.origin + url;
+}
+
 function clean(str){
     return str.trim().toLowerCase();
 }
