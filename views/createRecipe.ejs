@@ -78,7 +78,6 @@
                 <div class="post-header">
                     <input type="text" placeholder="Title" name="name" required>
                 </div>
-                <div class="post-content media" id="images-media"></div>
                 <div class="post-content">
                     <p><textarea placeholder="Briefly describe your recipe (optional)" name="descriptionOpt"></textarea></p>
                     <div id="add-ingredient-container">
@@ -115,12 +114,14 @@
                         <input type="number" min="1" placeholder="# of servings" name="servesJSON" style="width: 17.5%" oninput="changeServing()" id="serving-input" required>
                     </div>
                 </div>
+                <div class="post-content media" id="images-media"></div>
                 <div class="post-content">
                     <div class="form-upl-wrapper">
                         <input type="file" name="recipeUplMulti6" accept=".jpg,.png,.svg,.bmp,.mp4" id="images-media-upload" oninput="previewMedia('images-media-upload', 'images-media')" multiple required>
                         <button class="form-upl" type="button">Add photos and videos</button>
                     </div><br>
                     <input type="submit" class="cta" value="Publish">
+                    <button type="button" style="padding: 10px 15px !important; font-size: 20px" onclick="cancelEdit()">Cancel</button>
                 </div>
             </div>
         </div>

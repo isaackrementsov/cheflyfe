@@ -124,10 +124,15 @@
 
             stepList.setAttribute('value', JSON.stringify(arr));
 
+            let id = arr.length - 1;
             stepContainer.innerHTML += `
-            <p id="step-${arr.length - 1}" class="flex-container step brigade">
-                <span>${step}</span>
-                <i class="material-icons" onclick="removeStep(${arr.length - 1})">close</i>
+            <p id="step-${id}" class="flex-container step brigade">
+                <span class="editable" id="step-span-${id}"
+                    onclick="toggleArr(['step-span-${id}', 'remove-${id}'], ['step-span-edit-${id}', 'done-${id}'])"
+                >${step}</span>
+                <textarea id="step-span-edit-${id}" style="display: none; margin-bottom: 0; font-weight: 300; font-size: 17px">${step}</textarea>
+                <i class="material-icons" id="remove-${id}" onclick="removeStep(${id})" style="cursor: pointer">close</i>
+                <i class="material-icons" id="done-${id}" onclick="updateStep(${id})" style="cursor: pointer; color: #8C9EFF; display: none">done</i>
             </p>`;
 
             addStepInput.setAttribute('value', '');
@@ -142,6 +147,18 @@
         stepList.setAttribute('value', JSON.stringify(arr));
 
         document.getElementById('step-' + id).remove();
+    }
+
+    function updateStep(id){
+        let stepList = document.getElementById('step-input');
+        let arr = JSON.parse(stepList.value);
+        let txt = $(`#step-span-edit-${id}`).val();
+
+        arr[id] = txt;
+        stepList.setAttribute('value', JSON.stringify(arr));
+        console.log(txt)
+        $(`#step-span-${id}`).html(txt);
+        toggleArr([`step-span-${id}`, `remove-${id}`], [`step-span-edit-${id}`, `done-${id}`])
     }
 
     function getUnits(){
@@ -216,7 +233,7 @@
             ingredientContainer.innerHTML += `
                 <p id="${token}-${id}" class="step flex-container brigade">
                     <span>${qt} ${un} ${iNames[i]}</span>
-                    <i class="material-icons" onclick="removeIngredient(${id}, ${isRecipe ? "'" + JSON.stringify(ingPrice) + "'" : total}, '${name}', ${isRecipe})">close</i>
+                    <i class="material-icons" onclick="removeIngredient(${id}, ${isRecipe ? "'" + JSON.stringify(ingPrice) + "'" : total}, '${name}', ${isRecipe})" style="cursor: pointer">close</i>
                 </p>
             `;
 
@@ -275,7 +292,7 @@
             viewerContainer.innerHTML += `
             <span class="allergen" id="user-${id}" style="background-color: #536DFE">
                 ${username}
-                <i class="material-icons" onclick="removeViewer('${id}', '${username}')" style="display: inline">close</i>
+                <i class="material-icons" onclick="removeViewer('${id}', '${username}')" style="display: inline; cursor: pointer">close</i>
             </span>`;
 
             v.setAttribute('value', '');

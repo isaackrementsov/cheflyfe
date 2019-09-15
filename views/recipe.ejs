@@ -29,7 +29,7 @@ onclick="toggleEdit('edit-recipe', '', '')" onsubmit="packageJSON()" id="recipe-
                 <% for(let i  = 0; i < recipe.sharedUsers.length; i++){ %>
                     <span class="allergen" id="user-<%= recipe.sharedUsers[i].id %>" style="background-color: #536DFE">
                         <%= recipe.sharedUsers[i].username %>
-                        <i class="material-icons" onclick="removeViewer(<%= recipe.sharedUsers[i].id %>, '<%= recipe.sharedUsers[i].username %>')" style="display: inline">close</i>
+                        <i class="material-icons" onclick="removeViewer(<%= recipe.sharedUsers[i].id %>, '<%= recipe.sharedUsers[i].username %>')" style="display: inline; cursor: pointer">close</i>
                     </span>
                 <% } %>
             </div>
@@ -317,9 +317,13 @@ onclick="toggleEdit('edit-recipe', '', '')" onsubmit="packageJSON()" id="recipe-
                     <% } %>
                     <% for(let i = 0; i < recipe.steps.length; i++){ %>
                         <p id="step-<%= i %>" class="flex-container step brigade">
-                            <span><%= recipe.steps[i] %></span>
+                            <span class="<% if(auth){ %>editable<% } %>" id="step-span-<%= i %>"
+                                onclick="toggleArr(['step-span-<%= i %>', 'remove-<%= i %>'], ['step-span-edit-<%= i %>', 'done-<%= i %>'])"
+                            ><%= recipe.steps[i] %></span>
+                            <textarea id="step-span-edit-<%= i %>" style="display: none; margin-bottom: 0; font-weight: 300; font-size: 17px"><%= recipe.steps[i] %></textarea>
                             <% if(auth){ %>
-                                <i class="material-icons PDFIgnore" onclick="removeStep(<%= i %>)">close</i>
+                                <i class="material-icons PDFIgnore" id="remove-<%= i %>" onclick="removeStep(<%= i %>)" style="cursor: pointer">close</i>
+                                <i class="material-icons PDFIgnore" id="done-<%= i %>" onclick="updateStep(<%= i %>)" style="cursor: pointer; display: none; color: #8C9EFF">done</i>
                             <% } %>
                         </p>
                     <% } %>

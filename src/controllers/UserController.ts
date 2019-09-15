@@ -208,72 +208,77 @@ export default class UserController {
     }
 
     postSignup = async (req: Request, res: Response) => {
-        let user : User = new User({
-            admin: false,
-            password: req.body.password,
-            email: req.body.email,
-            avatar: req.files['avatarUpl'].path,
-            name: {first: req.body.first, last: req.body.last},
-            username: req.body.username,
-            system: req.body.system,
-            currency: req.body.currency
-        });
-
         try {
-            let {id} = await this.userRepo.save(user);
+            let user : User = new User({
+                admin: false,
+                password: req.body.password,
+                email: req.body.email,
+                avatar: req.files ? req.files['avatarUpl'].path : '/img/static/generic-profile.jpg',
+                name: {first: req.body.first, last: req.body.last},
+                username: req.body.username,
+                system: req.body.system,
+                currency: req.body.currency
+            });
 
             try {
-                await EmailManager.sendEmail(user.email, {
-                    subject: 'Verify your email',
-                    html: `Hello ${user.name.first} ${user.name.last},<br>
-                    To use your ChefLyfe account,
-                    please <a href="https://cheflyfe.com/verify?authKey=${user.authKey}">verify</a> that your email is ${user.email}.
-                    Your account may be deleted if you do not confirm.<br>
-                    Regards,<br>
-                    Cheflyfe Team`
-                });
+                let {id} = await this.userRepo.save(user);
 
-                this.postLogin(req, res, true);
+                try {
+                    await EmailManager.sendEmail(user.email, {
+                        subject: 'Verify your email',
+                        html: `Hello ${user.name.first} ${user.name.last},<br>
+                        To use your ChefLyfe account,
+                        please <a href="https://cheflyfe.com/verify?authKey=${user.authKey}">verify</a> that your email is ${user.email}.
+                        Your account may be deleted if you do not confirm.<br>
+                        Regards,<br>
+                        Cheflyfe Team`
+                    });
+
+                    this.postLogin(req, res, true);
+                }catch(e){
+                    try {
+                        await this.userRepo.delete(id);
+                        await unlink(__dirname + '/../../public' + req.files['avatarUpl'].path);
+                    }catch(e){ }
+
+                    req.flash('error', 'There was an error verifying your email');
+                    res.redirect('/signup');
+                }
             }catch(e){
-                try {
-                    await this.userRepo.delete(id);
-                    await unlink(__dirname + '/../../public' + req.files['avatarUpl'].path);
-                }catch(e){ }
+                if(e.errno == 1062){
+                    try {
+                        let duplicate = await this.userRepo.findOne({email: req.body.email});
 
-                req.flash('error', 'There was an error verifying your email');
-                res.redirect('/signup');
-            }
-        }catch(e){
-            if(e.errno == 1062){
-                try {
-                    let duplicate = await this.userRepo.findOne({email: req.body.email});
+                        if(duplicate){
+                            let daysAgo = (new Date().valueOf() - new Date(duplicate.timestamp).valueOf())/86400000;
 
-                    if(duplicate){
-                        let daysAgo = (new Date().valueOf() - new Date(duplicate.timestamp).valueOf())/86400000;
+                            if(daysAgo >= 4 && duplicate.emailPending && !duplicate.admin){
+                                await this.userRepo.remove(duplicate);
+                                await this.userRepo.save(user);
+                            }else{
+                                throw new Error();
+                            }
 
-                        if(daysAgo >= 4 && duplicate.emailPending && !duplicate.admin){
-                            await this.userRepo.remove(duplicate);
-                            await this.userRepo.save(user);
+                            this.postLogin(req, res, true);
                         }else{
                             throw new Error();
                         }
-
-                        this.postLogin(req, res, true);
-                    }else{
-                        throw new Error();
+                    }catch(e){
+                        if(!res.headersSent){
+                            req.flash('error', 'Username and email must be unique');
+                            res.redirect('/signup');
+                        }
                     }
-                }catch(e){
+                }else{
                     if(!res.headersSent){
-                        req.flash('error', 'Username and email must be unique');
+                        req.flash('error', 'There was an error signing you up');
                         res.redirect('/signup');
                     }
                 }
-            }else{
-                if(!res.headersSent){
-                    req.flash('error', 'There was an error signing you up');
-                    res.redirect('/signup');
-                }
             }
+        }catch(e){
+            req.flash('error', 'There was an error with form data');
+            res.redirect('/signup');
         }
     }
 
@@ -283,7 +288,7 @@ export default class UserController {
                 admin: req.body.adminJSON || false,
                 password: req.body.password,
                 email: req.body.email,
-                avatar: req.files['avatarUpl'].path,
+                avatar: req.files ? req.files['avatarUpl'].path : '/img/static/generic-profile.jpg',
                 name: {first: req.body.first, last: req.body.last},
                 username: req.body.username,
                 system: req.body.system,
@@ -368,7 +373,11 @@ export default class UserController {
                 let toDelete = await this.userRepo.findOne(external == true ? req.session.userID : req.params.id);
 
                 if(toDelete){
-                    if(toDelete.paymentKey != '') await PaymentManager.cancelUserSubscription(toDelete.paymentKey);
+                    if(toDelete.paymentKey != ''){
+                        try {
+                            await PaymentManager.cancelUserSubscription(toDelete.paymentKey);
+                        }catch(e){ }
+                    };
 
                     if(toDelete.ingredients) await this.ingredientRepo.remove(toDelete.ingredients);
                     if(toDelete.recipes) await this.recipeRepo.remove(toDelete.recipes);

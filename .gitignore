@@ -1,6 +1,7 @@
 /node_modules
 /local
 /public/img/upload/*
+/src/util/landing.json
 package-lock.json
 ormconfig.json
 config.json

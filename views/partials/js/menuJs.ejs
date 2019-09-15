@@ -50,7 +50,7 @@
             viewerContainer.innerHTML += `
             <span class="allergen" id="user-${id}" style="background-color: #536DFE">
                 ${username}
-                <i class="material-icons" onclick="removeViewer('${id}', '${username}')" style="display: inline">close</i>
+                <i class="material-icons" onclick="removeViewer('${id}', '${username}')" style="display: inline; cursor: pointer">close</i>
             </span>`;
 
             v.setAttribute('value', '');
@@ -86,7 +86,7 @@
             recipeContainer.innerHTML += `
                 <p id="recipe-${id}" class="step flex-container brigade">
                     <span>${recipeNames[i]}</span>
-                    <i class="material-icons" onclick="removeRecipe(${id}, '${name}')">close</i>
+                    <i class="material-icons" onclick="removeRecipe(${id}, '${name}')" style="cursor: pointer">close</i>
                 </p>
             `;
 

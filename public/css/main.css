@@ -118,6 +118,9 @@ button:focus {
     background-repeat: no-repeat;
     background-size: cover;
 }
+.img {
+    background-position: center;
+}
 .avatar-container {
     position: relative;
     margin: 21px 0;

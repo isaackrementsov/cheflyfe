@@ -31,7 +31,7 @@ onclick="toggleEdit('menu-edit')" onsubmit="packageJSON()" id="menu-update-form"
                     <% for(let i  = 0; i < menu.sharedUsers.length; i++){ %>
                         <span class="allergen" id="user-<%= menu.sharedUsers[i].id %>" style="background-color: #536DFE">
                             <%= menu.sharedUsers[i].username %>
-                            <i class="material-icons" onclick="removeViewer(<%= menu.sharedUsers[i].id %>, '<%= menu.sharedUsers[i].username %>')" style="display: inline">close</i>
+                            <i class="material-icons" onclick="removeViewer(<%= menu.sharedUsers[i].id %>, '<%= menu.sharedUsers[i].username %>')" style="display: inline; cursor: pointer">close</i>
                         </span>
                     <% } %>
                 </div>
@@ -181,7 +181,7 @@ onclick="toggleEdit('menu-edit')" onsubmit="packageJSON()" id="menu-update-form"
                                     <%= c %><%= p.val %>/<% if(p.qt != 1){ %><%= p.qt %> <% } %><%= p.units %>
                                 <% } %>
                                 <% if(auth){ %>
-                                    <i class="material-icons PDFIgnore" onclick="removeRecipe(<%= menu.recipes[i].id %>, '<%= menu.recipes[i].name %>')">close</i>
+                                    <i class="material-icons PDFIgnore" onclick="removeRecipe(<%= menu.recipes[i].id %>, '<%= menu.recipes[i].name %>')" style="cursor: pointer">close</i>
                                 <% } %>
                             </div>
                         </div>

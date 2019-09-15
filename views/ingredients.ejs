@@ -249,12 +249,12 @@
                 <input type="hidden" name="priceJSON" id="price-input-<%= ingredients[i].id %>">
                 <span class="small-input smaller-input <% if(!expired){%>editable<% } %>"><i class="material-icons">shopping_basket</i>
                     <span id="price-<%= ingredients[i].id %>" onclick="toggle('price-<%= ingredients[i].id %>', 'price-update-<%= ingredients[i].id %>')">
-                        <%= c %><%= ingredients[i].price.val %> per <% if(ingredients[i].price.qt != 1){ %>
+                        <%= c %><%= ingredients[i].price.val.toFixed(2) %> per <% if(ingredients[i].price.qt != 1){ %>
                             <%= ingredients[i].price.qt %> <% } %><%= ingredients[i].price.units %>
                     </span>
                     <% if(!expired){ %>
                         <span id="price-update-<%= ingredients[i].id %>" style="display: none">
-                            <%= c %><input type="number" step="0.01" min="0" max="100000" value="<%= ingredients[i].price.val %>" required> per
+                            <%= c %><input type="number" step="0.01" min="0" max="100000" value="<%= ingredients[i].price.val.toFixed(2) %>" required> per
                             <input type="number" step="0.01" min="0" max="100000" value="<%= ingredients[i].price.qt %>" required>
                             <input type="text" value="<%= ingredients[i].price.units %>" disabled>
                             <%= ingredients[i].price.units %>

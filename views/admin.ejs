@@ -113,7 +113,7 @@
                             </div>
                             <div id="avatar-media"></div>
                             <div class="form-upl-wrapper">
-                                <input type="file" name="avatarUpl" accept=".jpg,.png,.svg,.bmp" id="avatar-media-upload" oninput="previewCreate('avatar-media-upload', 'avatar-media')" required>
+                                <input type="file" name="avatarUpl" accept=".jpg,.png,.svg,.bmp" id="avatar-media-upload" oninput="previewCreate('avatar-media-upload', 'avatar-media')">
                                 <button class="form-upl">Upload avatar</button>
                             </div>
                             <div class="login-form-input">
@@ -128,7 +128,7 @@
                             </div>
                             <div class="form-upl-wrapper">
                                 <input type="submit" value="Add">
-                                <button style="padding: 10px 15px !important; font-size: 20px" onclick="cancelEdit()">Cancel</button>
+                                <button type="button" style="padding: 10px 15px !important; font-size: 20px" onclick="cancelEdit()">Cancel</button>
                             </div>
                         </div>
                     </form>
@@ -179,7 +179,7 @@
                                         <% } %>
                                     </td>
                                     <td>
-                                        <% if(userData[i].paymentStatus != 'ACTIVE' && userData[i].paymentStatus != 'TRIALING' && userData[i].id != session.userID){ %>
+                                        <% if((userData[i].paymentStatus != 'ACTIVE' || userData[i].paymentNotRequired) && userData[i].paymentStatus != 'TRIALING' && userData[i].id != session.userID){ %>
                                             <form style="display: none" method="POST" action="/users/delete/<%= userData[i].id %>?_method=DELETE" id="delete-<%= userData[i].id %>"></form>
                                             <i class="material-icons" style="color: grey; cursor: pointer" onclick="submitForm('delete-<%= userData[i].id %>')">delete</i>
                                         <% }else{ %>
