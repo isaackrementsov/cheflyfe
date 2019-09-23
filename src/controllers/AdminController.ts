@@ -131,10 +131,20 @@ export default class AdminController {
             toUpdate.admin = !toUpdate.admin;
 
             await this.userRepo.save(toUpdate);
-            
+
             if(key != '') await PaymentManager.cancelUserSubscription(key);
         }catch(e){
             req.flash('error', 'There was an error changing user status')
+        }
+
+        res.redirect('/admin');
+    }
+
+    patchDate = async (req: Request, res: Response) => {
+        try {
+            await this.userRepo.update(parseInt(req.params.id), {expires: new Date(req.body.expires + ' 00:00')});
+        }catch(e){
+            req.flash('error', 'There was an error changing user date');
         }
 
         res.redirect('/admin');

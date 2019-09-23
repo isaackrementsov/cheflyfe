@@ -98,7 +98,7 @@ onclick="toggleEdit('menu-edit')" onsubmit="packageJSON()" id="menu-update-form"
                             <div class="media-overlay" style="vertical-align: middle; height: 45px">
                                 <div class="center-inline">
                                     <div class="form-upl-wrapper">
-                                        <input type="file" name="logoUpl" oninput="submitForm('menu-update-form')" required>
+                                        <input type="file" name="logoUpl" oninput="submitForm('menu-update-form')">
                                         <button class="form-upl"><i class="material-icons" style="font-size: 30px !important">camera_alt</i></button>
                                     </div>
                                 </div>
@@ -154,6 +154,7 @@ onclick="toggleEdit('menu-edit')" onsubmit="packageJSON()" id="menu-update-form"
                                     </p>
                                     <% let cost = menu.recipes[i].costs %>
                                     <b style="font-size: 13px; color: #8C9EFF">
+                                        <% let total = (menu.recipes[i].foodCost + cost.misc + cost.labor + cost.overhead) %>
                                         <% if(auth || menu.sharingPermissions.misc){ %>
                                             <span class="<% if(!menu.sharingPermissions.misc){ %>PDFIgnore<% } %>"><%= c %><%= cost.misc %> misc, </span>
                                         <% } %>
@@ -172,13 +173,21 @@ onclick="toggleEdit('menu-edit')" onsubmit="packageJSON()" id="menu-update-form"
                                         <% if(auth || menu.sharingPermissions.profitMargin){ %>
                                             <span class="<% if(!menu.sharingPermissions.profitMargin){ %>PDFIgnore<% } %>"><%= menu.recipes[i].profitMargin %>% margin</span>
                                         <% } %>
+                                        <br>
+                                        <% if(auth || menu.sharingPermissions.price){ %>
+                                            <span class="<% if(!menu.sharingPermissions.price){ %>PDFIgnore<% } %>">
+                                                <%= c %><%= total / menu.recipes[i].serves %> Portion cost,
+                                            </span>
+                                        <% } %>
+                                        <span>Serves <%= menu.recipes[i].serves %></span>
                                     </b>
                                 </div>
                             </div>
                             <div>
                                 <% let p = menu.recipes[i].price %>
                                 <% if(auth || menu.sharingPermissions.price){ %>
-                                    <%= c %><%= p.val %>/<% if(p.qt != 1){ %><%= p.qt %> <% } %><%= p.units %>
+                                    <%= c %><%= p.val %>/<% if(p.qt != 1){ %><%= p.qt %> <% } %><%= p.units %><br>
+                                    <%= c %><%= p.val/menu.recipes[i].serves %>/Serving<br>
                                 <% } %>
                                 <% if(auth){ %>
                                     <i class="material-icons PDFIgnore" onclick="removeRecipe(<%= menu.recipes[i].id %>, '<%= menu.recipes[i].name %>')" style="cursor: pointer">close</i>

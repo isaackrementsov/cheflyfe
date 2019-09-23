@@ -1,4 +1,4 @@
-import {getRepository, Entity, Column, PrimaryGeneratedColumn, ManyToMany, ManyToOne, JoinTable} from 'typeorm';
+import {getRepository, Entity, Column, PrimaryGeneratedColumn, ManyToMany, ManyToOne, OneToOne, JoinTable} from 'typeorm';
 import {UnitQt, PricePerUnit, Costs, Info, Rating} from '../util/typeDefs';
 import {money} from '../util/mathUtils';
 import Menu from './Menu';
@@ -22,7 +22,15 @@ export default class Recipe {
     @Column()
     showServingCost : boolean;
     @Column()
+    showTotalCost : boolean;
+    @Column()
+    showPortionPrice : boolean;
+    @Column()
+    showPortionProfit : boolean;
+    @Column()
     serves : number;
+    @Column({nullable: true})
+    from : number;
     @Column()
     timestamp : Date = new Date();
     @Column('simple-array')
@@ -74,6 +82,7 @@ export default class Recipe {
     nutritionalInfo : NutritionalInfo;
     allergens : string[];
     subRecipeIngredients : string[];
+    transferID : number;
 
     async getRelations(){
         let recipeRepo = getRepository(Recipe);

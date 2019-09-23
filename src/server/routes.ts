@@ -71,6 +71,7 @@ let routes = app => {
     app.patch('/recipes/update/:id', recipeController.patchUpdate);
     app.patch('/admin/update', adminController.patchUpdate);
     app.patch('/admin/status/:id', adminController.patchPromoteDemote);
+    app.patch('/admin/date/:id', adminController.patchDate);
 
     app.put('/recipes/transfer/:id', recipeController.putTransfer);
     app.put('/menus/transfer/:id', menuController.putTransfer);

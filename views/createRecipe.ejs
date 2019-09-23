@@ -48,6 +48,10 @@
                 <div>Portion - <%= c %><input type="number" step="0.01" value="0" id="serving-cost-input" disabled></div>
                 <label class="switch"><input type="checkbox" name="servingShareJSON"><span class="slider"></span></label>
             </div>
+            <div class="checkbox flex-container">
+                <div>Total - <%= c %><input type="number" step="0.01" value="0" id="total-cost-input" disabled></div>
+                <label class="switch"><input type="checkbox" name="totalShareJSON"><span class="slider"></span></label>
+            </div>
             <h3>Profit</h3>
             <div class="checkbox flex-container">
                 <div>Profit - <input type="number" step="0.01" name="profitMarginJSON" value="0" id="profit-margin" oninput="adjustMargin()" required>%</div>
@@ -60,6 +64,15 @@
             <div class="checkbox flex-container">
                 <div>Price - <%= c %><input type="number" step="0.01" name="priceJSON" min="0" max="100000" value="0" id="price" oninput="changePrice()" required></div>
                 <label class="switch"><input type="checkbox" name="priceShareJSON"><span class="slider"></span></label>
+            </div>
+            <h3>Portion Profit</h3>
+            <div class="checkbox flex-container">
+                <div>Profit - <%= c %><input type="number" step="0.01" value="0" id="portion-profit" disabled></div>
+                <label class="switch"><input type="checkbox" name="portionProfitShareJSON"><span class="slider"></span></label>
+            </div>
+            <div class="checkbox flex-container">
+                <div>Price - <%= c %><input type="number" step="0.01" min="0" max="100000" value="0" id="portion-price" oninput="changePrice()" required></div>
+                <label class="switch"><input type="checkbox" name="portionPriceShareJSON"><span class="slider"></span></label>
             </div>
             <h3>Other</h3>
             <div class="checkbox flex-container">

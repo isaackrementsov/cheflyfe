@@ -25,23 +25,24 @@ export class RecipeSearcher {
     ingredientRepo : Repository<Ingredient>;
 
     private createPredicate(unit: string) : (u: string) => boolean {
-        return u => u.indexOf(unit) != -1;
+        return u => u == unit.trim().toLowerCase();
     }
 
-    private getIndexContains(arr: string[], units: string) : number {
-        return arr.indexOf(imperialUnits.find(this.createPredicate(units)));
+    private getIndexContains(arr: string[], arr2 : string[], units: string) : number {
+        console.log(arr2, units);
+        return arr.indexOf(arr2.find(this.createPredicate(units)));
     }
 
     private convertSystem(system: string, price) : any {
         if(system == 'imperial'){
-            let mU = this.getIndexContains(metricUnits, price.units);
+            let mU = metricUnits.indexOf(price.units.trim().toLowerCase());
 
             if(mU != -1){
                 price.units = price.units.replace(metricUnits[mU], imperialUnits[mU]);
-                price.qt = money(conversions[mU] / price.qt);
+                price.qt = money(price.qt / conversions[mU]);
             }
         }else{
-            let iU = this.getIndexContains(imperialUnits, price.units);
+            let iU = imperialUnits.indexOf(price.units.trim().toLowerCase());
 
             if(iU != -1){
                 price.units = price.units.replace(imperialUnits[iU], metricUnits[iU]);
@@ -58,6 +59,7 @@ export class RecipeSearcher {
         let subs = pop.subRecipes;
         let recipeQuantities = pop.recipeQuantities;
 
+        pop.from = pop.id;
         delete pop['id'];
         pop.author = this.author;
         pop.price = this.convertSystem(this.author.system, pop.price);
@@ -67,6 +69,7 @@ export class RecipeSearcher {
         pop.subRecipes = [];
         pop.recipeQuantities = [];
         pop.ratings = [];
+        pop.sharedUsers = [];
 
         pop = await this.recipeRepo.save(pop);
 

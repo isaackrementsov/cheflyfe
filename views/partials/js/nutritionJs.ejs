@@ -3,6 +3,7 @@
 <script src="/js/nutritionLabel-min.js"></script>
 <% if(recipe.nutritionalInfo){ %>
     <script>
+        <% let s = recipe.serves %>
         $('#nutrition-label').nutritionLabel({
             showServingUnitQuantity: true,
             itemName: '<%= recipe.name %>',
@@ -10,28 +11,28 @@
             showDisclaimer: true,
             valueDisclaimer: 'Contains <%- recipe.allergens %>',
 
-            valueServingUnitQuantity : <%= recipe.price.qt %>,
+            valueServingUnitQuantity : <%= recipe.price.qt/s %>,
         	valueServingSizeUnit : '<%= recipe.price.units %>',
 
-        	decimalPlacesForQuantityTextbox : 2,
+        	decimalPlacesForQuantityTextbox : 4,
 
         	allowFDARounding : true,
-        	decimalPlacesForNutrition : 2,
+        	decimalPlacesForNutrition : 4,
 
         	showPolyFat : false,
         	showMonoFat : false,
 
-        	valueCalories : <%= recipe.nutritionalInfo.calories.total %>,
-        	valueFatCalories : <%= recipe.nutritionalInfo.calories.fromFat %>,
-        	valueTotalFat : <%= recipe.nutritionalInfo.fat.total %>,
-        	valueSatFat : <%= recipe.nutritionalInfo.fat.saturated %>,
-        	valueTransFat : <%= recipe.nutritionalInfo.fat.trans %>,
-        	valueCholesterol : <%= recipe.nutritionalInfo.cholesterol %>,
-        	valueSodium : <%= recipe.nutritionalInfo.sodium %>,
-        	valueTotalCarb : <%= recipe.nutritionalInfo.carbohydrates.total %>,
-        	valueFibers : <%= recipe.nutritionalInfo.carbohydrates.fiber %>,
-        	valueSugars : <%= recipe.nutritionalInfo.carbohydrates.sugar %>,
-        	valueProteins : <%= recipe.nutritionalInfo.protein %>
+        	valueCalories : <%= recipe.nutritionalInfo.calories.total/s %>,
+        	valueFatCalories : <%= recipe.nutritionalInfo.calories.fromFat/s %>,
+        	valueTotalFat : <%= recipe.nutritionalInfo.fat.total/s %>,
+        	valueSatFat : <%= recipe.nutritionalInfo.fat.saturated/s %>,
+        	valueTransFat : <%= recipe.nutritionalInfo.fat.trans/s %>,
+        	valueCholesterol : <%= recipe.nutritionalInfo.cholesterol/s %>,
+        	valueSodium : <%= recipe.nutritionalInfo.sodium/s %>,
+        	valueTotalCarb : <%= recipe.nutritionalInfo.carbohydrates.total/s %>,
+        	valueFibers : <%= recipe.nutritionalInfo.carbohydrates.fiber/s %>,
+        	valueSugars : <%= recipe.nutritionalInfo.carbohydrates.sugar/s %>,
+        	valueProteins : <%= recipe.nutritionalInfo.protein/s %>
         });
     </script>
 

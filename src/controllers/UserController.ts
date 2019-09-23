@@ -297,12 +297,12 @@ export default class UserController {
                 emailPending: false,
                 paymentStatus: 'ACTIVE',
                 paymentKey: 'NaN',
-                expires: req.body.adminJSON && req.body.expiresOpt ? null : new Date(req.body.expiresOpt)
+                expires: req.body.adminJSON && req.body.expiresOpt ? null : new Date(req.body.expiresOpt + ' 00:00')
             });
 
             await this.userRepo.save(user);
         }catch(e){
-            req.flash('error', 'There was an error saving user. Make sure email and password are unique');
+            req.flash('error', 'There was an error saving user. Make sure email and username are unique');
         }
 
         res.redirect('/admin');
@@ -370,7 +370,9 @@ export default class UserController {
     delete = async (req: Request, res: Response, external?: boolean) => {
         try {
             if(external == true || req.session.admin){
-                let toDelete = await this.userRepo.findOne(external == true ? req.session.userID : req.params.id);
+                let toDelete = await this.userRepo.findOne(external == true ? req.session.userID : req.params.id, {
+                    relations: ['ingredients', 'recipes', 'menus', 'posts', 'comments']
+                });
 
                 if(toDelete){
                     if(toDelete.paymentKey != ''){

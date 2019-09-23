@@ -344,7 +344,7 @@
                         <img src="<%= user.brigade[i].avatar %>">
                         <span><%= user.brigade[i].name.first %> <%= user.brigade[i].name.last %></span>
                     </a>
-                    <% if(auth){ %><button onclick="removeBrigade(<%= user.brigade[i].id %>)">Unfollow</button><% } %>
+                    <% if(auth){ %><button onclick="removeBrigade(<%= user.brigade[i].id %>)">Unlink</button><% } %>
                 </div>
             <% } %>
         </form>

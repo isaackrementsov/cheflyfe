@@ -34,7 +34,12 @@ export default class RecipeController {
 
             if(recipe) await recipe.populateInfo();
 
-            res.render(recipe ? 'recipe' : 'notFound', {recipe: recipe, session: req.session, error: req.flash('error')});
+            let recipeIsSubTo = await this.recipeRepo.createQueryBuilder('recipe')
+                .leftJoinAndSelect('recipe.subRecipes', 'subRecipes')
+                .where('subRecipes.id = :recipeID', {recipeID: recipe.id})
+                .getOne();
+
+            res.render(recipe ? 'recipe' : 'notFound', {recipe, canEdit: !recipeIsSubTo, session: req.session, error: req.flash('error')});
         }catch(e){
             if(!res.headersSent){
                 req.flash('error', 'There was an error getting recipe');
@@ -48,8 +53,17 @@ export default class RecipeController {
         try {
             recipes = await this.recipeRepo.createQueryBuilder('recipe')
                 .leftJoinAndSelect('recipe.sharedUsers', 'sharedUsers')
-                .where('authorId = :userID OR sharedUsers.id = :userID', {userID: req.session.userID})
+                .leftJoinAndSelect('recipe.author', 'author')
+                .where('author.id = :userID OR sharedUsers.id = :userID', {userID: req.session.userID})
                 .getMany();
+
+            for(let i = 0; i < recipes.length; i++){
+                let hasTransferred = await this.recipeRepo.createQueryBuilder('recipe')
+                    .where('recipe.from = :recipeID', {recipeID: recipes[i].id})
+                    .getOne();
+
+                recipes[i].transferID = hasTransferred ?  hasTransferred.id : null;
+            }
         }catch(e){
             req.flash('error', 'There was an error getting recipes');
         }
@@ -87,6 +101,7 @@ export default class RecipeController {
                 await user.recipes[i].getRelations();
                 await user.recipes[i].getFoodCost();
             }
+
             res.render('createRecipe', {session: req.session, user: user});
         }catch(e){
             if(!res.headersSent){
@@ -122,6 +137,9 @@ export default class RecipeController {
                     overhead: req.body.overheadShareJSON || false
                 },
                 showServingCost: req.body.servingShareJSON || false,
+                showTotalCost: req.body.totalShareJSON || false,
+                showPortionPrice: req.body.portionPriceShareJSON || false,
+                showPortionProfit: req.body.portionProfitShareJSON || false,
                 feed: req.body.postShareJSON || false,
                 author: await this.userRepo.findOne(req.session.userID)
             });
@@ -167,6 +185,10 @@ export default class RecipeController {
                     }else{
                         if(!update['shareServingCost']){
                             update['shareServingCost'] = false;
+                        }
+
+                        if(!update['shareTotalCost']){
+                            update['shareTotalCost'] = false;
                         }
 
                         Object.assign(toUpdate, update);

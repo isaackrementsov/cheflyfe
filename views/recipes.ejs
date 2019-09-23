@@ -54,7 +54,7 @@
                 <% if(!locals.public){ %>
                     <div class="post-content flex-container heading-icons">
                         <span><i class="material-icons">people</i>
-                            <% if(auth){ %>Author<% }else{ %>Viewer<% } %>
+                            <% if(auth){ %>Author<% }else{ %><%= recipes[i].author.username %><% } %>
                         </span>
                     </div>
                 <% } %>
@@ -76,11 +76,12 @@
                     <% } %>
                 </div>
                 <div class="post-content">
-                    <% if(!auth && !expired){ %>
+                    <% if(!auth && !expired && !recipes[i].transferID){ %>
                         <form style="display: inline" method="POST" action="/recipes/transfer/<%= recipes[i].id %>?_method=PUT">
                             <button class="button-cta">Get recipe</button>
                         </form>
                     <% } %>
+                    <% if(recipes[i].transferID){ %><a class="button-cta" href="/recipes/<%= recipes[i].transferID %>">You already have this recipe</a><% } %>
                     <a class="cta" href="/recipes/<%= recipes[i].id %>">View</a>
                 </div>
             </div>

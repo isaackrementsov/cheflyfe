@@ -63,17 +63,24 @@ if(navbar){
 
 $('.editable').hover(function(){
     let found = $(this).find('.edit-icon');
-    let icon = found.length > 0 ? found : $('<i class="material-icons edit-icon" style="opacity: 0.8">edit</i>').hide();
+    let icon = found.length > 0 ? found : $('<i class="material-icons edit-icon" style="opacity: 0.8; cursor: pointer">edit</i>').hide();
 
-    $(this).append(icon);
-    icon.show('normal');
+    if(!icon.is(':animated')){
+        $(this).append(icon);
+        icon.show('normal');
+    }
 }, function(){
     let icon = $(this).find('.edit-icon');
 
     icon.hide('normal');
 });
 
+$('.delete-alert').submit(function(){
+    return confirm('Are you sure you want to delete this user?');
+});
+
 function toggle(id1, id2){
+    console.log('toggling')
     let div1 = document.getElementById(id1);
     let div2 = document.getElementById(id2);
 

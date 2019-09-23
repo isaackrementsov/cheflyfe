@@ -151,6 +151,7 @@
                                 <th>Expires</th>
                                 <th>Admin</th>
                                 <th><i class="material-icons">delete</i></th>
+                                <th><i class="material-icons">done</i></th>
                             </tr>
                             <% for(let i = 0; i < userData.length; i++){ %>
                                 <tr id="user-<%= userData[i].id %>">
@@ -158,16 +159,26 @@
                                     <td><%= userData[i].username %></td>
                                     <td><%= userData[i].name.first %> <%= userData[i].name.last %></td>
                                     <td><%= userData[i].paymentNotRequired ? 'FREE' : userData[i].paymentStatus %></td>
-                                    <td>
-                                        <% if(userData[i].expires){ %>
-                                            <% let convertTwoDigit = date => date.toString().length > 1 ? date : "0" + date  %>
-                                            <% let date = new Date(userData[i].expires) %>
-                                            <% let mm = convertTwoDigit(date.getUTCMonth() + 1) %>
-                                            <% let dd = convertTwoDigit(date.getDate()) %>
-                                            <%= mm %>/<%= dd %>/<%= date.getFullYear() %>
-                                        <% }else{ %>
-                                            N
-                                        <% } %>
+                                    <td class="expires">
+                                        <style>
+                                            .expires input[type=date] {
+                                                padding: 10px;
+                                                background-color: whitesmoke;
+                                                border-radius: 3px;
+                                                border-style: hidden;
+                                            }
+                                        </style>
+                                        <form id="date-form-<%= i %>" method="POST" action="/admin/date/<%= userData[i].id %>?_method=PATCH">
+                                            <% if(userData[i].expires){ %>
+                                                <% let convertTwoDigit = date => date.toString().length > 1 ? date : "0" + date  %>
+                                                <% let date = new Date(userData[i].expires) %>
+                                                <% let mm = convertTwoDigit(date.getUTCMonth() + 1) %>
+                                                <% let dd = convertTwoDigit(date.getDate()) %>
+                                                <input type="date" name="expires" value="<%= date.getFullYear() %>-<%= mm %>-<%= dd %>">
+                                            <% }else{ %>
+                                                <input type="date" name="expires" oninput="toggle('check-save-<%= i %>', 'check-<%= i %>')">
+                                            <% } %>
+                                        </form>
                                     </td>
                                     <td>
                                         <form style="display: none" id="promote-demote-form-<%= userData[i].id %>" method="POST" action="/admin/status/<%= userData[i].id %>?_method=PATCH"></form>
@@ -180,11 +191,15 @@
                                     </td>
                                     <td>
                                         <% if((userData[i].paymentStatus != 'ACTIVE' || userData[i].paymentNotRequired) && userData[i].paymentStatus != 'TRIALING' && userData[i].id != session.userID){ %>
-                                            <form style="display: none" method="POST" action="/users/delete/<%= userData[i].id %>?_method=DELETE" id="delete-<%= userData[i].id %>"></form>
+                                            <form style="display: none" method="POST" class="delete-alert" action="/users/delete/<%= userData[i].id %>?_method=DELETE" id="delete-<%= userData[i].id %>"></form>
                                             <i class="material-icons" style="color: grey; cursor: pointer" onclick="submitForm('delete-<%= userData[i].id %>')">delete</i>
                                         <% }else{ %>
                                             <i class="material-icons" style="color: lightgrey">delete</i>
                                         <% } %>
+                                    </td>
+                                    <td>
+                                        <i class="material-icons" style="color: #00E676; cursor: pointer; font-weight: bold" style="display: none"
+                                        id="check-save-<%= i %>" onclick="submitForm('date-form-<%= i %>')">check</i>
                                     </td>
                                 </tr>
                             <% } %>

@@ -38,13 +38,24 @@
     preventDuplicates();
 
     function money(num){
-        return Math.round(num*100)/100;
+        return num.toFixed(2);
     }
 
     function changePrice(){
         let num = parseFloat(priceInput.value);
         price = isNaN(num) ? 0 : num;
 
+        updateProfit();
+    }
+
+    function changePortionPrice(){
+        let num = parseFloat($('#portion-price').val());
+        let servings = parseFloat($('#serving-input').val());
+
+        if(!isNaN(num)) price = isNaN(servings) ? num : servings * num;
+        else price = 0;
+
+        $('#price').attr('value', money(price));
         updateProfit();
     }
 
@@ -77,22 +88,32 @@
 
     function updateProfit(){
         let servingCost = $('#serving-cost-input');
+        let totalCost = $('#total-cost-input');
+        let portionPrice = $('#portion-price');
+        let portionProfit = $('#portion-profit');
+
         let income = money(price - total(cost));
         let margin = price == 0 ? 0 : money(100*income/price);
 
         profit.value = income;
         profitMargin.value = margin;
-        servingCost.attr('value', money(total(cost)/servings))
+        servingCost.attr('value', money(total(cost)/servings));
+        totalCost.attr('value', money(total(cost)));
+        portionPrice.attr('value', money(price/servings));
+        portionProfit.attr('value', money(income/servings));
 
         if(income < 0){
             profit.style.color = 'coral';
             profitMargin.style.color = 'coral';
+            $('#portion-profit').css('color', 'coral');
         }else if(income == 0){
             profit.style.color = 'inherit';
             profitMargin.style.color = 'inherit';
+            $('#portion-profit').css('color', 'inherit');
         }else{
             profit.style.color = '#00E676';
             profitMargin.style.color = '#00E676';
+            $('#portion-profit').css('color', '#00E676');
         }
     }
 
@@ -319,30 +340,43 @@
 
     function changeServing(){
         let servingCost = $('#serving-cost-input');
+        let portionPrice = $('#portion-price');
+        let portionProfit = $('#portion-profit');
+
         servings = parseInt($('#serving-input').val());
         if(isNaN(servings) || servings == 0) servings = 1;
+        let income = price - total(cost);
+        let margin = price == 0 ? 0 : 100*income/price;
 
         servingCost.attr('value', money(total(cost)/servings));
+        portionPrice.attr('value', money(price/servings));
+        portionProfit.attr('value', money(income/servings));
     }
 
     function adjustMargin(){
         if(profitMargin.value < 100 && profitMargin.value >= 0){
             price = money(total(cost)/(1 - profitMargin.value/100));
-            let income = money(price - total(cost));;
+            let income = money(price - total(cost));
 
             $('#price').attr('value', price);
+            $('#portion-price').attr('value', money(price/servings));
+            $('#portion-profit').attr('value', money(income/servings));
             profit.value = income;
 
             if(income < 0){
                 profit.style.color = 'coral';
                 profitMargin.style.color = 'coral';
+                $('#portion-profit').css('color', 'coral');
             }else if(income == 0){
                 profit.style.color = 'inherit';
                 profitMargin.style.color = 'inherit';
+                $('#portion-profit').css('color', 'inherit');
             }else{
                 profit.style.color = '#00E676';
                 profitMargin.style.color = '#00E676';
+                $('#portion-profit').css('color', '#00E676');
             }
         }
     }
+
 </script>
