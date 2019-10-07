@@ -17,6 +17,8 @@ export default class Recipe {
     name : string;
     @Column('text')
     description : string;
+    @Column({nullable: true})
+    credit : string;
     @Column()
     feed : boolean;
     @Column()

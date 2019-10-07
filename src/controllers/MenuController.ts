@@ -41,7 +41,7 @@ export default class MenuController {
 
                 await menu.getAllIngredients();
                 await menu.getAllAllergens();
-            };
+            }
 
             res.render(menu ? 'menu' : 'notFound', {menu: menu, session: req.session, error: req.flash('error')});
         }catch(e){
@@ -60,6 +60,14 @@ export default class MenuController {
                 .leftJoinAndSelect('menu.sharedUsers', 'sharedUsers')
                 .where('authorId = :userID OR sharedUsers.id = :userID', {userID: req.session.userID})
                 .getMany();
+
+            for(let i = 0; i < menus.length; i++){
+                let hasTransferred = await this.menuRepo.createQueryBuilder('menu')
+                    .where('menu.from = :menuID AND menu.authorId = :userID', {menuID:  menus[i].id, userID: req.session.userID})
+                    .getOne();
+
+                menus[i].transferID = hasTransferred ?  hasTransferred.id : null;
+            }
         }catch(e){
             req.flash('error', 'Error getting menus');
         }
@@ -75,6 +83,14 @@ export default class MenuController {
                 .leftJoinAndSelect('menu.author', 'author')
                 .where('author.admin = :yes', {yes: true})
                 .getMany();
+
+            for(let i = 0; i < menus.length; i++){
+                let hasTransferred = await this.menuRepo.createQueryBuilder('menu')
+                    .where('menu.from = :menuID AND menu.authorId = :userID', {menuID:  menus[i].id, userID: req.session.userID})
+                    .getOne();
+
+                menus[i].transferID = hasTransferred ?  hasTransferred.id : null;
+            }
         }catch(e){
             req.flash('error', 'Error getting public menus');
         }
@@ -84,7 +100,7 @@ export default class MenuController {
                 if(a.name < b.name) { return -1; }
                 if(a.name > b.name) { return 1; }
                 return 0;
-            }), 
+            }),
             session: req.session,
             public: true,
             error: req.flash('error')
@@ -179,6 +195,7 @@ export default class MenuController {
                     recipeRepo: this.recipeRepo
                 });
 
+                toTransfer.from = toTransfer['id'];
                 delete toTransfer['id'];
                 toTransfer.recipes = [];
                 toTransfer.author = recipeSearcher.author;

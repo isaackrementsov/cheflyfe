@@ -19,16 +19,19 @@
         <h1>Recipes</h1>
     </div>
 <% } %>
-<div class="profile-main <% if(locals.public){ %>recipes-public add-recipe<% } %> recipe-main">
-    <% if(locals.public){ %>
-        <div class="profile-card">
-            <h1>
-                <i class="material-icons">restaurant</i>
-                Find Recipes
-            </h1>
-            <% include partials/alphabet %>
-        </div>
-    <% } %>
+<div class="profile-main recipes-public add-recipe recipe-main">
+    <div class="profile-card">
+        <h1>
+            <i class="material-icons">restaurant</i>
+            Find Recipes
+        </h1>
+        <% if(!locals.public){ %>
+            <div class="double">
+                <button class="active" onclick="toggleAct('owned', 'shared')" id="owned">Owned</button><button onclick="toggleAct('shared', 'owned')" id="shared">Shared</button>
+            </div>
+        <% } %>
+        <% include partials/alphabet %>
+    </div>
     <div class="profile-feed" id="posts">
         <% include partials/forms/error %>
         <% if(!locals.public && !expired){ %>
@@ -46,7 +49,7 @@
                 }else{
                     auth = recipes[i].sharedUsers.filter(s => s.id == session.userID).length == 0;
                 } %>
-            <div class="post-card">
+            <div class="post-card <% if(!locals.public){ %><% if(auth){ %>recipe-owned<% }else{ %>recipe-shared<% } %><% } %>">
                 <div class="post-header">
                     <span><%= recipes[i].name %></span>
                     <time class="timeago" datetime="<%= new Date(recipes[i].timestamp).toISOString() %>"></time>
@@ -57,6 +60,12 @@
                             <% if(auth){ %>Author<% }else{ %><%= recipes[i].author.username %><% } %>
                         </span>
                     </div>
+                <% }else{ %>
+                    <% if(recipes[i].credit){ %>
+                        <div class="post-content">
+                            <span style="font-weight: 300; color: grey; font-style: italic">Credit: <%= recipes[i].credit %> </span>
+                        </div>
+                    <% } %>
                 <% } %>
                 <div class="post-content">
                     <%= recipes[i].description %>
@@ -81,11 +90,27 @@
                             <button class="button-cta">Get recipe</button>
                         </form>
                     <% } %>
-                    <% if(recipes[i].transferID){ %><a class="button-cta" href="/recipes/<%= recipes[i].transferID %>">You already have this recipe</a><% } %>
+                    <% if(recipes[i].transferID && !auth){ %><a class="button-cta" href="/recipes/<%= recipes[i].transferID %>">You already have this recipe</a><% } %>
                     <a class="cta" href="/recipes/<%= recipes[i].id %>">View</a>
                 </div>
             </div>
         <% } %>
     </div>
 </div>
+<script>
+    $(`.recipe-owned`).show();
+    $(`.recipe-shared`).hide();
+
+    function toggleActive(id1, id2){
+        $(`#${id1}`).toggleClass('active');
+        $(`#${id2}`).toggleClass('active');
+    }
+
+    function toggleAct(id1, id2){
+        toggleActive(id1, id2);
+
+        $(`.recipe-${id1}`).show();
+        $(`.recipe-${id2}`).hide();
+    }
+</script>
 <% include partials/footer %>

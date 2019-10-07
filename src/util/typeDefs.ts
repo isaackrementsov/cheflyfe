@@ -61,6 +61,7 @@ export class RecipeSearcher {
 
         pop.from = pop.id;
         delete pop['id'];
+        pop.credit = pop.author.username;
         pop.author = this.author;
         pop.price = this.convertSystem(this.author.system, pop.price);
         pop.timestamp = new Date();

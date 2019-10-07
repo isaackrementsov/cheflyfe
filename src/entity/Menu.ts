@@ -16,6 +16,8 @@ export default class Menu {
     @Column()
     logo : string;
     @Column()
+    @Column({nullable: true})
+    from : number;
     timestamp : Date = new Date();
     @Column('simple-json')
     sharingPermissions : Info;
@@ -32,6 +34,7 @@ export default class Menu {
 
     ingredients : Ingredient[];
     allergens : string[];
+    transferID : number;
 
     async getAllIngredients(){
         this.ingredients = [];

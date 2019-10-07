@@ -316,18 +316,6 @@
     function getLabels(len){
         let div = 1;
 
-        /*if(len > 200){
-            div = 32;
-        }else if(len > 100){
-            div = 16;
-        }else if(len > 50){
-            div = 8;
-        }else if(len > 20){
-            div = 4;
-        }else if(len > 10){
-            div = 2;
-        }*/
-
         let l = [...Array(Math.floor(len/div) + 1).keys()].map(a => div * a);
 
         if(l[l.length - 1] != len){

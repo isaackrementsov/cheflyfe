@@ -1,10 +1,9 @@
 import {Request, Response} from 'express';
 import {Repository, getRepository} from 'typeorm';
-import {RecipeSearcher} from '../util/typeDefs';
+import {RecipeSearcher, unlink} from '../util/typeDefs';
 import Recipe from '../entity/Recipe';
 import User from '../entity/User';
 import Middleware from '../util/Middleware';
-//import * as fs from 'fs';
 import Ingredient from '../entity/Ingredient';
 
 export default class RecipeController {
@@ -59,7 +58,7 @@ export default class RecipeController {
 
             for(let i = 0; i < recipes.length; i++){
                 let hasTransferred = await this.recipeRepo.createQueryBuilder('recipe')
-                    .where('recipe.from = :recipeID', {recipeID: recipes[i].id})
+                    .where('recipe.from = :recipeID AND recipe.authorId = :userID', {recipeID: recipes[i].id, userID: req.session.userID})
                     .getOne();
 
                 recipes[i].transferID = hasTransferred ?  hasTransferred.id : null;
@@ -68,7 +67,11 @@ export default class RecipeController {
             req.flash('error', 'There was an error getting recipes');
         }
 
-        res.render('recipes', {recipes: recipes, session: req.session, error: req.flash('error')});
+        res.render('recipes', {recipes: recipes.sort((a, b) => {
+            if(a.name < b.name) { return 1; }
+            if(a.name > b.name) { return -1; }
+            return 0;
+        }), session: req.session, error: req.flash('error')});
     }
 
     getPublic = async (req: Request, res: Response) => {
@@ -80,6 +83,14 @@ export default class RecipeController {
                 .leftJoinAndSelect('recipe.author', 'author')
                 .where('author.admin = :yes', {yes: true})
                 .getMany();
+
+            for(let i = 0; i < recipes.length; i++){
+                let hasTransferred = await this.recipeRepo.createQueryBuilder('recipe')
+                    .where('recipe.from = :recipeID AND recipe.authorId = :userID', {recipeID: recipes[i].id, userID: req.session.userID})
+                    .getOne();
+
+                recipes[i].transferID = hasTransferred ?  hasTransferred.id : null;
+            }
         }catch(e){
             req.flash('There was an error getting public recipes');
         }
@@ -194,11 +205,18 @@ export default class RecipeController {
                         Object.assign(toUpdate, update);
 
                         //TODO: Work on deleting with shared recipes
-                        /*if(req.body.deletedMeta != '' && req.body.deletedMeta){
+                        if(req.body.deletedMeta != '' && req.body.deletedMeta){
                             try{
-                                fs.unlinkSync(__dirname + '../../../public' + req.body.deletedMeta);
+                                let matched = this.recipeRepo.createQueryBuilder()
+                                    .select()
+                                    .where('filePaths LIKE :fileName', {fileName: `%${req.body.deletedMeta}%`})
+                                    .getOne();
+
+                                if(!matched){
+                                    await unlink(__dirname + '../../../public' + req.body.deletedMeta);
+                                }
                             }catch(e){ }
-                        }*/
+                        }
                     }
 
                     await this.recipeRepo.save(toUpdate);
@@ -252,11 +270,18 @@ export default class RecipeController {
                 .getOne();
 
             if(toDelete.menus.length == 0){
-                /*toDelete.filePaths.map(p => {
+                toDelete.filePaths.map(async p => {
                     try {
-                        fs.unlink(__dirname + '../../../public' + p);
+                        let matched = this.recipeRepo.createQueryBuilder()
+                            .select()
+                            .where('filePaths LIKE :fileName', {fileName: `%${p}%`})
+                            .getOne();
+
+                        if(!matched){
+                            await unlink(__dirname + '../../../public' + p);
+                        }
                     }catch(e){ }
-                });*/
+                });
 
                 await this.recipeRepo.createQueryBuilder()
                     .delete()

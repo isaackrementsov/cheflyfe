@@ -15,6 +15,14 @@ Element.prototype.remove = function() {
     this.parentElement.removeChild(this);
 }
 
+Number.prototype.toFloatFixed = function(num){
+    return parseFloat(parseFloat(this).toFixed(num));
+}
+
+String.prototype.toFloatFixed = function(num){
+    return parseFloat(parseFloat(this).toFixed(num));
+}
+
 if(window.innerWidth < 932){
     $('#nav-logo-text').hide();
 }else if(window.innerWidth < 1000){
@@ -79,8 +87,11 @@ $('.delete-alert').submit(function(){
     return confirm('Are you sure you want to delete this user?');
 });
 
+$('.delete-alert-ingredient').submit(function(){
+    return confirm('Are you sure you want to delete this ingredient?');
+});
+
 function toggle(id1, id2){
-    console.log('toggling')
     let div1 = document.getElementById(id1);
     let div2 = document.getElementById(id2);
 

@@ -629,7 +629,7 @@ a.cta:hover {
     vertical-align: -3px;
     padding-right: 10px;
 }
-.add-recipe .profile-card {
+.add-recipe .profile-card, .ingredient-container .profile-card {
     top: -30px;
     text-align: left;
     padding: 10px 40px;
@@ -643,18 +643,18 @@ a.cta:hover {
 .profile-card .add-allergen input {
     flex: 0.9;
 }
-.add-recipe .profile-card h1 i {
+.add-recipe .profile-card h1 i, .ingredient-container .profile-card h1 i {
     font-size: 60px !important;
     font-weight: bold;
 }
-.add-recipe .profile-card h1 {
+.add-recipe .profile-card h1, .ingredient-container .profile-card h1 {
     text-align: center;
 }
-.add-recipe .profile-card h3 {
+.add-recipe .profile-card h3, .ingredient-container .profile-card h3 {
     color: grey;
     font-weight: 300;
 }
-.add-recipe .profile-card button {
+.add-recipe .profile-card button, .ingredient-container .profile-card button {
     color: #536DFE;
     border: 1px solid #536DFE;
     border-radius: 100vw;
@@ -1036,4 +1036,31 @@ iframe {
     height: 200px;
     background-size: cover;
     background-position: center;
+}
+.double {
+
+}
+.double button {
+    display: inline;
+    border-radius: 0px !important;
+    margin: 0 !important;
+    width: 50%;
+    transition: ease-in-out 0.3s !important;
+    border-color: #8C9EFF !important;
+    color: #8C9EFF !important;
+}
+.double button:hover {
+    background-color: #8C9EFF !important;
+    color: white !important;
+}
+.double button.active {
+    background-color: #8C9EFF;
+    color: white !important;
+}
+.it-client {
+    padding: 20px 0 !important;
+}
+
+.pointer {
+    cursor: pointer !important;
 }

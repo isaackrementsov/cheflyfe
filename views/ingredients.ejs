@@ -10,260 +10,295 @@
     <h1>Ingredients</h1>
 </div>
 <% include partials/forms/error %>
-<% if(!expired){ %>
-    <div class="flex-container" style="margin: 0 10px; margin-top: 20px">
-        CSV uploads must follow a specific format.
-        <a  href="/img/static/Ingredient CSV Format.csv" style="color: #8C9EFF; font-weight: bold; margin-left: 5px" download> Download example CSV</a>
+<div class="flex-container ingredient-container">
+    <div class="profile-card">
+        <h1>
+            <i class="material-icons">restaurant</i>
+            Find Ingredients
+        </h1>
+        <div class="grey-inputs small-inputs">
+            <input type="text" placeholder="Search..." id="search-input" style="width: 92%" oninput="searchSorted()">
+            <script style="display: none">
+                function searchSorted(){
+                    let query = $('#search-input').val();
+
+                    $('#posts .post-card').each(function(i){
+                        let e = $(this).find('.post-header > span');
+
+                        if(e[0]){
+                            e = $(e[0]);
+
+                            if(e.text().toLowerCase().indexOf(query.toLowerCase().trim()) != -1){
+                                $(this).show();
+                            }else{
+                                $(this).hide();
+                            }
+                        }
+                    });
+
+                    $('#data-buttons button').attr('class', '');
+                    $($('#data-buttons button')[idx]).attr('class', 'active');
+                }
+            </script>
+        </div>
+        <% include partials/alphabet %>
     </div>
-    <div class="flex-container" style="margin: 20px 0">
-        <div class="ingredient add-ingredient post-card add-post" onclick="toggle('search-db', 'search-db-form')" id="search-db">
-            <i class="material-icons">table_chart</i><p>Search USDA</p>
-        </div>
-        <div class="post-card ingredient" style="display: none" id="search-db-form">
-            <div class="post-header"><input type="text" style="width: 100%" placeholder="Product name" id="search-db-input"></div>
-            <div class="post-content grey-inputs small-input" style="margin: 10px; padding: 0">
-                <div class="checkbox flex-container">
-                    <span style="color: grey; font-weight: bold; margin-right: 5px">Include available conversions</span>
-                    <label class="switch"><input type="checkbox" id="search-db-conversions"><span class="slider"></span></label>
+    <div class="profile-feed">
+        <% if(!expired){ %>
+            <div class="flex-container" style="margin: 0 10px; margin-top: 20px">
+                CSV uploads must follow a specific format.
+                <a  href="/img/static/Ingredient CSV Format.csv" style="color: #8C9EFF; font-weight: bold; margin-left: 5px" download> Download example CSV</a>
+            </div>
+            <div class="flex-container" style="margin: 20px 0">
+                <div class="ingredient add-ingredient post-card add-post" onclick="toggle('search-db', 'search-db-form')" id="search-db">
+                    <i class="material-icons">table_chart</i><p>Search USDA</p>
                 </div>
-                <button type="button" class="cta" style="vertical-align: middle" onclick="searchDB()"><i class="material-icons">arrow_forward</i></button>
-            </div>
-            <div class="post-content" id="search-db-header">
-            </div>
-            <div class="post-content" id="search-db-container" style="max-height: 300px; overflow: auto; overflow-x: hidden">
-            </div>
-            <div class="post-content" id="search-db-more">
-            </div>
-            <p></p>
-        </div>
-        <form class="ingredient add-ingredient post-card add-post" id="csv-form" method="POST" action="/ingredients/createCSV" enctype="multipart/form-data">
-            <div class="form-upl-wrapper">
-                <input type="file" name="csvUpl" accept=".csv" oninput="submitForm('csv-form')">
-                <button class="form-upl" type="button" style="padding: 0 !important; background-color: transparent">
-                    <i class="material-icons">cloud_upload</i><p>Upload CSV</p>
-                </button>
-            </div>
-        </form>
-        <form class="ingredient add-ingredient post-card add-post" method="GET" id="export-csv" action="/ingredients/export" onclick="submitForm('export-csv')">
-            <i class="material-icons">cloud_download</i>
-            <p>Export CSV</p>
-        </form>
-        <div class="ingredient add-ingredient post-card add-post" onclick="toggle('add-ingredient', 'add-ingredient-form')" id="add-ingredient">
-            <i class="material-icons">add</i><p>Add Ingredient</p>
-        </div>
-        <form class="post-card ingredient new-ingredient" id="add-ingredient-form" style="display: none" method="POST" action="/ingredients/create">
-            <div class="post-header">
-                <input type="text" placeholder="Name" name="name" required>
-                <input type="text" placeholder="Brand (optional)" name="brandOpt">
-            </div>
-            <div class="post-content">
-                <p><textarea placeholder="Description (optional)" name="descriptionOpt"></textarea></p>
-                <input type="hidden" name="allergensJSON" id="allergens-input-0" value="[]">
-                <div class="allergens flex-container" id="add-allergen-container-0" style="margin-bottom: 0">
-                    <div class="flex-container add-allergen">
-                        <input type="text" list="allergens-datalist" placeholder="Add allergen" id="add-allergen-input-0">
-                        <button type="button" onclick="addAllergen(0)"><i class="material-icons">done</i></button>
+                <div class="post-card ingredient" style="display: none" id="search-db-form">
+                    <div class="post-header"><input type="text" style="width: 100%" placeholder="Product name" id="search-db-input"></div>
+                    <div class="post-content grey-inputs small-input" style="margin: 10px; padding: 0">
+                        <div class="checkbox flex-container">
+                            <span style="color: grey; font-weight: bold; margin-right: 5px">Include available conversions</span>
+                            <label class="switch"><input type="checkbox" id="search-db-conversions"><span class="slider"></span></label>
+                        </div>
+                        <button type="button" class="cta" style="vertical-align: middle" onclick="searchDB()"><i class="material-icons">arrow_forward</i></button>
                     </div>
-                </div>
-                <p class="small-input"><input type="number" name="wastageJSON" min="0" max="100" required>% Wastage</p>
-                <p class="small-input">
-                    <%= c %><input type="number" step="0.01" min="0" max="100000" placeholder="Price" name="valJSON" required>
-                    per<input type="number" step="0.01" min="0" max="100000" placeholder="# of" name="qtJSON" required>
-                    <input list="units-datalist" type="text" placeholder="units" name="units" required>
-                </p>
-                <input type="hidden" value="[]" id="conversions-input-0" name="conversionsJSON">
-                <div class="small-input smaller-input allergens flex-container" id="add-conversion-container-0">
-                    <div class="flex-container add-allergen add-conversion">
-                        <span style="padding: 8px 0">Listed quanity is equal to</span>
-                        <input type="number" step="0.01" placeholder="#" id="qt-0"><input type="text" list="units-datalist" placeholder="units" id="units-0">
-                        <button type="button" onclick="addConversion(0)"><i class="material-icons">done</i></button>
+                    <div class="post-content" id="search-db-header">
                     </div>
+                    <div class="post-content" id="search-db-container" style="max-height: 300px; overflow: auto; overflow-x: hidden">
+                    </div>
+                    <div class="post-content" id="search-db-more">
+                    </div>
+                    <p></p>
                 </div>
+                <form class="ingredient add-ingredient post-card add-post" id="csv-form" method="POST" action="/ingredients/createCSV" enctype="multipart/form-data">
+                    <div class="form-upl-wrapper">
+                        <input type="file" name="csvUpl" accept=".csv" oninput="submitForm('csv-form')">
+                        <button class="form-upl" type="button" style="padding: 0 !important; background-color: transparent">
+                            <i class="material-icons">cloud_upload</i><p>Upload CSV</p>
+                        </button>
+                    </div>
+                </form>
+                <form class="ingredient add-ingredient post-card add-post" method="GET" id="export-csv" action="/ingredients/export" onclick="submitForm('export-csv')">
+                    <i class="material-icons">cloud_download</i>
+                    <p>Export CSV</p>
+                </form>
+                <div class="ingredient add-ingredient post-card add-post" onclick="toggle('add-ingredient', 'add-ingredient-form')" id="add-ingredient">
+                    <i class="material-icons">add</i><p>Add Ingredient</p>
+                </div>
+                <form class="post-card ingredient new-ingredient" id="add-ingredient-form" style="display: none" method="POST" action="/ingredients/create">
+                    <div class="post-header">
+                        <input type="text" placeholder="Name" name="name" required>
+                        <input type="text" placeholder="Brand (optional)" name="brandOpt">
+                    </div>
+                    <div class="post-content">
+                        <p><textarea placeholder="Description (optional)" name="descriptionOpt"></textarea></p>
+                        <input type="hidden" name="allergensJSON" id="allergens-input-0" value="[]">
+                        <div class="allergens flex-container" id="add-allergen-container-0" style="margin-bottom: 0">
+                            <div class="flex-container add-allergen">
+                                <input type="text" list="allergens-datalist" placeholder="Add allergen" id="add-allergen-input-0">
+                                <button type="button" onclick="addAllergen(0)"><i class="material-icons">done</i></button>
+                            </div>
+                        </div>
+                        <p class="small-input"><input type="number" name="wastageJSON" min="0" max="100" required>% Wastage</p>
+                        <p class="small-input">
+                            <%= c %><input type="number" step="0.01" min="0" max="100000" placeholder="Price" name="valJSON" required>
+                            per<input type="number" step="0.01" min="0" max="100000" placeholder="# of" name="qtJSON" required>
+                            <input list="units-datalist" type="text" placeholder="units" name="units" required>
+                        </p>
+                        <input type="hidden" value="[]" id="conversions-input-0" name="conversionsJSON">
+                        <div class="small-input smaller-input allergens flex-container" id="add-conversion-container-0">
+                            <div class="flex-container add-allergen add-conversion">
+                                <span style="padding: 8px 0">Listed quanity is equal to</span>
+                                <input type="number" step="0.01" placeholder="#" id="qt-0"><input type="text" list="units-datalist" placeholder="units" id="units-0">
+                                <button type="button" onclick="addConversion(0)"><i class="material-icons">done</i></button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="post-content">
+                        <button type="button" onclick="openDiv('nutritional-info-form')" class="normal-button"><i class="material-icons">add</i> Add nutritonal facts</button>
+                        <div id="nutritional-info-form" style="display: none">
+                            <p class="small-input smaller-input">Calories <input type="number" min="0" name="calsOptJSON" step="0.0001"> - Calories from fat
+                                <input type="number" min="0" name="fatCalsOptJSON" step="0.0001"></p>
+                            <p class="small-input smaller-input">Total fat <input type="number" min="0" name="fatOptJSON" step="0.0001">g - Sat
+                                <input type="number" min="0" name="satFatOptJSON" step="0.0001"> Trans <input type="number" min="0" name="transFatOptJSON" step="0.0001">
+                            </p>
+                            <p class="small-input smaller-input">Cholesterol <input type="number" min="0" name="cholOptJSON" step="0.0001">mg</p>
+                            <p class="small-input smaller-input">Sodium <input type="number" min="0" name="sodOptJSON" step="0.0001">mg</p>
+                            <p class="small-input smaller-input">Total Carbs <input type="number" min="0" name="carbsOptJSON" step="0.0001">g -
+                                <input type="number" min="0" name="fibOptJSON" step="0.0001"> Fiber <input type="number" min="0" name="sugOptJSON" step="0.0001"> Sugar
+                            </p>
+                            <p class="small-input smaller-input">Protein <input type="number" min="0" name="protOptJSON" step="0.0001">g</p>
+                        </div>
+                    </div>
+                    <div class="post-content">
+                        <input type="submit" value="Save" style="margin-right: 10px">
+                        <button onclick="toggle('add-ingredient', 'add-ingredient-form')">Cancel</button>
+                    </div>
+                </form>
             </div>
-            <div class="post-content">
-                <button type="button" onclick="openDiv('nutritional-info-form')" class="normal-button"><i class="material-icons">add</i> Add nutritonal facts</button>
-                <div id="nutritional-info-form" style="display: none">
-                    <p class="small-input smaller-input">Calories <input type="number" min="0" name="calsOptJSON" step="0.0001"> - Calories from fat
-                        <input type="number" min="0" name="fatCalsOptJSON" step="0.0001"></p>
-                    <p class="small-input smaller-input">Total fat <input type="number" min="0" name="fatOptJSON" step="0.0001">g - Sat
-                        <input type="number" min="0" name="satFatOptJSON" step="0.0001"> Trans <input type="number" min="0" name="transFatOptJSON" step="0.0001">
+        <% } %>
+        <div class="flex-container" id="posts">
+            <% ingredients = ingredients.sort((a, b) => {
+                if(a.name < b.name) { return -1; }
+                if(a.name > b.name) { return 1; }
+                return 0;
+            }) %>
+            <% for(let i = 0; i < ingredients.length; i++){ %>
+                <form style="display: none" id="delete-form-<%= ingredients[i].id %>" method="POST" action="/ingredients/delete/<%= ingredients[i].id %>?_method=DELETE" class="delete-alert-ingredient"></form>
+                <form class="post-card ingredient" onclick="toggleEdit('ingredient-update-<%= ingredients[i].id %>', '', '')" method="POST" action="/ingredients/update/<%= ingredients[i].id %>?_method=PATCH"
+                    onsubmit="prepareJSON(<%= ingredients[i].id %>)">
+                    <div class="post-header">
+                        <span class="<% if(!expired){%>editable<% } %>" id="header-<%= ingredients[i].id %>" onclick="toggle('header-<%= ingredients[i].id %>', 'header-update-<%= ingredients[i].id %>')">
+                            <%= ingredients[i].name %>
+                        </span>
+                        <% if(!expired){ %>
+                            <input type="text" name="name" id="header-update-<%= ingredients[i].id %>" style="display: none" value="<%= ingredients[i].name %>" required>
+                        <% } %>
+                        <h4 id="brand-<%= ingredients[i].id %>" class="<% if(!expired){%>editable<% } %>" onclick="toggle('brand-<%= ingredients[i].id %>', 'brand-update-<%= ingredients[i].id %>')">
+                            <%= ingredients[i].brand %>
+                        </h4>
+                        <% if(!expired){ %>
+                            <input type="text" name="brand" id="brand-update-<%= ingredients[i].id %>" value="<%= ingredients[i].brand %>" style="display: none" required>
+                        <% } %>
+                    </div>
+                    <p class="post-content" id="ingredient-more-<%= ingredients[i].id %>">
+                        <% let canDelete = ingredients[i].recipes.length == 0 %>
+                        <% if(canDelete && !expired){ %>
+                            <i class="material-icons pointer" style="font-size: 30px !important; color: grey; vertical-align: 3px"
+                            onclick="submitForm('delete-form-<%= ingredients[i].id %>')">
+                                delete
+                            </i>
+                        <% } %>
+                        <i class="material-icons pointer" style="font-size: 40px !important; color: grey"
+                        onclick="toggle('ingredient-more-<%= ingredients[i].id %>', 'ingredient-content-<%= ingredients[i].id %>')">
+                            more_horiz
+                        </i>
                     </p>
-                    <p class="small-input smaller-input">Cholesterol <input type="number" min="0" name="cholOptJSON" step="0.0001">mg</p>
-                    <p class="small-input smaller-input">Sodium <input type="number" min="0" name="sodOptJSON" step="0.0001">mg</p>
-                    <p class="small-input smaller-input">Total Carbs <input type="number" min="0" name="carbsOptJSON" step="0.0001">g -
-                        <input type="number" min="0" name="fibOptJSON" step="0.0001"> Fiber <input type="number" min="0" name="sugOptJSON" step="0.0001"> Sugar
-                    </p>
-                    <p class="small-input smaller-input">Protein <input type="number" min="0" name="protOptJSON" step="0.0001">g</p>
-                </div>
-            </div>
-            <div class="post-content">
-                <input type="submit" value="Save" style="margin-right: 10px">
-                <button onclick="toggle('add-ingredient', 'add-ingredient-form')">Cancel</button>
-            </div>
-        </form>
-    </div>
-<% } %>
-<div class="flex-container">
-    <% ingredients = ingredients.sort((a, b) => {
-        if(a.name < b.name) { return -1; }
-        if(a.name > b.name) { return 1; }
-        return 0;
-    }) %>
-    <% for(let i = 0; i < ingredients.length; i++){ %>
-        <form style="display: none" id="delete-form-<%= ingredients[i].id %>" method="POST" action="/ingredients/delete/<%= ingredients[i].id %>?_method=DELETE"></form>
-        <form class="post-card ingredient" onclick="toggleEdit('ingredient-update-<%= ingredients[i].id %>', '', '')" method="POST" action="/ingredients/update/<%= ingredients[i].id %>?_method=PATCH"
-            onsubmit="prepareJSON(<%= ingredients[i].id %>)">
-            <div class="post-header">
-                <span class="<% if(!expired){%>editable<% } %>" id="header-<%= ingredients[i].id %>" onclick="toggle('header-<%= ingredients[i].id %>', 'header-update-<%= ingredients[i].id %>')">
-                    <%= ingredients[i].name %>
-                </span>
-                <% if(!expired){ %>
-                    <input type="text" name="name" id="header-update-<%= ingredients[i].id %>" style="display: none" value="<%= ingredients[i].name %>" required>
-                <% } %>
-                <h4 id="brand-<%= ingredients[i].id %>" class="<% if(!expired){%>editable<% } %>" onclick="toggle('brand-<%= ingredients[i].id %>', 'brand-update-<%= ingredients[i].id %>')">
-                    <%= ingredients[i].brand %>
-                </h4>
-                <% if(!expired){ %>
-                    <input type="text" name="brand" id="brand-update-<%= ingredients[i].id %>" value="<%= ingredients[i].brand %>" style="display: none" required>
-                <% } %>
-            </div>
-            <p class="post-content" id="ingredient-more-<%= ingredients[i].id %>">
-                <% let canDelete = ingredients[i].recipes.length == 0 %>
-                <% if(canDelete && !expired){ %>
-                    <i class="material-icons" style="font-size: 30px !important; color: grey; vertical-align: 3px"
-                    onclick="submitForm('delete-form-<%= ingredients[i].id %>')">
-                        delete
-                    </i>
-                <% } %>
-                <i class="material-icons" style="font-size: 40px !important; color: grey"
-                onclick="toggle('ingredient-more-<%= ingredients[i].id %>', 'ingredient-content-<%= ingredients[i].id %>')">
-                    more_horiz
-                </i>
-            </p>
-            <div class="post-content" id="ingredient-content-<%= ingredients[i].id %>" style="display: none">
-                <% let color = ingredients[i].nutritionalInfo ? '#00E676' : 'coral' %>
-                <p style="color: <%= color %>"><% if(ingredients[i].nutritionalInfo){ %>Has nutritional info<% }else{ %>No nutritonal info<% } %></p>
-                <p id="description-<%= ingredients[i].id %>" class="<% if(!expired){%>editable<% } %>" onclick="toggle('description-<%= ingredients[i].id %>', 'description-update-<%= ingredients[i].id %>')">
-                    <%= ingredients[i].description %>
-                </p>
-                <% if(!expired){ %>
-                    <p id="description-update-<%= ingredients[i].id %>" style="display: none"><textarea name="description"><%= ingredients[i].description %></textarea></p>
-                <% } %>
-                <input type="hidden" name="allergensJSON" id="allergens-input-<%= ingredients[i].id %>" value="<%= JSON.stringify(ingredients[i].allergens) %>">
-                <div class="allergens flex-container" id="add-allergen-container-<%= ingredients[i].id %>">
-                    <% if(!expired){ %>
-                        <div class="flex-container add-allergen" style="display: none" id="allergen-form-<%= ingredients[i].id %>">
-                            <input type="text" list="allergens-datalist" placeholder="Add allergen" id="add-allergen-input-<%= ingredients[i].id %>">
-                            <button type="button" onclick="addAllergen(<%= ingredients[i].id %>)"><i class="material-icons">done</i></button>
+                    <div class="post-content" id="ingredient-content-<%= ingredients[i].id %>" style="display: none">
+                        <% let color = ingredients[i].nutritionalInfo ? '#00E676' : 'coral' %>
+                        <p style="color: <%= color %>"><% if(ingredients[i].nutritionalInfo){ %>Has nutritional info<% }else{ %>No nutritonal info<% } %></p>
+                        <p id="description-<%= ingredients[i].id %>" class="<% if(!expired){%>editable<% } %>" onclick="toggle('description-<%= ingredients[i].id %>', 'description-update-<%= ingredients[i].id %>')">
+                            <%= ingredients[i].description %>
+                        </p>
+                        <% if(!expired){ %>
+                            <p id="description-update-<%= ingredients[i].id %>" style="display: none"><textarea name="description"><%= ingredients[i].description %></textarea></p>
+                        <% } %>
+                        <input type="hidden" name="allergensJSON" id="allergens-input-<%= ingredients[i].id %>" value="<%= JSON.stringify(ingredients[i].allergens) %>">
+                        <div class="allergens flex-container" id="add-allergen-container-<%= ingredients[i].id %>">
+                            <% if(!expired){ %>
+                                <div class="flex-container add-allergen" style="display: none" id="allergen-form-<%= ingredients[i].id %>">
+                                    <input type="text" list="allergens-datalist" placeholder="Add allergen" id="add-allergen-input-<%= ingredients[i].id %>">
+                                    <button type="button" onclick="addAllergen(<%= ingredients[i].id %>)"><i class="material-icons">done</i></button>
+                                </div>
+                                <button type="button" class="edit-allergens wide"
+                                onclick="toggleArr(['allergen-form-<%= ingredients[i].id %>', 'allergen-close-<%= ingredients[i].id %>'], ['allergen-edit-<%= ingredients[i].id %>'])">
+                                    <span id="allergen-edit-<%= ingredients[i].id %>">
+                                        <i class="material-icons">edit</i><span> Allergens</span>
+                                    </span>
+                                    <i class="material-icons" id="allergen-close-<%= ingredients[i].id %>" style="display: none">minimize</i>
+                                </button>
+                            <% } %>
+                            <% for(let k = 0; k < ingredients[i].allergens.length; k++){ %>
+                                <span class="allergen" id="<%= ingredients[i].allergens[k] %>">
+                                    <%= ingredients[i].allergens[k] %>
+                                    <i class="material-icons" onclick="removeAllergen('<%= ingredients[i].allergens[k] %>', <%= ingredients[i].id %>)">close</i>
+                                </span>
+                            <% } %>
                         </div>
-                        <button type="button" class="edit-allergens wide"
-                        onclick="toggleArr(['allergen-form-<%= ingredients[i].id %>', 'allergen-close-<%= ingredients[i].id %>'], ['allergen-edit-<%= ingredients[i].id %>'])">
-                            <span id="allergen-edit-<%= ingredients[i].id %>">
-                                <i class="material-icons">edit</i><span> Allergens</span>
-                            </span>
-                            <i class="material-icons" id="allergen-close-<%= ingredients[i].id %>" style="display: none">minimize</i>
-                        </button>
-                    <% } %>
-                    <% for(let k = 0; k < ingredients[i].allergens.length; k++){ %>
-                        <span class="allergen" id="<%= ingredients[i].allergens[k] %>">
-                            <%= ingredients[i].allergens[k] %>
-                            <i class="material-icons" onclick="removeAllergen('<%= ingredients[i].allergens[k] %>', <%= ingredients[i].id %>)">close</i>
-                        </span>
-                    <% } %>
-                </div>
-                <input type="hidden" value="<%= JSON.stringify(ingredients[i].conversions) %>"
-                id="conversions-input-<%= ingredients[i].id %>" name="conversionsJSON">
-                <div class="small-input smaller-input allergens flex-container" id="add-conversion-container-<%= ingredients[i].id %>">
-                    <% if(!expired){ %>
-                        <div class="flex-container add-allergen add-conversion" style="display: none" id="conversion-form-<%= ingredients[i].id %>">
-                            <span style="padding: 8px 0"><%= ingredients[i].price.qt %><%= ingredients[i].price.units %> is equal to</span>
-                            <input type="number" step="0.01" placeholder="#" id="qt-<%= ingredients[i].id %>">
-                            <input type="text" list="units-datalist" placeholder="units" id="units-<%= ingredients[i].id %>">
-                            <button type="button" onclick="addConversion(<%= ingredients[i].id %>)"><i class="material-icons">done</i></button>
+                        <input type="hidden" value="<%= JSON.stringify(ingredients[i].conversions) %>"
+                        id="conversions-input-<%= ingredients[i].id %>" name="conversionsJSON">
+                        <div class="small-input smaller-input allergens flex-container" id="add-conversion-container-<%= ingredients[i].id %>">
+                            <% if(!expired){ %>
+                                <div class="flex-container add-allergen add-conversion" style="display: none" id="conversion-form-<%= ingredients[i].id %>">
+                                    <span style="padding: 8px 0"><%= ingredients[i].price.qt %><%= ingredients[i].price.units %> is equal to</span>
+                                    <input type="number" step="0.01" placeholder="#" id="qt-<%= ingredients[i].id %>">
+                                    <input type="text" list="units-datalist" placeholder="units" id="units-<%= ingredients[i].id %>">
+                                    <button type="button" onclick="addConversion(<%= ingredients[i].id %>)"><i class="material-icons">done</i></button>
+                                </div>
+                                <button type="button" class="edit-conversions wide"
+                                onclick="toggleArr(['conversion-form-<%= ingredients[i].id %>', 'conversion-close-<%= ingredients[i].id %>'], ['conversion-edit-<%= ingredients[i].id %>'])">
+                                    <span id="conversion-edit-<%= ingredients[i].id %>">
+                                        <i class="material-icons">edit</i><span> Conversions</span>
+                                    </span>
+                                    <i class="material-icons" id="conversion-close-<%= ingredients[i].id %>" style="display: none">minimize</i>
+                                </button>
+                            <% } %>
+                            <% for(let k = 0; k < ingredients[i].conversions.length; k++){ %>
+                                <span class="allergen" style="background-color: #536DFE">
+                                    <%= ingredients[i].conversions[k].qt %> <%= ingredients[i].conversions[k].units %>
+                                </span>
+                            <% } %>
                         </div>
-                        <button type="button" class="edit-conversions wide"
-                        onclick="toggleArr(['conversion-form-<%= ingredients[i].id %>', 'conversion-close-<%= ingredients[i].id %>'], ['conversion-edit-<%= ingredients[i].id %>'])">
-                            <span id="conversion-edit-<%= ingredients[i].id %>">
-                                <i class="material-icons">edit</i><span> Conversions</span>
-                            </span>
-                            <i class="material-icons" id="conversion-close-<%= ingredients[i].id %>" style="display: none">minimize</i>
-                        </button>
-                    <% } %>
-                    <% for(let k = 0; k < ingredients[i].conversions.length; k++){ %>
-                        <span class="allergen" style="background-color: #536DFE">
-                            <%= ingredients[i].conversions[k].qt %> <%= ingredients[i].conversions[k].units %>
-                        </span>
-                    <% } %>
-                </div>
-                <input type="hidden" value="<%= JSON.stringify(ingredients[i].purchaseRecords) %>"
-                id="purchase-input-<%= ingredients[i].id %>" name="purchaseRecordsJSON">
-                <div class="small-input smaller-input allergens flex-container" id="add-purchase-container-<%= ingredients[i].id %>">
-                    <% if(!expired){ %>
-                        <div class="flex-container add-allergen add-conversion" style="display: none" id="purchase-form-<%= ingredients[i].id %>">
-                            <%= c %><input type="number" step="0.01" placeholder="Price" id="record-val-<%= ingredients[i].id %>">
-                            <input type="date" placeholder="units" id="date-<%= ingredients[i].id %>">
-                            <button type="button" onclick="addPurchase(<%= ingredients[i].id %>)"><i class="material-icons">done</i></button>
+                        <input type="hidden" value="<%= JSON.stringify(ingredients[i].purchaseRecords) %>"
+                        id="purchase-input-<%= ingredients[i].id %>" name="purchaseRecordsJSON">
+                        <div class="small-input smaller-input allergens flex-container" id="add-purchase-container-<%= ingredients[i].id %>">
+                            <% if(!expired){ %>
+                                <div class="flex-container add-allergen add-conversion" style="display: none" id="purchase-form-<%= ingredients[i].id %>">
+                                    <%= c %><input type="number" step="0.01" placeholder="Price" id="record-val-<%= ingredients[i].id %>">
+                                    <input type="date" placeholder="units" id="date-<%= ingredients[i].id %>">
+                                    <button type="button" onclick="addPurchase(<%= ingredients[i].id %>)"><i class="material-icons">done</i></button>
+                                </div>
+                                <button type="button" class="edit-conversions wide"
+                                onclick="toggleArr(['purchase-form-<%= ingredients[i].id %>', 'purchase-close-<%= ingredients[i].id %>'], ['purchase-edit-<%= ingredients[i].id %>'])">
+                                    <span id="purchase-edit-<%= ingredients[i].id %>">
+                                        <i class="material-icons">edit</i><span> Purchases</span>
+                                    </span>
+                                    <i class="material-icons" id="purchase-close-<%= ingredients[i].id %>" style="display: none">minimize</i>
+                                </button>
+                            <% } %>
+                            <% for(let k = 0; k < ingredients[i].purchaseRecords.length; k++){ %>
+                                <% let rec = ingredients[i].purchaseRecords[k] %>
+                                <span class="allergen" style="background-color: #536DFE" id="purchase-<%= ingredients[i].id %>-<%= k %>">
+                                    <% let d = new Date(rec.timestamp) %>
+                                    <%= c %><%= rec.val %> on <%= d.getUTCMonth() + 1 %>/<%= d.getDate() %>/<%= d.getUTCFullYear() %>
+                                    <i class="material-icons" onclick="removePurchase(<%= k %>, <%= ingredients[i].id %>)">close</i>
+                                </span>
+                            <% } %>
                         </div>
-                        <button type="button" class="edit-conversions wide"
-                        onclick="toggleArr(['purchase-form-<%= ingredients[i].id %>', 'purchase-close-<%= ingredients[i].id %>'], ['purchase-edit-<%= ingredients[i].id %>'])">
-                            <span id="purchase-edit-<%= ingredients[i].id %>">
-                                <i class="material-icons">edit</i><span> Purchases</span>
-                            </span>
-                            <i class="material-icons" id="purchase-close-<%= ingredients[i].id %>" style="display: none">minimize</i>
+                        <button type="button" class="form-upl"
+                        onclick="buildChart(<%= ingredients[i].id %>, 'purchase-chart-<%= ingredients[i].id %>', 'purchase-chart-container-<%= ingredients[i].id %>')">
+                            See cost chart
                         </button>
+                        <div class="purchase-canvas-container" id="purchase-chart-container-<%= ingredients[i].id %>" style="display: none">
+                            <canvas id="purchase-chart-<%= ingredients[i].id %>"></canvas>
+                        </div>
+                    </div>
+                    <% if(!expired){ %>
+                        <div class="post-content" id="ingredient-update-<%= ingredients[i].id %>" style="display: none">
+                            <input type="submit" value="Save">
+                            <button type="button" onclick="cancelEdit()">Cancel</button>
+                        </div>
                     <% } %>
-                    <% for(let k = 0; k < ingredients[i].purchaseRecords.length; k++){ %>
-                        <% let rec = ingredients[i].purchaseRecords[k] %>
-                        <span class="allergen" style="background-color: #536DFE" id="purchase-<%= ingredients[i].id %>-<%= k %>">
-                            <% let d = new Date(rec.timestamp) %>
-                            <%= c %><%= rec.val %> on <%= d.getUTCMonth() + 1 %>/<%= d.getDate() %>/<%= d.getUTCFullYear() %>
-                            <i class="material-icons" onclick="removePurchase(<%= k %>, <%= ingredients[i].id %>)">close</i>
+                    <div class="post-content flex-container icons">
+                        <span class="small-input smaller-input <% if(!expired){%>editable<% } %>">
+                            <i class="material-icons">delete</i>
+                            <span id="wastage-<%= ingredients[i].id %>" onclick="toggle('wastage-<%= ingredients[i].id %>', 'wastage-update-<%= ingredients[i].id %>')">
+                                <%= ingredients[i].wastage %>
+                            </span>
+                            <% if(!expired){ %>
+                                <input type="number" name="wastage" step="0.01" min="0" max="100000" value="<%= ingredients[i].wastage %>" id="wastage-update-<%= ingredients[i].id %>" style="display: none" required>
+                            <% } %>
+                             % wastage
                         </span>
-                    <% } %>
-                </div>
-                <button type="button" class="form-upl"
-                onclick="buildChart(<%= ingredients[i].id %>, 'purchase-chart-<%= ingredients[i].id %>', 'purchase-chart-container-<%= ingredients[i].id %>')">
-                    See cost chart
-                </button>
-                <div class="purchase-canvas-container" id="purchase-chart-container-<%= ingredients[i].id %>" style="display: none">
-                    <canvas id="purchase-chart-<%= ingredients[i].id %>"></canvas>
-                </div>
-            </div>
-            <% if(!expired){ %>
-                <div class="post-content" id="ingredient-update-<%= ingredients[i].id %>" style="display: none">
-                    <input type="submit" value="Save">
-                    <button type="button" onclick="cancelEdit()">Cancel</button>
-                </div>
+                        <input type="hidden" name="priceJSON" id="price-input-<%= ingredients[i].id %>">
+                        <span class="small-input smaller-input <% if(!expired){%>editable<% } %>"><i class="material-icons">shopping_basket</i>
+                            <span id="price-<%= ingredients[i].id %>" onclick="toggle('price-<%= ingredients[i].id %>', 'price-update-<%= ingredients[i].id %>')">
+                                <%= c %><%= ingredients[i].price.val.toFixed(2) %> per <% if(ingredients[i].price.qt != 1){ %>
+                                    <%= ingredients[i].price.qt %> <% } %><%= ingredients[i].price.units %>
+                            </span>
+                            <% if(!expired){ %>
+                                <span id="price-update-<%= ingredients[i].id %>" style="display: none">
+                                    <%= c %><input type="number" step="0.01" min="0" max="100000" value="<%= ingredients[i].price.val.toFixed(2) %>" required> per
+                                    <input type="number" step="0.01" min="0" max="100000" value="<%= ingredients[i].price.qt %>" required>
+                                    <input type="text" value="<%= ingredients[i].price.units %>" list="units-datalist" <% if(!canDelete){ %>disabled<% } %>>
+                                </span>
+                            <% } %>
+                        </span>
+                    </div>
+                </form>
             <% } %>
-            <div class="post-content flex-container icons">
-                <span class="small-input smaller-input <% if(!expired){%>editable<% } %>">
-                    <i class="material-icons">delete</i>
-                    <span id="wastage-<%= ingredients[i].id %>" onclick="toggle('wastage-<%= ingredients[i].id %>', 'wastage-update-<%= ingredients[i].id %>')">
-                        <%= ingredients[i].wastage %>
-                    </span>
-                    <% if(!expired){ %>
-                        <input type="number" name="wastage" step="0.01" min="0" max="100000" value="<%= ingredients[i].wastage %>" id="wastage-update-<%= ingredients[i].id %>" style="display: none" required>
-                    <% } %>
-                     % wastage
-                </span>
-                <input type="hidden" name="priceJSON" id="price-input-<%= ingredients[i].id %>">
-                <span class="small-input smaller-input <% if(!expired){%>editable<% } %>"><i class="material-icons">shopping_basket</i>
-                    <span id="price-<%= ingredients[i].id %>" onclick="toggle('price-<%= ingredients[i].id %>', 'price-update-<%= ingredients[i].id %>')">
-                        <%= c %><%= ingredients[i].price.val.toFixed(2) %> per <% if(ingredients[i].price.qt != 1){ %>
-                            <%= ingredients[i].price.qt %> <% } %><%= ingredients[i].price.units %>
-                    </span>
-                    <% if(!expired){ %>
-                        <span id="price-update-<%= ingredients[i].id %>" style="display: none">
-                            <%= c %><input type="number" step="0.01" min="0" max="100000" value="<%= ingredients[i].price.val.toFixed(2) %>" required> per
-                            <input type="number" step="0.01" min="0" max="100000" value="<%= ingredients[i].price.qt %>" required>
-                            <input type="text" value="<%= ingredients[i].price.units %>" disabled>
-                            <%= ingredients[i].price.units %>
-                        </span>
-                    <% } %>
-                </span>
-            </div>
-        </form>
-    <% } %>
+        </div>
+    </div>
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.bundle.min.js"></script>
 <script>

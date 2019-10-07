@@ -38,7 +38,7 @@
     preventDuplicates();
 
     function money(num){
-        return num.toFixed(2);
+        return num.toFloatFixed(2);
     }
 
     function changePrice(){
@@ -177,7 +177,6 @@
 
         arr[id] = txt;
         stepList.setAttribute('value', JSON.stringify(arr));
-        console.log(txt)
         $(`#step-span-${id}`).html(txt);
         toggleArr([`step-span-${id}`, `remove-${id}`], [`step-span-edit-${id}`, `done-${id}`])
     }
@@ -349,7 +348,7 @@
         let margin = price == 0 ? 0 : 100*income/price;
 
         servingCost.attr('value', money(total(cost)/servings));
-        portionPrice.attr('value', money(price/servings));
+        portionPrice.val(money(price/servings));
         portionProfit.attr('value', money(income/servings));
     }
 
@@ -376,6 +375,44 @@
                 profitMargin.style.color = '#00E676';
                 $('#portion-profit').css('color', '#00E676');
             }
+        }
+    }
+
+    let lastScale = 1;
+
+    function mV(input, scale){
+        $(input).val((scale*$(input).val()/lastScale).toFloatFixed(2));
+    }
+
+    function scaleUp(){
+        let scale = parseFloat($('#recipe-scale').val());
+
+        if(!isNaN(scale) && scale > 0){
+            mV('#food-input', scale);
+            mV('#labor-input', scale);
+            mV('#misc-input', scale);
+            mV('#total-cost-input', scale);
+            mV('#profit', scale);
+            mV('#price', scale);
+
+            $('#serves').text(servings*scale);
+
+            let parts = $('#yield').text().split('edit')[0].split(' ');
+            parts[0] = parseFloat(parts[0])*scale/lastScale;
+            $('#yield').text(parts.join(' '));
+
+            $('.step').each(function(i){
+                if($(this).attr('id').indexOf('ingredient') != -1){
+                    let ingParts = $(this).text().split(' ');
+
+                    let k = 0;
+                    while(isNaN(parseFloat(ingParts[k]))) k++;
+                    ingParts[k] = scale*parseFloat(ingParts[k])/lastScale;
+                    $(this).text(ingParts.join(' '));
+                }
+            });
+
+            lastScale = scale;
         }
     }
 

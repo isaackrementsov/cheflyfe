@@ -39,6 +39,12 @@ onclick="toggleEdit('edit-recipe', '', '')" onsubmit="packageJSON()" id="recipe-
         <% if(!auth){ %>
             <h3 style="text-align: center">Created by <%= recipe.author.username %></h3>
         <% } %>
+        <h2>Tools</h2>
+        <h3>Temporary Scale</h3>
+        <div class="checkbox flex-container">
+            <div>Scale up by</div>
+            <input type="number" step="0.01" value="1" oninput="scaleUp()" id="recipe-scale">
+        </div>
         <% if(auth){ %>
             <h2>Display to Viewers</h2>
         <% } %>
@@ -224,6 +230,13 @@ onclick="toggleEdit('edit-recipe', '', '')" onsubmit="packageJSON()" id="recipe-
                 <span onclick="toggle('name', 'update-name')" id="name" style="font-size: 35px" class="<% if(auth){ %>editable<% } %>"><%= recipe.name %></span>
                 <% if(auth){ %><input type="text" value="<%= recipe.name %>" name="name" style="display: none" id="update-name" required><% } %>
             </div>
+            <% if(session.admin && auth){ %>
+                <div class="PDFIgnore post-content grey-inputs small-inputs">
+                    Credit:
+                    <span id="credit" onclick="toggle('credit', 'update-credit')"><%= recipe.credit || 'N/A' %></span>
+                    <input id="update-credit" type="text" style="display: none; width: 20%" value="<%= recipe.credit %>" name="credit">
+                </div>
+            <% } %>
             <p class="PDFShow" style="display: none">
                 <% let p = recipe.price %>
                 <% if(recipe.sharingPermissions.price){ %>
