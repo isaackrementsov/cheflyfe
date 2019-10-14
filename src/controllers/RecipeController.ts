@@ -127,7 +127,7 @@ export default class RecipeController {
             let recipe : Recipe = new Recipe({
                 name: req.body.name,
                 description: req.body.descriptionOpt || 'no description',
-                serves: req.body.servesJSON,
+                serves: req.body.servesJSON || 1,
                 steps: req.body.stepsJSON,
                 filePaths: req.files['recipeUplMulti6'].map(f => f.path),
                 price: {val: req.body.priceJSON, qt: req.body.qtJSON, units: req.body.units},

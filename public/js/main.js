@@ -91,6 +91,14 @@ $('.delete-alert-ingredient').submit(function(){
     return confirm('Are you sure you want to delete this ingredient?');
 });
 
+$('.delete-alert-recipe').submit(function(){
+    return confirm('Are you sure you want to delete this recipe?');
+});
+
+$('.delete-alert-menu').submit(function(){
+    return confirm('Are you sure you want to delete this menu?');
+});
+
 function toggle(id1, id2){
     let div1 = document.getElementById(id1);
     let div2 = document.getElementById(id2);
