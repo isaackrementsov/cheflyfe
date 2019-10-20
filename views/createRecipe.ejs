@@ -98,10 +98,14 @@
                         <input type="hidden" value="[]" name="recipesRelJSON" id="subrecipe-input">
                         <input type="hidden" value="[]" name="quantitiesJSON" id="quantity-input">
                         <input type="hidden" value="[]" name="recipeQuantitiesJSON" id="recipe-quantity-input">
-                        <p class="plus-button"><button onclick="toggleArr(['add-ingredient'], ['add-ingredient-input', 'save-ingredient'])" type="button">
-                            <i class="material-icons" id="add-ingredient">add</i>
-                            <i class="material-icons" id="save-ingredient" style="display: none" onclick="addIngredient()">done</i>
-                        </button> Add ingredient</p>
+                        <p class="plus-button">
+                            <button id="add-ingredient" onclick="toggleArr(['add-ingredient'], ['add-ingredient-input', 'save-ingredient'])" type="button" class="last-child">
+                                <i class="material-icons">add</i>
+                            </button>
+                            <button style="display: none" id="save-ingredient" onclick="addIngredient()" type="button">
+                                <i class="material-icons">done</i>
+                            </button>
+                        Add ingredient</p>
                         <div id="add-ingredient-input" style="display: none" class="grey-inputs">
                             <input type="text" placeholder="Ingredient or subrecipe name" oninput="getUnits()" list="ingredient-datalist">
                             <input type="number" placeholder="# of">
@@ -111,10 +115,14 @@
                     </div>
                     <div id="add-step-container">
                         <input type="hidden" value="[]" name="stepsJSON" id="step-input">
-                        <p class="plus-button"><button onclick="toggleArr(['add-step'], ['add-step-input', 'save-step'])" type="button">
-                            <i class="material-icons" id="add-step">add</i>
-                            <i class="material-icons" id="save-step" style="display: none" onclick="addStep()">done</i>
-                        </button> Add steps</p>
+                        <p class="plus-button">
+                            <button id="add-step" onclick="toggleArr(['add-step'], ['add-step-input', 'save-step'])" type="button" class="last-child">
+                                <i class="material-icons">add</i>
+                            </button>
+                            <button style="display: none" id="save-step" onclick="addStep()" type="button">
+                                <i class="material-icons">done</i>
+                            </button>
+                        Add steps</p>
                         <textarea id="add-step-input" placeholder="Describe recipe step" style="display: none"></textarea>
                     </div>
                     <div class="grey-inputs small-inputs">

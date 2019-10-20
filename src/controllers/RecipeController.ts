@@ -5,6 +5,8 @@ import Recipe from '../entity/Recipe';
 import User from '../entity/User';
 import Middleware from '../util/Middleware';
 import Ingredient from '../entity/Ingredient';
+import * as puppeteer from 'puppeteer';
+import stream = require('stream');
 
 export default class RecipeController {
 
@@ -33,12 +35,19 @@ export default class RecipeController {
 
             if(recipe) await recipe.populateInfo();
 
+            if(recipe && recipe.author && recipe.author.recipes){
+                for(let i = 0; i < recipe.author.recipes.length; i++){
+                    await recipe.author.recipes[i].getRelations();
+                    await recipe.author.recipes[i].getFoodCost();
+                }
+            }
+
             let recipeIsSubTo = await this.recipeRepo.createQueryBuilder('recipe')
                 .leftJoinAndSelect('recipe.subRecipes', 'subRecipes')
                 .where('subRecipes.id = :recipeID', {recipeID: recipe.id})
                 .getOne();
 
-            res.render(recipe ? 'recipe' : 'notFound', {recipe, canEdit: !recipeIsSubTo, session: req.session, error: req.flash('error')});
+            res.render(recipe ? 'recipe' : 'notFound', {recipe, canEdit: !recipeIsSubTo, session: req.session, error: req.flash('error'), pdf: req.query.pdf == 'true'});
         }catch(e){
             if(!res.headersSent){
                 req.flash('error', 'There was an error getting recipe');
@@ -122,6 +131,37 @@ export default class RecipeController {
         }
     }
 
+    getPDF = async (req: Request, res: Response) => {
+        try {
+            let browser = await puppeteer.launch({headless: true});
+            let page = await browser.newPage();
+
+            await page.goto('http://localhost:3000/login', {waitUntil: 'networkidle0'});
+            await page.type('input[name=username]', req.session.username);
+            await page.type('input[name=password]', req.session.password);
+            await page.click('input[type=submit]');
+
+            await page.goto(`http://localhost:3000/recipes/${req.params.id}?pdf=true`, {waitUntil: 'networkidle0'});
+            let pdf = await page.pdf({format: 'A4'});
+
+            await browser.close();
+
+            var fileContents = Buffer.from(pdf, "base64");
+
+            var readStream = new stream.PassThrough();
+            readStream.end(fileContents);
+
+            res.set('Content-disposition', 'attachment; filename=recipe.pdf');
+            res.set('Content-Type', 'text/plain');
+
+            readStream.pipe(res);
+        }catch(e){
+            if(!res.headersSent){
+                res.send('Error getting PDF');
+            }
+        }
+    }
+
     postCreate = async (req: Request, res: Response) => {
         try {
             let recipe : Recipe = new Recipe({
@@ -194,12 +234,12 @@ export default class RecipeController {
                     if(update['recipe']){
                         toUpdate.filePaths.push(update['recipe']);
                     }else{
-                        if(!update['shareServingCost']){
-                            update['shareServingCost'] = false;
+                        if(!update['showServingCost']){
+                            update['showServingCost'] = false;
                         }
 
-                        if(!update['shareTotalCost']){
-                            update['shareTotalCost'] = false;
+                        if(!update['showTotalCost']){
+                            update['showTotalCost'] = false;
                         }
 
                         Object.assign(toUpdate, update);

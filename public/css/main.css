@@ -692,16 +692,18 @@ a.cta:hover {
     font-weight: 300;
     color: grey;
 }
-.plus-button button:last-child {
+.plus-button button:last-child, .plus-button button.last-child {
     color: #536DFE;
     border: 1px solid #536DFE;
     border-radius: 100vw;
     padding: 4px 7px !important;
     padding-top: 6px !important;
     margin-right: 10px;
+    background-color: transparent;
 }
-.plus-button button:last-child:hover {
+.plus-button button:last-child:hover, .plus-button button.last-child:hover {
     background-color: #536DFE;
+    color: white;
 }
 .step span {
     flex: 1;
@@ -757,16 +759,18 @@ a.cta:hover {
     width: 75px !important;
     height: auto !important;
 }
+
 @media print
 {
-    .no-break {
+    .no-break, .media, .step, #description {
         page-break-inside: avoid;
     }
     .bottom {
-        position: fixed;
-        height: 20px;
-        margin-top: 40px;
+        position: relative;
         bottom: 0;
+    }
+    .media-container img, .media-container {
+        height: 150px;
     }
 }
 .nutritionLabel {
@@ -1063,4 +1067,15 @@ iframe {
 
 .pointer {
     cursor: pointer !important;
+}
+.hovering-save {
+    position: fixed;
+    display: block;
+    bottom: 0;
+    background: linear-gradient(rgba(255,255,255,0), white);
+    width: 100%;
+}
+.hovering-save button, .hovering-save input[type=submit] {
+    margin-bottom: 10px !important;
+    margin-top: 40px !important;
 }

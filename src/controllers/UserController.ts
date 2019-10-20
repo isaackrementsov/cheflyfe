@@ -165,6 +165,7 @@ export default class UserController {
                 if(status == 'TRIALING') status = 'ACTIVE';
 
                 req.session.username = user.username;
+                req.session.password = user.password;
                 req.session.userID = user.id;
                 req.session.admin = user.admin;
                 req.session.avatar = user.avatar;

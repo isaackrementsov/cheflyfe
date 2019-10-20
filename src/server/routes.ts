@@ -38,6 +38,7 @@ let routes = app => {
     app.get('/menus/create', menuController.getCreate);
     app.get('/menus/public', menuController.getPublic);
     app.get('/menus/:id', menuController.getIndex);
+    app.get('/menus/pdf/:id', menuController.getPDF);
     app.get('/news', postController.getPublic);
     app.get('/news/:id', postController.getPublicIndex);
     app.get('/users/search', userController.getSearchAll)
@@ -46,6 +47,7 @@ let routes = app => {
     app.get('/recipes/create', recipeController.getCreate);
     app.get('/recipes/public', recipeController.getPublic);
     app.get('/recipes/:id', recipeController.getIndex);
+    app.get('/recipes/pdf/:id', recipeController.getPDF);
     app.get('/admin', adminController.getIndex);
     app.get('/admin/exportEmails', adminController.getExportEmails);
 

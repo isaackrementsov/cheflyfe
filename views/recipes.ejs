@@ -68,10 +68,11 @@
                     <% } %>
                 <% } %>
                 <div class="post-content">
-                    <%= recipes[i].description %>
+                    <%- recipes[i].description.substring(0, 300) %>
+                    <% if(recipes[i].description.length > 200){ %>...<% } %>
                 </div>
                 <div class="post-content media">
-                    <% for(let k = 0; k < recipes[i].filePaths.length; k++) { %>
+                    <% for(let k = 0; k < Math.min(4, recipes[i].filePaths.length); k++) { %>
                         <% let src = recipes[i].filePaths[k] %>
                         <% let path = src.split('.') %>
                         <% let ext = path[path.length - 1].toLowerCase() %>

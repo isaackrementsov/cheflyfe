@@ -7,24 +7,39 @@
     <% } %>
 </p>
 <script style="display: none">
-    function findSorted(letter, idx){
-        let first;
-        $('#posts .post-card').each(function(i){
-            let e = $(this).find('.post-header > span');
+    let alphabet = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
+    let scrolled = false;
 
-            if(e[0]){
-                e = $(e[0]);
+    function loopFind(letter, self){
+        let e = self.find('.post-header > span');
 
-                if(e.text().toLowerCase().trim()[0] == letter){
-                    let offset = $(this).offset().top - $(this).height() - 10;
-                    $('html,body').animate({scrollTop: offset}, 1000);
+        if(e[0]){
+            e = $(e[0]);
+            let lc = e.text().toLowerCase().trim()[0];
+            let d = e.parent().parent().css('display');
 
-                    return false;
-                }
+            if(lc == letter && d != 'none'){
+                scrolled = true;
+                let offset = self.offset().top - 0.5*self.height();
+                $('html,body').animate({scrollTop: offset}, 1000);
+
+                return false;
             }
-        });
+        }
+    }
+
+    function findSorted(letter, idx){
+        let hasScrolled = false;
+        let initialScroll = $('html').scrollTop();
+
+        for(let n = 0; n <= idx && !scrolled; n++){
+            $('#posts .post-card').each(function(i){
+                loopFind(alphabet[idx - n].toLowerCase(), $(this));
+            });
+        }
 
         $('#data-buttons button').attr('class', '');
         $($('#data-buttons button')[idx]).attr('class', 'active');
+        scrolled = false;
     }
 </script>

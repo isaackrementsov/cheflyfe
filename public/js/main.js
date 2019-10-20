@@ -219,3 +219,9 @@ function previewImage(input, cb){
         }
     }
 }
+
+function load(id){
+    let btn = $(`#${id}`)
+    btn.css({backgroundColor: 'lightgrey', color: '#8C9EFF'})
+    btn.text('PDF Preparing... ');
+}

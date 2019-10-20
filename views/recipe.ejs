@@ -220,7 +220,7 @@ onclick="toggleEdit('edit-recipe', '', '')" onsubmit="packageJSON()" id="recipe-
                 <% } %>
             </div>
             <h2>Export</h2>
-            <button type="button" onclick="genPDF()" style="border-radius: 5px; margin: 10px auto; padding: 10px">Get a PDF or print</button>
+            <a class="cta" style="display: inline-block; margin: 10px auto; margin-top: 0" href="/recipes/pdf/<%= recipe.id %>" id="pdf-button" onclick="load('pdf-button')" download>Get a PDF</a>
         <% } %>
     </div>
     <div class="profile-feed" id="PDFContent">
@@ -237,36 +237,37 @@ onclick="toggleEdit('edit-recipe', '', '')" onsubmit="packageJSON()" id="recipe-
                     <input id="update-credit" type="text" style="display: none; width: 20%" value="<%= recipe.credit %>" name="credit">
                 </div>
             <% } %>
-            <p class="PDFShow" style="display: none">
-                <% let p = recipe.price %>
-                <% if(recipe.sharingPermissions.price){ %>
-                    Price: <%= c %><%= p.val %> / <% if(p.qt != 1){ %><%= p.qt %> <% } %><%= p.units %>
+            <div style="margin: 10px 20px">
+                <p class="PDFShow" style="display: none">
+                    <% let p = recipe.price %>
+                    <% if(recipe.sharingPermissions.price){ %>
+                        Price: <%= c %><%= p.val %> / <% if(p.qt != 1){ %><%= p.qt %> <% } %><%= p.units %>
+                    <% } %>
+                </p>
+                <% if(recipe.sharingPermissions.misc || recipe.sharingPermissions.overhead || recipe.sharingPermissions.labor || recipe.sharingPermissions.food || recipe.sharingPermissions.profit || recipe.sharingPermissions.profitMargin){ %>
+                    <p class="PDFShow" style="display: none"><b style="color: #8C9EFF">
+                        <% let cost = recipe.costs %>
+                        Costs:
+                        <% if(recipe.sharingPermissions.misc){ %>
+                            <%= c %><%= cost.misc.toFixed(2) %> misc,
+                        <% } %>
+                        <% if(recipe.sharingPermissions.overhead){ %>
+                            <%= c %><%= cost.overhead.toFixed(2) %> overhead,
+                        <% } %>
+                        <% if(recipe.sharingPermissions.labor){ %>
+                            <%= c %><%= cost.labor.toFixed(2) %> labor,
+                        <% } %>
+                        <% if(recipe.sharingPermissions.food){ %>
+                            <%= c %><%= recipe.foodCost.toFixed(2) %> food,
+                        <% } %>
+                        <% if(recipe.sharingPermissions.profit){ %>
+                            <%= c %><%= recipe.profit.toFixed(2) %> profit,
+                        <% } %>
+                        <% if(recipe.sharingPermissions.profitMargin){ %>
+                            <%= recipe.profitMargin.toFixed(2) %>% margin
+                        <% } %>
+                    </b></p>
                 <% } %>
-            </p>
-            <% if(recipe.sharingPermissions.misc || recipe.sharingPermissions.overhead || recipe.sharingPermissions.labor || recipe.sharingPermissions.food || recipe.sharingPermissions.profit || recipe.sharingPermissions.profitMargin){ %>
-                <p class="PDFShow" style="display: none"><b style="color: #8C9EFF">
-                    <% let cost = recipe.costs %>
-                    Costs:
-                    <% if(recipe.sharingPermissions.misc){ %>
-                        <%= c %><%= cost.misc.toFixed(2) %> misc,
-                    <% } %>
-                    <% if(recipe.sharingPermissions.overhead){ %>
-                        <%= c %><%= cost.overhead.toFixed(2) %> overhead,
-                    <% } %>
-                    <% if(recipe.sharingPermissions.labor){ %>
-                        <%= c %><%= cost.labor.toFixed(2) %> labor,
-                    <% } %>
-                    <% if(recipe.sharingPermissions.food){ %>
-                        <%= c %><%= recipe.foodCost.toFixed(2) %> food,
-                    <% } %>
-                    <% if(recipe.sharingPermissions.profit){ %>
-                        <%= c %><%= recipe.profit.toFixed(2) %> profit,
-                    <% } %>
-                    <% if(recipe.sharingPermissions.profitMargin){ %>
-                        <%= recipe.profitMargin.toFixed(2) %>% margin
-                    <% } %>
-                </b></p>
-            <% } %>
                 <p class="PDFShow" style="display: none"><b style="color: #8C9EFF">
                     Portion:
                     Serves <%= recipe.serves %>
@@ -280,6 +281,7 @@ onclick="toggleEdit('edit-recipe', '', '')" onsubmit="packageJSON()" id="recipe-
                         <%= c %><%= ((recipe.price.val - (recipe.foodCost + recipe.costs.misc + recipe.costs.labor + recipe.costs.overhead)) / recipe.serves).toFixed(2) %> portion price,
                     <% } %>
                 </b></p>
+            </div>
             <div class="post-content media">
                 <input type="hidden" name="filePathsJSON" value="<%= JSON.stringify(recipe.filePaths) %>" id="file-list">
                 <input type="hidden" name="deletedMeta" id="deleted">
@@ -333,10 +335,14 @@ onclick="toggleEdit('edit-recipe', '', '')" onsubmit="packageJSON()" id="recipe-
                     <input type="hidden" value="<%= JSON.stringify(recipe.quantities) %>" name="quantitiesJSON" id="quantity-input">
                     <input type="hidden" value="<%= JSON.stringify(recipe.recipeQuantities) %>" name="recipeQuantitiesJSON" id="recipe-quantity-input">
                     <% if(auth){ %>
-                        <p class="plus-button PDFIgnore"><button onclick="toggleArr(['add-ingredient'], ['add-ingredient-input', 'save-ingredient'])" type="button">
-                            <i class="material-icons" id="add-ingredient">add</i>
-                            <i class="material-icons" id="save-ingredient" style="display: none" onclick="addIngredient()">done</i>
-                        </button> Add ingredient</p>
+                        <p class="plus-button PDFIgnore">
+                            <button id="add-ingredient" onclick="toggleArr(['add-ingredient'], ['add-ingredient-input', 'save-ingredient'])" type="button" class="last-child">
+                                <i class="material-icons">add</i>
+                            </button>
+                            <button style="display: none" id="save-ingredient" onclick="addIngredient()" type="button">
+                                <i class="material-icons">done</i>
+                            </button>
+                        Add ingredient</p>
                         <div id="add-ingredient-input" style="display: none" class="grey-inputs">
                             <input type="text" placeholder="Ingredient or subrecipe name" oninput="getUnits()" list="ingredient-datalist">
                             <input type="number" placeholder="# of">
@@ -359,13 +365,13 @@ onclick="toggleEdit('edit-recipe', '', '')" onsubmit="packageJSON()" id="recipe-
                     <% for(let i = 0; i < recipe.subRecipes.length; i++){ %>
                         <% let qt = recipe.recipeQuantities[i].qt %>
                         <% let sub = recipe.subRecipes[i] %>
-                        <% for(let key in sub){ sub.costs[key] *= qt } %>
+                        <% for(let key in sub.costs){ sub.costs[key] *= qt } %>
                         <% let total = {...sub.costs, ...{food: qt * sub.foodCost}} %>
-                        <p id="ingredient-<%= sub.id %>" class="step flex-container brigade">
+                        <p id="recipe-<%= sub.id %>" class="step flex-container brigade">
                             <span><%= recipe.recipeQuantities[i].qt %> <%= recipe.recipeQuantities[i].units %> <%= sub.name %></span>
                             <% if(auth){ %>
                                 <i class="material-icons PDFIgnore"
-                                onclick="removeIngredient(<%= sub.id %>, '<%= JSON.stringify(total) %>', '<%= sub.name %>', false)">
+                                onclick="removeIngredient(<%= sub.id %>, '<%= JSON.stringify(Object.keys(total).map(k => total[k])) %>', '<%= sub.name %>', true)">
                                     close
                                 </i>
                             <% } %>
@@ -376,10 +382,14 @@ onclick="toggleEdit('edit-recipe', '', '')" onsubmit="packageJSON()" id="recipe-
                 <div id="add-step-container">
                     <input type="hidden" value="<%= JSON.stringify(recipe.steps) %>" name="stepsJSON" id="step-input">
                     <% if(auth){ %>
-                        <p class="plus-button PDFIgnore"><button onclick="toggleArr(['add-step'], ['add-step-input', 'save-step'])" type="button">
-                            <i class="material-icons" id="add-step">add</i>
-                            <i class="material-icons" id="save-step" style="display: none" onclick="addStep()">done</i>
-                        </button> Add steps</p>
+                        <p class="plus-button PDFIgnore">
+                            <button id="add-step" onclick="toggleArr(['add-step'], ['add-step-input', 'save-step'])" type="button" class="last-child">
+                                <i class="material-icons">add</i>
+                            </button>
+                            <button style="display: none" id="save-step" onclick="addStep()" type="button">
+                                <i class="material-icons">done</i>
+                            </button>
+                        Add steps</p>
                         <textarea id="add-step-input" placeholder="Describe recipe step" style="display: none"></textarea>
                     <% } %>
                     <% for(let i = 0; i < recipe.steps.length; i++){ %>
@@ -424,10 +434,12 @@ onclick="toggleEdit('edit-recipe', '', '')" onsubmit="packageJSON()" id="recipe-
                     <% } %>
                 </div>
             </div>
-            <div class="business-info PDFShow no-break bottom" style="display: none">
-                <img src="<%= recipe.author.businessLogo %>">
-                <span><%= recipe.author.businessText %></span>
-            </div>
+            <% if(recipe.author.businessText || recipe.author.businessLogo){ %>
+                <div class="business-info PDFShow no-break bottom" style="display: none">
+                    <% if(recipe.author.businessLogo){ %><img src="<%= recipe.author.businessLogo %>"><% } %>
+                    <% if(recipe.author.businessText){ %><span><%= recipe.author.businessText %></span><% } %>
+                </div>
+            <% } %>
             <% if(auth){ %>
                 <% if(recipe.menus.length == 0 && canEdit){ %>
                     <div class="post-content PDFIgnore">
@@ -435,7 +447,7 @@ onclick="toggleEdit('edit-recipe', '', '')" onsubmit="packageJSON()" id="recipe-
                     </div>
                 <% } %>
                 <div class="post-content PDFIgnore">
-                    <span id="edit-recipe" style="display: none">
+                    <span id="edit-recipe" class="hovering-save" style="display: none">
                         <input type="submit" class="cta" value="Save">
                         <button type="button" onclick="cancelEdit()">Cancel</button>
                     </span>
@@ -491,5 +503,20 @@ onclick="toggleEdit('edit-recipe', '', '')" onsubmit="packageJSON()" id="recipe-
         priceInput.setAttribute('value', JSON.stringify(prices));
     }
 </script>
-<% include partials/js/genPDF %>
+<% if(pdf){ %>
+    <script>
+        function preparePDF(){
+            $('body > *').not('#content').hide();
+            $('#content > *').not('.add-recipe').hide();
+            $('.add-recipe > *').not('#PDFContent').hide();
+
+            $('.PDFShow').show();
+            $('.PDFIgnore').hide();
+
+            $('#content').css('padding', 0);
+        }
+
+        preparePDF();
+    </script>
+<% } %>
 <% include partials/footer %>

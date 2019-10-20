@@ -226,6 +226,7 @@ export default class IngredientController {
                             }
 
                             let purchases : PurchaseRecord[] = [];
+                            
                             if(row.Purchase_records){
                                 let p = row.Purchase_records.split(',');
 

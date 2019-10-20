@@ -4,10 +4,15 @@
 <% if(recipe.nutritionalInfo){ %>
     <script>
         <% let s = recipe.serves %>
+        <% let ingredients = recipe.ingredients.map(i => i.name); %>
+        <% let subIngredients = recipe.subRecipeIngredients.map(i => i.name) %>
+        <% for(ing of subIngredients){
+            if(ingredients.indexOf(ing) == -1) ingredients.push(ing);
+         } %>
         $('#nutrition-label').nutritionLabel({
             showServingUnitQuantity: true,
             itemName: '<%= recipe.name %>',
-            ingredientList : <%- JSON.stringify(recipe.ingredients.map(i => i.name).concat(recipe.subRecipeIngredients)) %>,
+            ingredientList : <%- JSON.stringify(ingredients) %>,
             showDisclaimer: true,
             valueDisclaimer: 'Contains <%- recipe.allergens %>',
 

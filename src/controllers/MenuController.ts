@@ -6,6 +6,8 @@ import Ingredient from '../entity/Ingredient';
 import Menu from '../entity/Menu';
 import User from '../entity/User';
 import Middleware from '../util/Middleware';
+import * as puppeteer from 'puppeteer';
+import stream = require('stream');
 
 /*TODO:
     * add basic views
@@ -43,7 +45,7 @@ export default class MenuController {
                 await menu.getAllAllergens();
             }
 
-            res.render(menu ? 'menu' : 'notFound', {menu: menu, session: req.session, error: req.flash('error')});
+            res.render(menu ? 'menu' : 'notFound', {menu: menu, session: req.session, error: req.flash('error'), pdf: req.query.pdf == 'true'});
         }catch(e){
             if(!res.headersSent){
                 req.flash('error', 'Error getting menu');
@@ -118,6 +120,37 @@ export default class MenuController {
             if(!res.headersSent){
                 req.flash('error', 'Error loading data for menu creation');
                 res.redirect('/menus');
+            }
+        }
+    }
+
+    getPDF = async (req: Request, res: Response) => {
+        try {
+            let browser = await puppeteer.launch({headless: true});
+            let page = await browser.newPage();
+
+            await page.goto('http://localhost:3000/login', {waitUntil: 'networkidle0'});
+            await page.type('input[name=username]', req.session.username);
+            await page.type('input[name=password]', req.session.password);
+            await page.click('input[type=submit]');
+
+            await page.goto(`http://localhost:3000/menus/${req.params.id}?pdf=true`, {waitUntil: 'networkidle0'});
+            let pdf = await page.pdf({format: 'A4'});
+
+            await browser.close();
+
+            var fileContents = Buffer.from(pdf, "base64");
+
+            var readStream = new stream.PassThrough();
+            readStream.end(fileContents);
+
+            res.set('Content-disposition', 'attachment; filename=menu.pdf');
+            res.set('Content-Type', 'text/plain');
+
+            readStream.pipe(res);
+        }catch(e){
+            if(!res.headersSent){
+                res.send('Error getting PDF');
             }
         }
     }

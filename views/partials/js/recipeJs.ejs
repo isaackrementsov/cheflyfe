@@ -30,7 +30,7 @@
     let factors = <%= JSON.stringify(user.ingredients.map(i => [i.price.qt].concat(i.conversions.map(c => c.qt)))) %>;
     let recipeIds = <%= JSON.stringify(user.recipes.map(r => r.id)) %>;
     let recipeNames = <%- JSON.stringify(user.recipes.map(r => r.name + ' (recipe)')) %>;
-    let recipePrices = <%- JSON.stringify(user.recipes.map(r => {return {...r.costs, ...{food: r.foodCost}}})) %>;
+    let recipePrices = <%- JSON.stringify(user.recipes.map(r => {return {...r.costs, ...{food: r.foodCost || 0}}})) %>;
     let recipeUnits =  <%- JSON.stringify(user.recipes.map(r => [r.price.units])) %>;
     let userIds = <%= JSON.stringify(user.brigade.map(u => u.id)) %>;
     let users = <%- JSON.stringify(user.brigade.map(u => u.username)) %>;

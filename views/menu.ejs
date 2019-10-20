@@ -82,7 +82,7 @@ onclick="toggleEdit('menu-edit')" onsubmit="packageJSON()" id="menu-update-form"
                 <% if(menu.sharingPermissions.allergens){ %>checked<% } %>><span class="slider"></span></label>
             </div>
             <h2>Export</h2>
-            <button type="button" onclick="genPDF()" style="border-radius: 5px; margin: 10px auto; padding: 10px">Get a PDF or print</button>
+            <a class="cta" style="display: inline-block; margin: 10px auto; margin-top: 0" href="/menus/pdf/<%= menu.id %>" onclick="load('pdf-button')" id="pdf-button" download>Get a PDF</a>
         <% }else{ %>
             <h3>Settings are not accessible to you</h3>
         <% } %>
@@ -105,7 +105,8 @@ onclick="toggleEdit('menu-edit')" onsubmit="packageJSON()" id="menu-update-form"
                             </div>
                         <% } %>
                     </div>
-                    <span style="vertical-align: middle; display: inline"  onclick="toggle('name', 'update-name')" id="name"  style="font-size: 35px"><%= menu.name %></span>
+                    <span style="vertical-align: middle; display: inline"  onclick="toggle('name', 'update-name')" id="name"  style="font-size: 35px"
+                        class="<% if(auth){ %>editable<% } %>"><%= menu.name %></span>
                 </div>
                 <% if(auth){ %>
                     <input type="text" placeholder="Title" value="<%= menu.name %>" name="name" id="update-name" style="display: none; flex: 1; margin-left: 5px" required>
@@ -126,10 +127,14 @@ onclick="toggleEdit('menu-edit')" onsubmit="packageJSON()" id="menu-update-form"
                     <input type="hidden" value="<%= JSON.stringify(menu.recipes.map(r => r.id)) %>" name="recipesRelJSON" id="recipe-input">
                     <h3>Recipes</h3>
                     <% if(auth){ %>
-                        <p class="plus-button PDFIgnore"><button onclick="toggleArr(['add-recipe'], ['add-recipe-input', 'save-recipe'])" type="button">
-                            <i class="material-icons" id="add-recipe">add</i>
-                            <i class="material-icons" id="save-recipe" style="display: none" onclick="addRecipe()">done</i>
-                        </button> Add Recipes</p>
+                        <p class="plus-button PDFIgnore">
+                            <button id="add-recipe" onclick="toggleArr(['add-recipe'], ['add-recipe-input', 'save-recipe'])" type="button" class="last-child">
+                                <i class="material-icons">add</i>
+                            </button>
+                            <button style="display: none" id="save-recipe" onclick="addRecipe()" type="button">
+                                <i class="material-icons">done</i>
+                            </button>
+                        Add Recipes</p>
                         <div id="add-recipe-input" style="display: none" class="grey-inputs">
                             <input type="text" placeholder="Recipe name" list="recipe-datalist" id="add-recipe-input-text" style="width: 300px">
                         </div>
@@ -144,11 +149,22 @@ onclick="toggleEdit('menu-edit')" onsubmit="packageJSON()" id="menu-update-form"
                                     <% let ext = path[path.length - 1].toLowerCase() %>
                                     <% if(ext == 'png' || ext == 'jpg' || ext == 'bmp' || ext == 'svg' || ext == 'jpeg'){ %>
                                         <% found = src %>
+                                        <% break; %>
                                     <% } %>
                                 <% } %>
                                 <% if(found){ %><img class="recipe-img" src="<%= found %>"><% } %>
                                 <div style="flex: 1">
                                     <b><%= menu.recipes[i].name %></b><br style="height: 20px">
+                                    <% if((auth || menu.sharingPermissions.allergens) && menu.recipes[i].allergens.length > 0){ %>
+                                        <div class="allergens flex-container <% if(!menu.sharingPermissions.allergens){ %>PDFIgnore<% } %>" style="margin: 10px 0">
+                                            <% for(let j = 0; j < menu.recipes[i].allergens.length; j++){ %>
+                                                <span class="allergen" style="flex-grow: 0; flex-basis: auto">
+                                                    <i class="material-icons">warning</i>
+                                                    <%= menu.recipes[i].allergens[j] %>
+                                                </span>
+                                            <% } %>
+                                        </div>
+                                    <% } %>
                                     <p style="margin: 5px 0">
                                         <%= menu.recipes[i].description %><br>
                                     </p>
@@ -183,9 +199,10 @@ onclick="toggleEdit('menu-edit')" onsubmit="packageJSON()" id="menu-update-form"
                                     </b>
                                 </div>
                             </div>
-                            <div>
+                            <div class="<% if(!menu.sharingPermissions.price){ %>PDFIgnore<% } %>">
                                 <% let p = menu.recipes[i].price %>
                                 <% if(auth || menu.sharingPermissions.price){ %>
+                                    <b style="padding: 10px 0; display: inline-block">Prices:</b><br>
                                     <%= c %><%= p.val %>/<% if(p.qt != 1){ %><%= p.qt %> <% } %><%= p.units %><br>
                                     <%= c %><%= p.val/menu.recipes[i].serves %>/Serving<br>
                                 <% } %>
@@ -219,7 +236,7 @@ onclick="toggleEdit('menu-edit')" onsubmit="packageJSON()" id="menu-update-form"
                     <button type="button" onclick="submitForm('delete-form')"><i class="material-icons" style="vertical-align: -1px">delete</i> Delete menu</button>
                 </div>
                 <div class="post-content" class="PDFIgnore">
-                    <span id="menu-edit" style="display: none">
+                    <span id="menu-edit" class="hovering-save" style="display: none">
                         <input type="submit" class="cta" value="Save">
                         <button type="button" onclick="cancelEdit()">Cancel</button>
                     </span>
@@ -258,5 +275,20 @@ onclick="toggleEdit('menu-edit')" onsubmit="packageJSON()" id="menu-update-form"
 </script>
 <% let user = menu.author %>
 <% include partials/js/menuJs %>
-<% include partials/js/genPDF %>
+<% if(pdf){ %>
+    <script>
+        function preparePDF(){
+            $('body > *').not('#content').hide();
+            $('#content > *').not('.add-recipe').hide();
+            $('.add-recipe > *').not('#PDFContent').hide();
+
+            $('.PDFShow').show();
+            $('.PDFIgnore').hide();
+
+            $('#content').css('padding', 0);
+        }
+
+        preparePDF();
+    </script>
+<% } %>
 <% include partials/footer %>

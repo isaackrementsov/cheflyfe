@@ -70,10 +70,14 @@
                 <div class="post-content">
                     <div id="add-recipe-container">
                         <input type="hidden" value="[]" name="recipesRelJSON" id="recipe-input">
-                        <p class="plus-button"><button onclick="toggleArr(['add-recipe'], ['add-recipe-input', 'save-recipe'])" type="button">
-                            <i class="material-icons" id="add-recipe">add</i>
-                            <i class="material-icons" id="save-recipe" style="display: none" onclick="addRecipe()">done</i>
-                        </button> Add Recipes</p>
+                        <p class="plus-button">
+                            <button id="add-recipe" onclick="toggleArr(['add-recipe'], ['add-recipe-input', 'save-recipe'])" type="button" class="last-child">
+                                <i class="material-icons">add</i>
+                            </button>
+                            <button style="display: none" id="save-recipe" onclick="addRecipe()" type="button">
+                                <i class="material-icons">done</i>
+                            </button>
+                        Add Recipes</p>
                         <div id="add-recipe-input" style="display: none" class="grey-inputs">
                             <input type="text" placeholder="Recipe name" list="recipe-datalist" id="add-recipe-input-text" style="width: 300px">
                         </div>
