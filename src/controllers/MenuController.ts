@@ -126,7 +126,7 @@ export default class MenuController {
 
     getPDF = async (req: Request, res: Response) => {
         try {
-            let browser = await puppeteer.launch({headless: true});
+            let browser = await puppeteer.launch({headless: true, args: ['--no-sandbox', '--disable-setuid-sandbox']});
             let page = await browser.newPage();
 
             await page.goto('http://localhost:3000/login', {waitUntil: 'networkidle0'});
