@@ -133,6 +133,7 @@ export default class RecipeController {
 
     getPDF = async (req: Request, res: Response) => {
         try {
+            let host = req.headers.host;
             let browser = await puppeteer.launch({headless: true});
             let page = await browser.newPage();
 
@@ -141,7 +142,7 @@ export default class RecipeController {
             await page.type('input[name=password]', req.session.password);
             await page.click('input[type=submit]');
 
-            await page.goto(`http://localhost:3000/recipes/${req.params.id}?pdf=true`, {waitUntil: 'networkidle0'});
+            await page.goto(`http${host.indexOf('localhost') == -1 ? 's' : ''}://${host}/recipes/${req.params.id}?pdf=true`, {waitUntil: 'networkidle0'});
             let pdf = await page.pdf({format: 'A4'});
 
             await browser.close();
