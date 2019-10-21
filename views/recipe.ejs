@@ -278,7 +278,7 @@ onclick="toggleEdit('edit-recipe', '', '')" onsubmit="packageJSON()" id="recipe-
                         <%= c %><%= (recipe.price.val / recipe.serves).toFixed(2) %> portion price,
                     <% } %>
                     <% if(recipe.showPortionProfit){ %>
-                        <%= c %><%= ((recipe.price.val - (recipe.foodCost + recipe.costs.misc + recipe.costs.labor + recipe.costs.overhead)) / recipe.serves).toFixed(2) %> portion price,
+                        <%= c %><%= ((recipe.price.val - (recipe.foodCost + recipe.costs.misc + recipe.costs.labor + recipe.costs.overhead)) / recipe.serves).toFixed(2) %> portion profit,
                     <% } %>
                 </b></p>
             </div>
