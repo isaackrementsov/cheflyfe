@@ -244,7 +244,6 @@ export default class RecipeController {
 
                         Object.assign(toUpdate, update);
 
-                        //TODO: Work on deleting with shared recipes
                         if(req.body.deletedMeta != '' && req.body.deletedMeta){
                             try{
                                 let matched = this.recipeRepo.createQueryBuilder()
@@ -296,6 +295,7 @@ export default class RecipeController {
                 await recipeSearcher.transferRecipe(toTransfer);
             }
         }catch(e){
+            console.log(e);
             req.flash('error', 'There was an error transferring recipe');
         }
 

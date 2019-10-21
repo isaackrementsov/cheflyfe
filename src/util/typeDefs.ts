@@ -29,11 +29,12 @@ export class RecipeSearcher {
     }
 
     private getIndexContains(arr: string[], arr2 : string[], units: string) : number {
-        console.log(arr2, units);
         return arr.indexOf(arr2.find(this.createPredicate(units)));
     }
 
-    private convertSystem(system: string, price) : any {
+    convertSystem(price) : any {
+        let system = this.author.system;
+
         if(system == 'imperial'){
             let mU = metricUnits.indexOf(price.units.trim().toLowerCase());
 
@@ -53,6 +54,26 @@ export class RecipeSearcher {
         return price;
     }
 
+    getUnits(price) : string {
+        let system = this.author.system;
+
+        if(system == 'imperial'){
+            let mU = metricUnits.indexOf(price.units.trim().toLowerCase());
+
+            if(mU != -1){
+                return price.units.replace(metricUnits[mU], imperialUnits[mU]);
+            }
+        }else{
+            let iU = imperialUnits.indexOf(price.units.trim().toLowerCase());
+
+            if(iU != -1){
+                return price.units.replace(imperialUnits[iU], metricUnits[iU]);
+            }
+        }
+
+        return '';
+    }
+
     async transferRecipe(pop: Recipe) : Promise<Recipe> {
         let ingredients = pop.ingredients;
         let quantities = pop.quantities;
@@ -61,9 +82,9 @@ export class RecipeSearcher {
 
         pop.from = pop.id;
         delete pop['id'];
-        pop.credit = pop.author.username;
+        pop.credit = pop.author ? pop.author.username : null;
         pop.author = this.author;
-        pop.price = this.convertSystem(this.author.system, pop.price);
+        pop.price = this.convertSystem(pop.price);
         pop.timestamp = new Date();
         pop.ingredients = [];
         pop.quantities = [];
@@ -74,7 +95,7 @@ export class RecipeSearcher {
 
         pop = await this.recipeRepo.save(pop);
 
-        for(let i = 0; i < ingredients.length; i++){ //TODO: prevent subrecipe deletion
+        for(let i = 0; i < ingredients.length; i++){
             let ingredient = ingredients[i];
             let matched : Ingredient[] = await this.ingredientRepo.createQueryBuilder('ingredient')
                 .leftJoinAndSelect('ingredient.author', 'author')
@@ -84,7 +105,7 @@ export class RecipeSearcher {
             let final : Ingredient;
 
             for(let ing of matched){
-                if(ing.price.units == ingredient.price.units && ingredient.conversions.filter(c => ing.conversions.indexOf(c) == -1).length == 0){
+                if(ing.price.units == this.getUnits(ingredient.price)){
                     final = ing;
                     break;
                 }
@@ -97,9 +118,9 @@ export class RecipeSearcher {
 
                 delete ingredient['id'];
                 ingredient.author = this.author;
-                ingredient.price = this.convertSystem(this.author.system, ingredient.price);
+                ingredient.price = this.convertSystem(ingredient.price);
                 ingredient.conversions = ingredient.conversions.map(c => {
-                    return this.convertSystem(this.author.system, c);
+                    return this.convertSystem(c);
                 });
 
                 if(ingredient.nutritionalInfo){
@@ -109,7 +130,7 @@ export class RecipeSearcher {
                 pop.ingredients.push(await this.ingredientRepo.save(ingredient));
             }
 
-            pop.quantities.push(this.convertSystem(this.author.system, quantities[i]));
+            pop.quantities.push(this.convertSystem(quantities[i]));
         }
 
         if(subs){
@@ -117,20 +138,20 @@ export class RecipeSearcher {
                 let sub = subs[i];
                 let matched : Recipe[] = await this.recipeRepo.createQueryBuilder('recipe')
                     .leftJoinAndSelect('recipe.author', 'author')
-                    .where('author.id = :userID AND recipe.name = :name', {userID: this.author.id, name: sub.name})
+                    .where('author.id = :userID AND (recipe.name = :name or recipe.from = :subID)', {userID: this.author.id, name: sub.name, subID: sub.id})
                     .getMany();
 
                 let final : Recipe;
 
                 for(let rec of matched){
-                    if(rec.price.units == sub.price.units){
+                    if(rec.price.units == this.getUnits(sub.price)){
                         final = rec;
                         break;
                     }
                 }
 
                 if(final){
-                    pop.subRecipes.push(sub);
+                    pop.subRecipes.push(final);
                 }else{
                     sub = await this.recipeRepo.createQueryBuilder('recipe')
                         .leftJoinAndSelect('recipe.ingredients', 'ingredients')
@@ -142,7 +163,7 @@ export class RecipeSearcher {
                     pop.subRecipes.push(await this.transferRecipe(sub));
                 }
 
-                pop.recipeQuantities.push(this.convertSystem(this.author.system, recipeQuantities[i]));
+                pop.recipeQuantities.push(this.convertSystem(recipeQuantities[i]));
             }
         }
 

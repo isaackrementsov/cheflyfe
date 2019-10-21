@@ -84,7 +84,7 @@ onclick="toggleEdit('menu-edit')" onsubmit="packageJSON()" id="menu-update-form"
             <h2>Export</h2>
             <a class="cta" style="display: inline-block; margin: 10px auto; margin-top: 0" href="/menus/pdf/<%= menu.id %>" onclick="load('pdf-button')" id="pdf-button" download>Get a PDF</a>
         <% }else{ %>
-            <h3>Settings are not accessible to you</h3>
+            <h3 style="text-align: center">Created by <%= menu.author.username %></h3>
         <% } %>
     </div>
     <div class="profile-feed" id="PDFContent">
@@ -172,27 +172,27 @@ onclick="toggleEdit('menu-edit')" onsubmit="packageJSON()" id="menu-update-form"
                                     <b style="font-size: 13px; color: #8C9EFF">
                                         <% let total = (menu.recipes[i].foodCost + cost.misc + cost.labor + cost.overhead) %>
                                         <% if(auth || menu.sharingPermissions.misc){ %>
-                                            <span class="<% if(!menu.sharingPermissions.misc){ %>PDFIgnore<% } %>"><%= c %><%= cost.misc %> misc, </span>
+                                            <span class="<% if(!menu.sharingPermissions.misc){ %>PDFIgnore<% } %>"><%= c %><%= cost.misc.toFixed(2) %> misc, </span>
                                         <% } %>
                                         <% if(auth || menu.sharingPermissions.overhead){ %>
-                                            <span class="<% if(!menu.sharingPermissions.overhead){ %>PDFIgnore<% } %>"><%= c %><%= cost.overhead %> overhead, </span>
+                                            <span class="<% if(!menu.sharingPermissions.overhead){ %>PDFIgnore<% } %>"><%= c %><%= cost.overhead.toFixed(2) %> overhead, </span>
                                         <% } %>
                                         <% if(auth || menu.sharingPermissions.labor){ %>
-                                            <span class="<% if(!menu.sharingPermissions.labor){ %>PDFIgnore<% } %>"><%= c %><%= cost.labor %> labor, </span>
+                                            <span class="<% if(!menu.sharingPermissions.labor){ %>PDFIgnore<% } %>"><%= c %><%= cost.labor.toFixed(2) %> labor, </span>
                                         <% } %>
                                         <% if(auth || menu.sharingPermissions.food){ %>
-                                            <span class="<% if(!menu.sharingPermissions.food){ %>PDFIgnore<% } %>"><%= c %><%= menu.recipes[i].foodCost %> food, </span>
+                                            <span class="<% if(!menu.sharingPermissions.food){ %>PDFIgnore<% } %>"><%= c %><%= menu.recipes[i].foodCost.toFixed(2) %> food, </span>
                                         <% } %>
                                         <% if(auth || menu.sharingPermissions.profit){ %>
-                                            <span class="<% if(!menu.sharingPermissions.profit){ %>PDFIgnore<% } %>"><%= c %><%= menu.recipes[i].profit %> profit, </span>
+                                            <span class="<% if(!menu.sharingPermissions.profit){ %>PDFIgnore<% } %>"><%= c %><%= menu.recipes[i].profit.toFixed(2) %> profit, </span>
                                         <% } %>
                                         <% if(auth || menu.sharingPermissions.profitMargin){ %>
-                                            <span class="<% if(!menu.sharingPermissions.profitMargin){ %>PDFIgnore<% } %>"><%= menu.recipes[i].profitMargin %>% margin</span>
+                                            <span class="<% if(!menu.sharingPermissions.profitMargin){ %>PDFIgnore<% } %>"><%= menu.recipes[i].profitMargin.toFixed(2) %>% margin</span>
                                         <% } %>
                                         <br>
                                         <% if(auth || menu.sharingPermissions.price){ %>
                                             <span class="<% if(!menu.sharingPermissions.price){ %>PDFIgnore<% } %>">
-                                                <%= c %><%= total / menu.recipes[i].serves %> Portion cost,
+                                                <%= c %><%= (total / menu.recipes[i].serves).toFixed(2) %> Portion cost,
                                             </span>
                                         <% } %>
                                         <span>Serves <%= menu.recipes[i].serves %></span>

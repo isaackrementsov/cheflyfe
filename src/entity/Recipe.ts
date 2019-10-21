@@ -105,7 +105,7 @@ export default class Recipe {
 
         for(let i = 0; i < this.ingredients.length; i++){
             let ingredient = this.ingredients[i];
-
+            
             sum += ingredient.price.val * ingredient.unitConvert(this.quantities[i]) / (1 - ingredient.wastage/100);
         }
 
@@ -115,7 +115,7 @@ export default class Recipe {
             await subRecipe.getRelations();
             await subRecipe.getFoodCost();
 
-            sum += this.recipeQuantities[i].qt * subRecipe.foodCost;
+            sum += this.recipeQuantities[i].qt * subRecipe.foodCost / subRecipe.price.qt;
         }
 
         this.foodCost = money(sum);

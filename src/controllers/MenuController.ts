@@ -197,11 +197,18 @@ export default class MenuController {
                 .getOne();
 
             if(toUpdate){
-                /*if(update['logo'] != toUpdate.logo){
-                    try{
-                        await unlink(toUpdate.logo);
+                if(update['logo'] != toUpdate.logo){
+                    try {
+                        let matched = this.menuRepo.createQueryBuilder()
+                            .select()
+                            .where('filePaths LIKE :fileName', {fileName: `%${toUpdate.logo}%`})
+                            .getOne();
+
+                        if(!matched){
+                            await unlink(__dirname + '../../../public' + toUpdate.logo);
+                        }
                     }catch(e){ }
-                }*/
+                }
 
                 Object.assign(toUpdate, update);
 
@@ -218,7 +225,7 @@ export default class MenuController {
     putTransfer = async (req: Request, res: Response) => {
         try {
             let toTransfer : Menu = await this.menuRepo.findOne(parseInt(req.params.id), {
-                relations: ['recipes', 'recipes.ingredients', 'recipes.ingredients.nutritionalInfo']
+                relations: ['recipes', 'recipes.ingredients', 'recipes.ingredients.nutritionalInfo', 'recipes.author', 'recipes.subRecipes']
             });
 
             if(toTransfer){
@@ -238,13 +245,13 @@ export default class MenuController {
                 for(let recipe of temp){
                     let matched : Recipe[] = await this.recipeRepo.createQueryBuilder('recipe')
                         .leftJoinAndSelect('recipe.author', 'author')
-                        .where('author.id = :userID AND recipe.name = :name', {userID: recipeSearcher.author.id, name: recipe.name})
+                        .where('author.id = :userID AND (recipe.name = :name OR recipe.from = :id)', {userID: recipeSearcher.author.id, name: recipe.name, id: recipe.id})
                         .getMany();
 
                     let final : Recipe;
 
                     for(let rec of matched){
-                        if(rec.price.units == recipe.price.units){
+                        if(recipeSearcher.getUnits(recipe.price) == rec.price.units){
                             final = rec;
                             break;
                         }

@@ -402,7 +402,7 @@
             $('#yield').text(parts.join(' '));
 
             $('.step').each(function(i){
-                if($(this).attr('id').indexOf('ingredient') != -1){
+                if($(this).attr('id').indexOf('ingredient') != -1 || $(this).attr('id').indexOf('recipe') != -1){
                     let ingParts = $(this).text().split(' ');
 
                     let k = 0;
