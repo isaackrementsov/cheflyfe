@@ -154,8 +154,10 @@ export default class RecipeController {
             var readStream = new stream.PassThrough();
             readStream.end(fileContents);
 
-            res.set('Content-disposition', 'attachment; filename=recipe.pdf');
+            res.set('Content-disposition', `attachment; filename=${req.query.name}.pdf`);
             res.set('Content-Type', 'text/plain');
+
+            res.cookie('doneWithFile', req.query.token);
 
             readStream.pipe(res);
         }catch(e){

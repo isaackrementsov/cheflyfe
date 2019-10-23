@@ -1,5 +1,6 @@
 let navbar = document.getElementById('navbar');
 let content = document.getElementById('content');
+let loaded = false;
 
 Array.prototype.pushToIndex = function(val, i){
     this.splice(i, 0, val);
@@ -125,12 +126,14 @@ function openDiv(id, display){
 }
 
 function toggleEdit(editId, id1, id2, display){
-    if(id1 && id2){
-        toggle(id1, id2);
-    }
+    if(!loaded){
+        if(id1 && id2){
+            toggle(id1, id2);
+        }
 
-    let edit = document.getElementById(editId);
-    edit.style.display = display || 'block';
+        let edit = document.getElementById(editId);
+        edit.style.display = display || 'block';
+    }
 }
 
 function cancelEdit(){
@@ -220,8 +223,21 @@ function previewImage(input, cb){
     }
 }
 
-function load(id){
-    let btn = $(`#${id}`)
+function load(id, token){
+    loaded = true;
+    let btn = $(`#${id}`);
     btn.css({backgroundColor: 'lightgrey', color: '#8C9EFF'})
     btn.text('PDF Preparing... ');
+
+    let intervalId = setInterval(() => {
+        let cookieParts = document.cookie.split('doneWithFile=');
+
+        if(cookieParts.length >= 2){
+            if(cookieParts[1] == token){
+                btn.text('Get a PDF');
+                loaded = false;
+                clearInterval(intervalId);
+            }
+        }
+    }, 1000);
 }

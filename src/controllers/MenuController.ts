@@ -147,8 +147,10 @@ export default class MenuController {
             var readStream = new stream.PassThrough();
             readStream.end(fileContents);
 
-            res.set('Content-disposition', 'attachment; filename=menu.pdf');
+            res.set('Content-disposition', `attachment; filename=${req.query.name}.pdf`);
             res.set('Content-Type', 'text/plain');
+
+            res.cookie('doneWithFile', req.query.token);
 
             readStream.pipe(res);
         }catch(e){

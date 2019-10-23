@@ -220,7 +220,10 @@ onclick="toggleEdit('edit-recipe', '', '')" onsubmit="packageJSON()" id="recipe-
                 <% } %>
             </div>
             <h2>Export</h2>
-            <a class="cta" style="display: inline-block; margin: 10px auto; margin-top: 0" href="/recipes/pdf/<%= recipe.id %>" id="pdf-button" onclick="load('pdf-button')" download>Get a PDF</a>
+            <% let token = 10*Math.random() + 'file' + 10*Math.random() %>
+            <a class="cta" style="display: inline-block; margin: 10px auto; margin-top: 0"
+                href="/recipes/pdf/<%= recipe.id %>?name=<%= recipe.name %>&token=<%= token %>" 
+                id="pdf-button" onclick="load('pdf-button', '<%= token %>')" download>Get a PDF</a>
         <% } %>
     </div>
     <div class="profile-feed" id="PDFContent">

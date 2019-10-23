@@ -82,7 +82,10 @@ onclick="toggleEdit('menu-edit')" onsubmit="packageJSON()" id="menu-update-form"
                 <% if(menu.sharingPermissions.allergens){ %>checked<% } %>><span class="slider"></span></label>
             </div>
             <h2>Export</h2>
-            <a class="cta" style="display: inline-block; margin: 10px auto; margin-top: 0" href="/menus/pdf/<%= menu.id %>" onclick="load('pdf-button')" id="pdf-button" download>Get a PDF</a>
+            <% let token = 10*Math.random() + 'file' + 10*Math.random() %>
+            <a class="cta" style="display: inline-block; margin: 10px auto; margin-top: 0"
+                href="/menus/pdf/<%= menu.id %>?name=<%= menu.name %>&token=<%= token %>" 
+                onclick="load('pdf-button', '<%= token %>')" id="pdf-button" download>Get a PDF</a>
         <% }else{ %>
             <h3 style="text-align: center">Created by <%= menu.author.username %></h3>
         <% } %>
