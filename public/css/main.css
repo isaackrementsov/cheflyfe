@@ -986,6 +986,7 @@ iframe {
     color: grey;
     font-size: 22px;
     font-weight: 300;
+    min-height: 60px;
 }
 .payment .post-card .post-content p:nth-child(3) {
     color: grey;
