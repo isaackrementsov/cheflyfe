@@ -84,7 +84,7 @@ onclick="toggleEdit('menu-edit')" onsubmit="packageJSON()" id="menu-update-form"
             <h2>Export</h2>
             <% let token = 10*Math.random() + 'file' + 10*Math.random() %>
             <a class="cta" style="display: inline-block; margin: 10px auto; margin-top: 0"
-                href="/menus/pdf/<%= menu.id %>?name=<%= menu.name %>&token=<%= token %>" 
+                href="/menus/pdf/<%= menu.id %>?name=<%= menu.name %>&token=<%= token %>"
                 onclick="load('pdf-button', '<%= token %>')" id="pdf-button" download>Get a PDF</a>
         <% }else{ %>
             <h3 style="text-align: center">Created by <%= menu.author.username %></h3>
@@ -206,8 +206,8 @@ onclick="toggleEdit('menu-edit')" onsubmit="packageJSON()" id="menu-update-form"
                                 <% let p = menu.recipes[i].price %>
                                 <% if(auth || menu.sharingPermissions.price){ %>
                                     <b style="padding: 10px 0; display: inline-block">Prices:</b><br>
-                                    <%= c %><%= p.val %>/<% if(p.qt != 1){ %><%= p.qt %> <% } %><%= p.units %><br>
-                                    <%= c %><%= p.val/menu.recipes[i].serves %>/Serving<br>
+                                    <%= c %><%= p.val.toFixed(2) %>/<% if(p.qt != 1){ %><%= p.qt %> <% } %><%= p.units %><br>
+                                    <%= c %><%= (p.val/menu.recipes[i].serves).toFixed(2) %>/Serving<br>
                                 <% } %>
                                 <% if(auth){ %>
                                     <i class="material-icons PDFIgnore" onclick="removeRecipe(<%= menu.recipes[i].id %>, '<%= menu.recipes[i].name %>')" style="cursor: pointer">close</i>
