@@ -105,8 +105,8 @@ export default class RecipeController {
         }
 
         res.render('recipes', {recipes: recipes.sort((a, b) => {
-            if(a.name < b.name) { return -1; }
-            if(a.name > b.name) { return 1; }
+            if(a.name < b.name) { return 1; }
+            if(a.name > b.name) { return -1; }
             return 0;
         }), session: req.session, public: true, error: req.flash('error')});
     }

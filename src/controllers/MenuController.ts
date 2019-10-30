@@ -74,7 +74,11 @@ export default class MenuController {
             req.flash('error', 'Error getting menus');
         }
 
-        res.render('menus', {menus: menus, session: req.session, error: req.flash('error')});
+        res.render('menus', {menus: menus.sort((a, b) => {
+            if(a.name < b.name) { return -1; }
+            if(a.name > b.name) { return 1; }
+            return 0;
+        }), session: req.session, error: req.flash('error')});
     }
 
     getPublic = async (req: Request, res: Response) => {
