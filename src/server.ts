@@ -29,7 +29,7 @@ createConnection().then(async connection => {
         res.status(404);
 
         if(req.accepts('html')){
-            res.render('notFsjndound', {session: req.session, error: req.flash('error')});
+            res.render('notFound', {session: req.session, error: req.flash('error')});
         }else if(req.accepts('json')){
             res.send({error: 'Not found'});
         }else{
