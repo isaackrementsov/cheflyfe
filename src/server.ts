@@ -1,4 +1,5 @@
 import { createConnection } from 'typeorm';
+import { Request, Response } from 'express';
 import app from './app';
 import routes from './server/routes';
 
@@ -16,6 +17,19 @@ createConnection().then(async connection => {
     app.use(middleware.checkBody);
     app.use(middleware.checkParams);
     app.use(middleware.errorHandler);
+
+    app.use((req: Request, res: Response) => {
+        res.status(404);
+
+        if(req.accepts('html')){
+            res.render('notFound', {session: req.session, error: req.flash('error')});
+        }else if(req.accepts('json')){
+            res.send({error: 'Not found'});
+        }else{
+            res.type('txt').send('Not found');
+        }
+    });
+
 
     app.listen(app.get('port'), () => {
         console.log('App is running on localhost:%d in %s mode', app.get('port'), app.get('env'));

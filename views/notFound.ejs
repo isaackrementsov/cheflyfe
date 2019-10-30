@@ -1,9 +1,13 @@
 <% include partials/header %>
 <div class="flex-container landing">
     <div>
-        <h1>404 Not Found</h1>
+        <h1><% if(locals.code){ %>500 Internal Server Error<% }else{ %>404 Not Found<% } %></h1>
         <div class="p">
-            Sorry, we can't find what you're looking for
+            <% if(locals.code){ %>
+                Sorry, it looks like there's an issue on our end
+            <% }else{ %>
+                Sorry, we can't find what you're looking for
+            <% } %>
         </div>
     </div>
 </div>
