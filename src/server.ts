@@ -18,18 +18,7 @@ createConnection().then(async connection => {
     app.use(middleware.checkParams);
     app.use(middleware.errorHandler);
 
-    app.use((req: Request, res: Response) => {
-        res.status(404);
-
-        if(req.accepts('html')){
-            res.render('notFound', {session: req.session, error: req.flash('error')});
-        }else if(req.accepts('json')){
-            res.send({error: 'Not found'});
-        }else{
-            res.type('txt').send('Not found');
-        }
-    });
-
+    app.use(require('stylus').middleware(__dirname + '/public'));
 
     app.listen(app.get('port'), () => {
         console.log('App is running on localhost:%d in %s mode', app.get('port'), app.get('env'));
@@ -37,4 +26,17 @@ createConnection().then(async connection => {
     });
 
     routes(app);
+
+    app.use((req: Request, res: Response) => {
+        res.status(404);
+
+        if(req.accepts('html')){
+            res.render('notFsjndound', {session: req.session, error: req.flash('error')});
+        }else if(req.accepts('json')){
+            res.send({error: 'Not found'});
+        }else{
+            res.type('txt').send('Not found');
+        }
+    });
+    
 }).catch(e => console.log('Database Error: ', e));
