@@ -18,8 +18,6 @@ createConnection().then(async connection => {
     app.use(middleware.checkParams);
     app.use(middleware.errorHandler);
 
-    app.use(require('stylus').middleware(__dirname + '/public'));
-
     app.listen(app.get('port'), () => {
         console.log('App is running on localhost:%d in %s mode', app.get('port'), app.get('env'));
         console.log('Press CTRL + C to stop');
@@ -38,5 +36,5 @@ createConnection().then(async connection => {
             res.type('txt').send('Not found');
         }
     });
-    
+
 }).catch(e => console.log('Database Error: ', e));
