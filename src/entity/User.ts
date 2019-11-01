@@ -48,7 +48,7 @@ export default class User {
     @Column()
     timestamp : Date = new Date();
     @Column({nullable: true})
-    expires : Date = new Date();
+    expires : Date = null;
     @Column('simple-json')
     name : {first: string, last: string};
 
