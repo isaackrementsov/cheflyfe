@@ -12,7 +12,7 @@ export default class EmailManager {
             service: 'gmail',
             auth: {
                 user: 'cheflyfe.info@gmail.com',
-                pass: 'ProjectPassword1!'
+                pass: 'Cairnsboy01!'
             }
         });
 
