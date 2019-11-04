@@ -10,7 +10,7 @@ export default abstract class PaymentManager {
 
     private static async getSubscription(params: object) : Promise<object> {
         let subscriptions = await PaymentManager.stripe.subscriptions.list(params);
-        
+
         return subscriptions.data[0];
     }
 

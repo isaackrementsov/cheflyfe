@@ -62,9 +62,9 @@
                     </label>
                 </div>
             <% } %>
-            <% let cond = plan.interval_count != 1%>
+            <% let cond = plan.interval_count != 1 %>
             <input type="submit"
-            value="Submit Payment (AUD <%= (plan.amount/100).toFixed(2) %> every <%= cond && plan.interval_count %> <%= plan.interval %><%= cond && 's' %>)"
+            value="Submit Payment (AUD <%= (plan.amount/100).toFixed(2) %> every <%= cond && plan.interval_count ? plan.interval_count : '' %> <%= plan.interval %><%= cond ? 's' : '' %>)"
             style="float: left; margin-bottom: 10px">
         </form>
     </div>

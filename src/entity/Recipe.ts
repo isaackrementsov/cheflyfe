@@ -105,7 +105,7 @@ export default class Recipe {
 
         for(let i = 0; i < this.ingredients.length; i++){
             let ingredient = this.ingredients[i];
-            
+
             sum += ingredient.price.val * ingredient.unitConvert(this.quantities[i]) / (1 - ingredient.wastage/100);
         }
 
@@ -166,25 +166,27 @@ export default class Recipe {
             }
         }
 
-        for(let i = 0; i < this.subRecipes.length; i++){
-            let subRecipe = this.subRecipes[i];
-            await subRecipe.getRelations();
-            await subRecipe.getNutritionalInfo();
+        if(n){
+            for(let i = 0; i < this.subRecipes.length; i++){
+                let subRecipe = this.subRecipes[i];
+                await subRecipe.getRelations();
+                await subRecipe.getNutritionalInfo();
 
-            if(subRecipe.nutritionalInfo){
-                Object.keys(subRecipe.nutritionalInfo).map(key => {
-                    if(typeof n[key] == 'number'){
-                        n[key] += subRecipe.nutritionalInfo[key] * this.recipeQuantities[i].qt / subRecipe.price.qt;
-                    }else{
-                        Object.keys(n[key]).map(key2 => {
-                            n[key][key2] += subRecipe.nutritionalInfo[key][key2] * this.recipeQuantities[i].qt / subRecipe.price.qt;
-                        });
-                    }
-                });
-            }else{
-                n = null;
-                break;
-            }
+                if(subRecipe.nutritionalInfo){
+                    Object.keys(subRecipe.nutritionalInfo).map(key => {
+                        if(typeof n[key] == 'number'){
+                            n[key] += subRecipe.nutritionalInfo[key] * this.recipeQuantities[i].qt / subRecipe.price.qt;
+                        }else{
+                            Object.keys(n[key]).map(key2 => {
+                                n[key][key2] += subRecipe.nutritionalInfo[key][key2] * this.recipeQuantities[i].qt / subRecipe.price.qt;
+                            });
+                        }
+                    });
+                }else{
+                    n = null;
+                    break;
+                }
+            }    
         }
 
         this.nutritionalInfo = n;

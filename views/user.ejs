@@ -163,7 +163,7 @@
                                     for(let rating of posts[i].ratings){
                                         sum += rating.val
                                     } %>
-                                <i class="material-icons star-rating">star</i><span><%= Math.round(10*sum/posts[i].ratings.length)/10 %></span>
+                                <i class="material-icons star-rating">star</i><span><%= posts[i].ratings.length == 0 ? 'No ratings yet' : Math.round(10*sum/posts[i].ratings.length)/10 %></span>
                             </div>
                             <div class="post-content">
                                 <%= posts[i].description %>
