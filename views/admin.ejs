@@ -140,10 +140,12 @@
                             <option value="3">Payment Status</option>
                         </select>
                         <input type="text" placeholder="Enter query..." style="max-width: 30%; width: 250px" id="query" oninput="searchUsers()">
+                        <span style="color: #8C9EFF; font-weight: bold; float: right"><span id="results"><%= userData.length %></span> results</span>
                     </div>
                     <div class="post-content flex-container" style="width: 100%; overflow-x: auto">
                         <table id="user-data-table">
                             <tr id="header">
+                                <th>#</th>
                                 <th>Email</th>
                                 <th>Username</th>
                                 <th>Name</th>
@@ -155,6 +157,7 @@
                             </tr>
                             <% for(let i = 0; i < userData.length; i++){ %>
                                 <tr id="user-<%= userData[i].id %>">
+                                    <td><%= i + 1 %></td>
                                     <td><%= userData[i].email %></td>
                                     <td><%= userData[i].username %></td>
                                     <td><%= userData[i].name.first %> <%= userData[i].name.last %></td>
@@ -414,19 +417,30 @@
 
     function searchUsers(){ //TODO: remove all sync methods on the backend for performance optimization
         let q = clean(searchQuery.val());
+        let n = <%= userData.length %>;
 
         if(q == ''){
             $('#user-data-table tr').show();
         }else{
             $('#user-data-table tr:not(#header)').each(function(i){
-                let td = $($(this).find('td')[searchColumn.val()]);
+                let td = $($(this).find('td')[parseInt(searchColumn.val()) + 1]);
 
                 if(clean(td.text()).indexOf(q) == -1){
-                    $(this).hide()
+                    if(!$(this).is(':hidden')){
+                        n--;
+                    }
+
+                    $(this).hide();
                 }else{
+                    if($(this).is(':hidden')){
+                        n++;
+                    }
+
                     $(this).show();
                 }
             });
+
+            $('#results').html(n);
         }
     }
 </script>

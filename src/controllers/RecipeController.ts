@@ -88,7 +88,6 @@ export default class RecipeController {
 
         try {
             recipes = await this.recipeRepo.createQueryBuilder('recipe')
-                .limit(5)
                 .leftJoinAndSelect('recipe.author', 'author')
                 .where('author.admin = :yes', {yes: true})
                 .getMany();
