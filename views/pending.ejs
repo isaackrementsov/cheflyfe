@@ -7,7 +7,7 @@
             <% if(session.emailPending){ %>
                 <form id="resend-email" style="display:none" method="POST" action="/reverify"></form>
                 Your email has still not been verified. If you can't find the verification email, check your spam folder.
-                Your account may be deleted in 7 days otherwise.<br>
+                Your account may be deleted in 7 days otherwise. You must verify your email before selecting payment.<br>
                 <br>
                 <a onclick="submitForm('resend-email')" href="#" style="color: #8C9EFF">Resend Verification Email</a>
                 <br><br>

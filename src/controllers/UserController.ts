@@ -192,7 +192,7 @@ export default class UserController {
                     res.redirect('/admin');
                 }else{
                     if(created === true){
-                        res.redirect('/payment');
+                        res.redirect('/pending');
                     }else{
                         res.redirect('/users/' + user.id);
                     }

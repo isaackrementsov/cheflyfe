@@ -16,7 +16,12 @@ export default class PaymentController {
             req.flash('error', 'There was an error getting payment plans');
         }
 
-        res.render('payment', {session: req.session, plans, error: req.flash('error'), payment: true});
+        if(req.session.emailPending){
+            req.flash('error', 'Verify your email before selecting payment');
+            res.redirect('/pending');
+        }else{
+            res.render('payment', {session: req.session, plans, error: req.flash('error'), payment: true});
+        }
     }
 
     getSignup = async (req: Request, res: Response) => {
@@ -24,7 +29,12 @@ export default class PaymentController {
             let plan = await PaymentManager.getPlan(req.params.id);
             let existing = await PaymentManager.getExistingUser(req.session.userID);
 
-            res.render(plan ? 'paymentSignup' : 'notFound', {plan, existing, session: req.session, error: req.flash('error'), payment: true});
+            if(req.session.emailPending){
+                req.flash('error', 'Verify your email before selecting payment');
+                res.redirect('/pending');
+            }else{
+                res.render(plan ? 'paymentSignup' : 'notFound', {plan, existing, session: req.session, error: req.flash('error'), payment: true});
+            }
         }catch(e){
             if(!res.headersSent){
                 req.flash('error', 'There was an error getting plan');
