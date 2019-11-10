@@ -208,8 +208,8 @@ export default class Middleware {
         let adminRestricted = req.url.indexOf('/admin') != -1;
         let loginRestricted = ['/login', '/signup', '/reset'].indexOf(req.url) != -1;
         let pendingRestricted =  req.url == '/pending';
-        let paymentPendingRestricted = req.url.indexOf('/payment') != -1 || pendingRestricted;
-        let emailPendingRestricted = req.url.indexOf('/verify') != -1 || pendingRestricted;
+        let paymentPendingRestricted = req.url.indexOf('/payment') != -1  || pendingRestricted;
+        let emailPendingRestricted = req.url.indexOf('/verify') != -1 || req.url.indexOf('/reverify') != -1 || pendingRestricted;
         let userRestricted = ['/', '/login', '/signup', '/terms', '/privacy', '/how-tos', '/pricing'].indexOf(req.url) == -1 && req.url.indexOf('/reset') == -1 && req.url.indexOf('/news') == -1;
         let expired = req.session.paymentStatus != 'ACTIVE' && !req.session.admin && req.session.paid && !req.session.emailPending;
         let expiredRestricted = expired && (req.method != 'GET' || req.url.indexOf('/payment') != -1) && req.url != '/logout';

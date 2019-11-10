@@ -45,7 +45,7 @@
         let num = parseFloat(priceInput.value);
         price = isNaN(num) ? 0 : num;
 
-        updateProfit();
+        updateProfit(false, true);
     }
 
     function changePortionPrice(){
@@ -56,7 +56,7 @@
         else price = 0;
 
         $('#price').attr('value', money(price));
-        updateProfit();
+        updateProfit(true);
     }
 
     function changeCost(val, key, notInput){
@@ -86,7 +86,7 @@
         return sum;
     }
 
-    function updateProfit(){
+    function updateProfit(portionCall, priceCall){
         let servingCost = $('#serving-cost-input');
         let totalCost = $('#total-cost-input');
         let portionPrice = $('#portion-price');
@@ -99,7 +99,8 @@
         profitMargin.value = margin;
         servingCost.attr('value', money(total(cost)/servings));
         totalCost.attr('value', money(total(cost)));
-        portionPrice.attr('value', money(price/servings));
+        if(!portionCall) portionPrice.val(money(price/servings));
+        if(!priceCall) $('#price').val(money(price));
         portionProfit.attr('value', money(income/servings));
 
         if(income < 0){

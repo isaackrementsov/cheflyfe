@@ -1,4 +1,5 @@
 import * as nodemailer from 'nodemailer';
+import User from '../entity/User';
 
 export default class EmailManager {
 
@@ -23,6 +24,18 @@ export default class EmailManager {
             to: to,
             subject: email.subject,
             html: email.html
+        });
+    }
+
+    static async sendVerificationEmail(user: User){
+        await EmailManager.sendEmail(user.email, {
+            subject: 'Verify your email',
+            html: `Hello ${user.name.first} ${user.name.last},<br>
+            To use your ChefLyfe account,
+            please <a href="https://cheflyfe.com/verify?authKey=${user.authKey}">verify</a> that your email is ${user.email}.
+            Your account may be deleted if you do not confirm.<br>
+            Regards,<br>
+            Cheflyfe Team`
         });
     }
 

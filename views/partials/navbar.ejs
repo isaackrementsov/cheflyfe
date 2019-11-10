@@ -54,7 +54,9 @@
             </script>
         <% }else if(session.pending){ %>
             <li><a href="/pending" style="color: lightgrey">Account disabled</a></li>
-            <li><a href="/payment">Payment</a></li>
+            <% if(!session.emailPending){ %>
+                <li><a href="/payment">Payment</a></li>
+            <% } %>
         <% }else{ %>
             <li><a href="/signup" style="font-weight: bold; color: #8C9EFF">Signup</a></li>
             <li><a href="/login">Login</a></li>

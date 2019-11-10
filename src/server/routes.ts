@@ -56,6 +56,7 @@ let routes = app => {
     app.post('/admin/signup', userController.postAdminSignup)
     app.post('/logout', userController.postLogout);
     app.post('/reset', userController.postSendResetEmail);
+    app.post('/reverify', userController.postReverify);
     app.post('/ingredients/create', ingredientController.postCreate);
     app.post('/ingredients/createCSV', ingredientController.postCreateCSV);
     app.post('/menus/create', menuController.postCreate);
@@ -67,6 +68,7 @@ let routes = app => {
     app.post('/subscription/cancel/:id', paymentController.postCancelSubscription);
 
     app.patch('/users/update', userController.patchUpdate);
+    app.patch('/users/verify/update', userController.patchUpdateEmail);
     app.patch('/ingredients/update/:id', ingredientController.patchUpdate);
     app.patch('/menus/update/:id', menuController.patchUpdate);
     app.patch('/posts/update/:id', postController.patchUpdate);

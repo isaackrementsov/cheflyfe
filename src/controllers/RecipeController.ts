@@ -196,7 +196,8 @@ export default class RecipeController {
                 showPortionPrice: req.body.portionPriceShareJSON || false,
                 showPortionProfit: req.body.portionProfitShareJSON || false,
                 feed: req.body.postShareJSON || false,
-                author: await this.userRepo.findOne(req.session.userID)
+                author: await this.userRepo.findOne(req.session.userID),
+                credit: req.body.credit || null
             });
 
             await this.recipeRepo.save(recipe);

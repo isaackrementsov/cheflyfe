@@ -1,4 +1,6 @@
 <% include partials/header %>
+<link rel="stylesheet" type="text/css" href="/css/jquery.floatingscroll.css"/>
+<script src="/js/jquery.floatingscroll.min.js" type="text/javascript"></script>
 <div class="profile-nav ingredients-header">
     <h1>Analytics</h1>
 </div>
@@ -142,7 +144,7 @@
                         <input type="text" placeholder="Enter query..." style="max-width: 30%; width: 250px" id="query" oninput="searchUsers()">
                         <span style="color: #8C9EFF; font-weight: bold; float: right"><span id="results"><%= userData.length %></span> results</span>
                     </div>
-                    <div class="post-content flex-container" style="width: 100%; overflow-x: auto">
+                    <div class="post-content flex-container" id="user-data-table-container" style="width: 100%; overflow-x: auto">
                         <table id="user-data-table">
                             <tr id="header">
                                 <th>#</th>
@@ -306,6 +308,10 @@
         openData(parseInt(dataIdx));
     }
 
+    $(document).ready(function () {
+        $("#user-data-table-container").floatingScroll('init');
+    });
+
     function buildChartByTime(){
         let val = parseInt($('#select-days').val());
 
@@ -417,31 +423,28 @@
 
     function searchUsers(){ //TODO: remove all sync methods on the backend for performance optimization
         let q = clean(searchQuery.val());
-        let n = <%= userData.length %>;
+        let total = <%= userData.length %>;
+        let n = total;
 
         if(q == ''){
+            n = total;
             $('#user-data-table tr').show();
         }else{
             $('#user-data-table tr:not(#header)').each(function(i){
                 let td = $($(this).find('td')[parseInt(searchColumn.val()) + 1]);
 
                 if(clean(td.text()).indexOf(q) == -1){
-                    if(!$(this).is(':hidden')){
-                        n--;
-                    }
-
                     $(this).hide();
                 }else{
-                    if($(this).is(':hidden')){
-                        n++;
-                    }
-
                     $(this).show();
                 }
             });
 
-            $('#results').html(n);
+            n = $('#user-data-table tr:visible').length - 1;
         }
+
+        $("#user-data-table-container").floatingScroll('update');
+        $('#results').html(n);
     }
 </script>
 <% include partials/footer %>

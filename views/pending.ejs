@@ -1,15 +1,23 @@
 <% include partials/header %>
-<% include partials/forms/error %>
 <div class="flex-container landing">
     <div>
+        <% if(error && error != ''){ %><p style="color: coral; margin: 5px 0;"><%= error %></p><% } %>
         <h1>Your account is still pending</h1>
         <div class="p">
-            <% if(session.paymentStatus != 'ACTIVE'){ %>
-                It seems you subscription status is not active. Please <a href="/payment" style="color: #8C9EFF">Setup Payment</a>. <br>
-            <% } %>
             <% if(session.emailPending){ %>
+                <form id="resend-email" style="display:none" method="POST" action="/reverify"></form>
                 Your email has still not been verified. If you can't find the verification email, check your spam folder.
-                Your account may be deleted in 7 days otherwise.
+                Your account may be deleted in 7 days otherwise.<br>
+                <br>
+                <a onclick="submitForm('resend-email')" href="#" style="color: #8C9EFF">Resend Verification Email</a>
+                <br><br>
+                <form method="POST" action="/users/verify/update?_method=PATCH">
+                    <p style="margin: 0; color: #8C9EFF">Change Email</p>
+                    <input type="email" value="<%= session.email %>" style="width: 200px; max-width: 90%" name="email">
+                    <input type="submit" value="Change" style="font-size: 14px; padding: 10px !important; font-weight: normal; border-width: 1px !important; background-color: #3D5AFE; color: white;">
+                </form>
+            <% }else if(session.paymentStatus != 'ACTIVE'){ %>
+                It seems you subscription status is not active. Please <a href="/payment" style="color: #8C9EFF">Setup Payment</a>. <br>
             <% } %>
         </div>
     </div>

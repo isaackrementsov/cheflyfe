@@ -168,6 +168,11 @@
                             onclick="submitForm('delete-form-<%= ingredients[i].id %>')">
                                 delete
                             </i>
+                        <% }else if(!expired){ %>
+                            <i class="material-icons" style="font-size: 30px !important; color: lightgrey; vertical-align: 3px"
+                                title="You can't delete an ingredient that is part of a recipe">
+                                delete_outline
+                            </i>
                         <% } %>
                         <i class="material-icons pointer" style="font-size: 40px !important; color: grey"
                         onclick="toggle('ingredient-more-<%= ingredients[i].id %>', 'ingredient-content-<%= ingredients[i].id %>')">

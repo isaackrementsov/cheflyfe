@@ -166,6 +166,7 @@ export default class UserController {
 
                 req.session.username = user.username;
                 req.session.password = user.password;
+                req.session.email = user.email;
                 req.session.userID = user.id;
                 req.session.admin = user.admin;
                 req.session.avatar = user.avatar;
@@ -225,15 +226,7 @@ export default class UserController {
                 let {id} = await this.userRepo.save(user);
 
                 try {
-                    await EmailManager.sendEmail(user.email, {
-                        subject: 'Verify your email',
-                        html: `Hello ${user.name.first} ${user.name.last},<br>
-                        To use your ChefLyfe account,
-                        please <a href="https://cheflyfe.com/verify?authKey=${user.authKey}">verify</a> that your email is ${user.email}.
-                        Your account may be deleted if you do not confirm.<br>
-                        Regards,<br>
-                        Cheflyfe Team`
-                    });
+                    await EmailManager.sendVerificationEmail(user);
 
                     this.postLogin(req, res, true);
                 }catch(e){
@@ -283,6 +276,23 @@ export default class UserController {
         }
     }
 
+    postReverify = async (req: Request, res: Response) => {
+        try {
+            let user : User = await this.userRepo.findOne({id: req.session.userID});
+
+            if(user.emailPending){
+                await EmailManager.sendVerificationEmail(user);
+            }
+
+            res.redirect('/pending');
+        }catch(e){
+            if(!res.headersSent){
+                req.flash('error', 'There was an error resending email');
+                res.redirect('/pending');
+            }
+        }
+    }
+
     postAdminSignup = async (req: Request, res: Response) => {
         try {
             let user : User = new User({
@@ -319,6 +329,31 @@ export default class UserController {
         res.redirect('/login');
     }
 
+    patchUpdateEmail = async (req: Request, res: Response) => {
+        try {
+            let user : User = await this.userRepo.findOne(req.session.userID);
+
+            if(user.emailPending){
+                user.email = req.body.email;
+
+                try {
+                    await this.userRepo.save(user);
+                }catch(e){
+                    req.flash('error', 'Email must be unique');
+                }
+
+                req.session.email = user.email;
+
+                res.redirect('/pending');
+            }
+        }catch(e){
+            if(!res.headersSent){
+                req.flash('error', 'There was an error changing email');
+                res.redirect('/pending');
+            }
+        }
+    }
+
     patchUpdate = async (req: Request, res: Response) => {
         try {
             let update = Middleware.decodeBody(req.body, req.files);
@@ -330,8 +365,8 @@ export default class UserController {
             delete update['paymentNotRequired'];
             delete update['emailPending'];
             delete update['password'];
-            delete update['email'];
             delete update['username'];
+            delete update['email'];
 
             if(update['requested'] || update['brigade']){
                 let toUpdate : User = await this.userRepo.findOne(req.query.id ? parseInt(req.query.id) : req.session.userID);
@@ -339,7 +374,7 @@ export default class UserController {
                 if(update['requested']) toUpdate.requested = update['requested'];
                 if(update['brigade']) toUpdate.brigade = update['brigade'];
 
-                 await this.userRepo.save(toUpdate);
+                await this.userRepo.save(toUpdate);
             }else{
                 if(req.files){
                     let toUpdate : User = await this.userRepo.findOne(req.session.userID, {select: ['background', 'avatar']});
@@ -362,7 +397,7 @@ export default class UserController {
                 await this.userRepo.update(req.session.userID, update);
             }
         }catch(e){
-            req.flash('There was an error updating user');
+            req.flash('error', 'here was an error updating user');
         }
 
         res.redirect('/users/' + (req.query.id || req.session.userID));

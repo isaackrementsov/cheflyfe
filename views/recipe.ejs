@@ -448,6 +448,11 @@ onclick="toggleEdit('edit-recipe', '', '')" onsubmit="packageJSON()" id="recipe-
                     <div class="post-content PDFIgnore">
                         <button type="button" onclick="submitForm('delete-form')"><i class="material-icons" style="vertical-align: -1px">delete</i> Delete recipe</button>
                     </div>
+                <% }else{ %>
+                    <div class="post-content PDFIgnore">
+                        <button type="button" disabled><i class="material-icons" style="vertical-align: -1px;">delete_outline</i>
+                        Recipes that are in menus or other recipes cannot be deleted</button>
+                    </div>
                 <% } %>
                 <div class="post-content PDFIgnore">
                     <span id="edit-recipe" class="hovering-save" style="display: none">
