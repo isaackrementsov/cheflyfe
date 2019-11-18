@@ -22,6 +22,7 @@ export default class AdminController {
         let visits, ingredients, recipes, menus, posts, users : Record[] = [];
         let userData : User[] = [];
         let howTos : HowTo[] = [];
+        let config : Config = new Config({});
 
         try {
             visits = await this.recordRepo.find({select: ['timestamp'], where: {category: 'session'}});
@@ -32,9 +33,10 @@ export default class AdminController {
             users = await this.recordRepo.find({select: ['timestamp'], where: {category: 'user'}});
             userData = await this.userRepo.find();
             howTos = await this.howToRepo.find();
+            config = await this.configRepo.findOne({category: 'ingredients'});
         }catch(e){ }
 
-        res.render('admin', {visits, ingredients, recipes, menus, posts, users, userData, howTos, landing: landingJSON, session: req.session, error: req.flash('error')});
+        res.render('admin', {visits, ingredients, recipes, menus, posts, users, userData, howTos, config, landing: landingJSON, session: req.session, error: req.flash('error')});
     }
 
     getExportEmails = async (req: Request, res: Response) => { //TODO: make path joining consistent and efficient
@@ -76,6 +78,9 @@ export default class AdminController {
             }else if(req.files['privacyPDFUpl']){
                 category = 'privacy';
                 path = req.files['privacyPDFUpl'].path;
+            }else if(req.files['ingredientCSVUpl']){
+                category = 'ingredients';
+                path = req.files['ingredientCSVUpl'].path;
             }
 
             let existing : Config = await this.configRepo.findOne({category});
@@ -97,7 +102,7 @@ export default class AdminController {
             res.redirect('/admin');
         }catch(e){
             if(!res.headersSent){
-                req.flash('error', 'Download Failed');
+                req.flash('error', 'Upload Failed');
                 res.redirect(req.header('Referer'));
             }
         }

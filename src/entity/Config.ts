@@ -11,7 +11,7 @@ export default class Config {
 
     @Column()
     @Index({unique: true})
-    category : 'terms' | 'privacy';
+    category : 'terms' | 'privacy' | 'ingredients';
 
     constructor(config: Partial<Config>){
         Object.assign(this, config);

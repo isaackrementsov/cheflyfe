@@ -5,6 +5,7 @@ import {UnitQt, PurchaseRecord, unlink} from '../util/typeDefs';
 import Ingredient from '../entity/Ingredient';
 import User from '../entity/User';
 import NutritionalInfo from '../entity/NutritionalInfo';
+import Config from '../entity/Config';
 import Middleware from '../util/Middleware';
 import * as csvParser from 'csv-parser';
 import * as fs from 'fs';
@@ -15,9 +16,11 @@ export default class IngredientController {
 
     private ingredientRepo : Repository<Ingredient>;
     private userRepo : Repository<User>;
+    private configRepo : Repository<Config>;
 
     getAll = async (req: Request, res: Response) => {
         let ingredients : Ingredient[] = [];
+        let config : Config = new Config({});
 
         try {
             ingredients = await this.ingredientRepo.createQueryBuilder('ingredient')
@@ -26,12 +29,14 @@ export default class IngredientController {
                 .leftJoinAndSelect('ingredient.nutritionalInfo', 'nutritionalInfo')
                 .where('author.id = :userID', {userID: req.session.userID})
                 .getMany()
+
+            config = await this.configRepo.findOne({category: 'ingredients'});
         }catch(e){
             req.flash('error', 'There was an issue finding ingredients')
         }
 
 
-        res.render('ingredients', {ingredients: ingredients, session: req.session, error: req.flash('error')});
+        res.render('ingredients', {ingredients, config, session: req.session, error: req.flash('error')});
     }
 
     getExport = async (req: Request, res: Response) => {
@@ -226,7 +231,7 @@ export default class IngredientController {
                             }
 
                             let purchases : PurchaseRecord[] = [];
-                            
+
                             if(row.Purchase_records){
                                 let p = row.Purchase_records.split(',');
 
@@ -313,6 +318,7 @@ export default class IngredientController {
     constructor(){
         this.ingredientRepo = getRepository(Ingredient);
         this.userRepo = getRepository(User);
+        this.configRepo = getRepository(Config);
     }
 
 }

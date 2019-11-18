@@ -121,7 +121,7 @@ export default class RecipeController {
                 await user.recipes[i].getFoodCost();
             }
 
-            res.render('createRecipe', {session: req.session, user: user});
+            res.render('createRecipe', {session: req.session, user: user, error: req.flash('error')});
         }catch(e){
             if(!res.headersSent){
                 req.flash('error', 'There was an error loading recipe creation data');
@@ -197,7 +197,7 @@ export default class RecipeController {
                 showPortionProfit: req.body.portionProfitShareJSON || false,
                 feed: req.body.postShareJSON || false,
                 author: await this.userRepo.findOne(req.session.userID),
-                credit: req.body.credit || null
+                credit: req.body.creditOpt || null
             });
 
             await this.recipeRepo.save(recipe);

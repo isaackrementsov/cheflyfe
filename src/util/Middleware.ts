@@ -44,7 +44,7 @@ export default class Middleware {
 
                 busboy.on('file', (fieldname, file, filename, encoding, mimetype) => { //TODO: Add mime check
                     let ext = filename.split('.')[filename.split('.').length - 1];
-                    let saveTo = path.join(__dirname, '../../public/img/upload/' + shortId.generate() + '.' + ext);
+                    let saveTo = path.join(__dirname, '../../public/img/upload/' + ((req.session.admin && ext == 'csv') ? 'Ingredient Preset' : shortId.generate()) + '.' + ext);
 
                     file.on('limit', async () => {
                         try {
@@ -100,7 +100,7 @@ export default class Middleware {
                                     }catch(e){ }
                                 });
                             }else if(typeof fields[k] == 'object'){
-                                if(fields[k].mime.indexOf('image/') == -1 && fields[k].mime.indexOf('video/') == -1 && (fields[k].mime.indexOf('pdf') == -1 || !req.session.admin)){
+                                if(fields[k].mime.indexOf('image/') == -1 && fields[k].mime.indexOf('video/') == -1 && (fields[k].mime.indexOf('pdf') == -1 && fields[k].mime.indexOf('octet-stream') == -1 || !req.session.admin)){
                                     try {
                                         await unlink(__dirname + '/../../public' + fields[k].path);
                                     }catch(e){ }

@@ -40,8 +40,10 @@
                 }
              } %>
             <p class="post-content">
-                AUD <%= (plan.amount/100).toFixed(2) %> every <%= cond && plan.interval_count ? plan.interval_count : '' %> <%= plan.interval %><%= cond ? 's' : '' %>
-                <span style="color: #00E676; font-weight: bold">-<%= discount %></span>
+                <% let tax = 0 %>
+                <% if(subscription.default_tax_rates[0]) tax = subscription.default_tax_rates[0].percentage*plan.amount/100/100 %>
+                AUD <%= ((plan.amount/100) + tax).toFixed(2) %> every <%= cond && plan.interval_count ? plan.interval_count : '' %> <%= plan.interval %><%= cond ? 's' : '' %>
+                <% if(discount){ %><span style="color: #00E676; font-weight: bold">-<%= discount %></span><% } %>
             </p>
             <% let color = (subscription.status == 'active' || subscription.status == 'trialing') ? '#00E676' : 'coral'; %>
             <p class="post-content">Status: <span style="color: <%= color %>"><%= subscription.status.toUpperCase() %></span></p>

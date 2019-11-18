@@ -86,7 +86,7 @@ export default abstract class PaymentManager {
         return user;
     }
 
-    static async signupForPlan(planId: string, user: {freeTrial: boolean, userID: string, token: string, code: string}) : Promise<string> {
+    static async signupForPlan(planId: string, user: {freeTrial: boolean, userID: string, token: string, code: string, country: string}) : Promise<string> {
         let userRepo : Repository<User> = getRepository(User);
         let u : User = await userRepo.findOne(user.userID);
         let customer;
@@ -95,7 +95,7 @@ export default abstract class PaymentManager {
             customer = await PaymentManager.getExistingUser(user.userID, u.paymentKey);
 
             if(user.token && customer){
-                await PaymentManager.stripe.customers.update(customer.id, {source: user.token});
+                await PaymentManager.stripe.customers.update(customer.id, {source: user.token, metadata: {'country': user.country}});
             }
         }
 
@@ -103,7 +103,10 @@ export default abstract class PaymentManager {
             customer = await PaymentManager.stripe.customers.create({
                 email: u.email,
                 name: `${u.name.first} ${u.name.last}`,
-                source: user.token
+                source: user.token,
+                metadata: {
+                    'country': user.country
+                }
             });
 
             u.paymentKey = customer.id;
@@ -124,6 +127,10 @@ export default abstract class PaymentManager {
 
         if(user.code){
             obj['coupon'] = user.code;
+        }
+
+        if(customer.metadata.country == 'Australia'){
+            obj['default_tax_rates'] = ['txr_1FCaQZAy3yNbwjDMfMQQ9qc4'];
         }
 
         let subscription = await PaymentManager.stripe.subscriptions.create(obj);

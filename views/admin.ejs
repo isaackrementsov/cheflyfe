@@ -17,7 +17,7 @@
             <button onclick="openData(2)">Users</button>
             <button onclick="openData(3)">Legal</button>
             <button onclick="openData(4)">Landing Page</button>
-            <button onclick="openData(5)">How-To</button>
+            <button onclick="openData(5)">Resources</button>
         </p>
         <p><a style="display: inline; color: #8C9EFF; font-weight: bold" href="/users/<%= session.userID %>">Posts</a>
              you make will show up on the Cheflyfe news page
@@ -272,6 +272,23 @@
                             </div>
                         <% } %>
                     </div>
+                    <div class="post-content" style="margin: 0; padding-top: 0; padding-bottom: 0">
+                        <h3>Sample Ingredients</h3>
+                    </div>
+                    <form class="post-content" method="POST" action="/admin/upl" enctype="multipart/form-data" id="admin-upl-ingredients">
+                        <div class="form-upl-wrapper">
+                            <button class="form-upl">
+                                <i class="material-icons" style="font-size: 20px !important; vertical-align: middle">cloud_upload</i>
+                                <span style="vertical-align: middle">Upload Ingredient CSV</span>
+                            </button>
+                            <input type="file" name="ingredientCSVUpl" accept=".csv" oninput="submitForm('admin-upl-ingredients')">
+                        </div>
+                        <% if(config){ %>
+                            <a href="<%= config.path %>" download>
+                                <h4 style="font-weight: 300; color: #8C9EFF; text-decoration: underline">Existing CSV</h4>
+                            </a>
+                        <% } %>
+                    </form>
                 </div>
             </div>
         </div>

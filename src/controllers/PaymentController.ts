@@ -47,8 +47,9 @@ export default class PaymentController {
         try {
             let user = await this.userRepo.findOne(req.session.userID);
             let subscription = await PaymentManager.getActiveSubscription(user.paymentKey);
+            let customer = await PaymentManager.getExistingUser('', user.paymentKey);
 
-            res.render('subscription', {subscription, session: req.session, error: req.flash('error')});
+            res.render('subscription', {subscription, customer, session: req.session, error: req.flash('error')});
         }catch(e){
             if(!res.headersSent){
                 req.flash('error', 'There was an error getting subscription');
@@ -63,7 +64,8 @@ export default class PaymentController {
                 freeTrial: !req.session.hasUsedFreeTrial,
                 userID: req.session.userID,
                 token: req.body.stripeToken,
-                code: req.body.couponCodeOpt
+                code: req.body.couponCodeOpt,
+                country: req.body.country
             });
 
             if(status == 'TRIALING') status = 'ACTIVE';
@@ -75,6 +77,7 @@ export default class PaymentController {
 
             res.redirect('/subscription');
         }catch(e){
+            console.log(e);
             if(!res.headersSent){
                 req.flash('error', 'There was an error signing you up for the plan');
                 res.redirect(`/payment/signup/${req.params.id}`)
