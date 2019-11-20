@@ -46,14 +46,14 @@
     <div class="profile-feed">
         <% if(!expired){ %>
             <div class="flex-container" style="margin: 0 10px; margin-top: 20px">
-                CSV uploads must follow a specific format.
-                <a  href="/img/static/Ingredient CSV Format.csv" style="color: #8C9EFF; font-weight: bold; margin-left: 5px" download> Download example CSV</a>
-                <% if(config){ %>
-                    <p style="margin-bottom: 0">
-                        Add our start up ingredient list.
-                        <a  href="<%= config.path %>" style="color: #8C9EFF; font-weight: bold; margin-left: 5px" download> Download preset ingredients</a>
-                    </p>
-                <% } %>
+                <span>
+                    CSV uploads must follow a specific format.
+                    <a  href="/img/static/Ingredient CSV Format.csv" style="color: #8C9EFF; font-weight: bold; margin-left: 5px" download> Download example CSV</a>
+                    <% if(config){ %>
+                            <br><p style="margin-bottom: 0">Add our start up ingredient list.
+                            <a  href="<%= config.path %>" style="color: #8C9EFF; font-weight: bold; margin-left: 5px" download> Download preset ingredients</a></p>
+                    <% } %>
+                </span>
             </div>
             <div class="flex-container" style="margin: 20px 0">
                 <div class="ingredient add-ingredient post-card add-post" onclick="toggle('search-db', 'search-db-form')" id="search-db">
