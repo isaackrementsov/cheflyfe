@@ -90,9 +90,11 @@ export default class AdminController {
             }else{
                 existing.category = category;
 
-                try {
-                    await unlink(__dirname + '/../../public' + existing.path);
-                }catch(e){ }
+                if(category != 'ingredients'){
+                    try {
+                        await unlink(__dirname + '/../../public' + existing.path);
+                    }catch(e){ }
+                }
 
                 existing.path = path;
             }

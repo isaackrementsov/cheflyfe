@@ -187,7 +187,7 @@ export default class IngredientController {
         if(req.files){
             if(req.files['csvUpl']){
                 try {
-                    let p = path.join(__dirname, `../../../public/${req.files['csvUpl'].path}`);
+                    let p = path.join(__dirname, `../../public/${req.files['csvUpl'].path}`);
 
                     fs.createReadStream(p)
                         .pipe(csvParser())
@@ -248,7 +248,7 @@ export default class IngredientController {
                                 description: row.Description || 'no description',
                                 brand: row.Brand || 'no brand',
                                 wastage: row.Wastage,
-                                price: {val: row.Price_val, qt: row.Price_qt, units: row.Price_units},
+                                price: {val: parseFloat(row.Price_val), qt: parseFloat(row.Price_qt), units: row.Price_units},
                                 conversions: conversions,
                                 allergens: row.Allergens.split(','),
                                 nutritionalInfo: n,
