@@ -186,7 +186,7 @@ export default class Recipe {
                     n = null;
                     break;
                 }
-            }    
+            }
         }
 
         this.nutritionalInfo = n;
@@ -217,6 +217,11 @@ export default class Recipe {
     async getAllIngredientsSTD(){
         if(!this.subRecipes) this.subRecipes = [];
         this.subRecipeIngredients = [];
+
+        for(let i = 0; i < this.ingredients.length; i++){
+            console.log(this.quantities, i);
+            this.ingredients[i].grams = this.ingredients[i].tryToGetGrams(this.quantities[i]);
+        }
 
         for(let i = 0; i < this.subRecipes.length; i++){
             let subRecipe = this.subRecipes[i];
@@ -259,14 +264,17 @@ export default class Recipe {
                 let idx = this.ingredients.map(i => i.id).indexOf(ingredient.id);
                 let price = money(rqt * ingredient.price.val);
                 let qt = money(rqt * ingredient.price.qt);
+                let grams = ingredient.tryToGetGrams(this.quantities[k]);
 
                 if(idx == -1){
                     ingredient.price.val = price;
                     ingredient.price.qt = qt;
+                    ingredient.grams = grams;
                     this.ingredients.push(ingredient);
                 }else{
                     this.ingredients[idx].price.val += price;
                     this.ingredients[idx].price.qt += qt;
+                    this.ingredients[idx].grams += grams;
                 }
             }
         }

@@ -445,7 +445,7 @@ onclick="toggleEdit('edit-recipe', '', '')" onsubmit="packageJSON()" id="recipe-
             <% } %>
             <% if(auth){ %>
                 <% if(recipe.menus.length == 0 && canEdit){ %>
-                    <div class="post-content PDFIgnore">
+                    <div class="post-content PDFIgnore" style="margin-bottom: 40px">
                         <button type="button" onclick="submitForm('delete-form')"><i class="material-icons" style="vertical-align: -1px">delete</i> Delete recipe</button>
                     </div>
                 <% }else{ %>

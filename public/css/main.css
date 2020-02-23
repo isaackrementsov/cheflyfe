@@ -2,6 +2,7 @@
 @import 'forms.css';
 @import 'nav.css';
 @import 'scroll.css';
+@import 'mobile.css';
 
 html, body {
     margin: 0;
@@ -1079,4 +1080,11 @@ iframe {
 .hovering-save button, .hovering-save input[type=submit] {
     margin-bottom: 10px !important;
     margin-top: 40px !important;
+}
+.landing div {
+    height: auto;
+    margin: 20px 0;
+}
+.buttons * {
+    display: inline-block;
 }

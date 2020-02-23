@@ -9,10 +9,11 @@
         <% for(ing of subIngredients){
             if(ingredients.indexOf(ing) == -1) ingredients.push(ing);
          } %>
+        let k = <%- JSON.stringify(recipe.ingredients) %>
         $('#nutrition-label').nutritionLabel({
             showServingUnitQuantity: true,
             itemName: '<%= recipe.name %>',
-            ingredientList : <%- JSON.stringify(ingredients) %>,
+            ingredientList : <%- JSON.stringify(ingredients.sort((a, b) => (a.grams > b.grams) ? 1 : -1)) %>,
             showDisclaimer: true,
             valueDisclaimer: 'Contains <%- recipe.allergens %>',
 
@@ -39,6 +40,7 @@
         	valueSugars : <%= recipe.nutritionalInfo.carbohydrates.sugar/s %>,
         	valueProteins : <%= recipe.nutritionalInfo.protein/s %>
         });
+            console.log(k);
     </script>
 
 <% } %>

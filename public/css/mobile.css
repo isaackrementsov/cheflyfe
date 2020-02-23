@@ -1,0 +1,34 @@
+.collapse-show {
+    display: none !important;
+}
+.collapse-menu {
+    display: none !important;
+}
+@media(max-width: 726px){
+    .hide-phone {
+        display: none;
+    }
+    .profile-card {
+        top: 1vh !important;
+    }
+}
+@media(max-width: 600px){
+    li.collapse {
+        display: none !important;
+    }
+    li.collapse-show {
+        display: inline !important;
+    }
+    .collapse-menu {
+        display: inline !important;
+    }
+    .login-form-input input, .login-form-input input {
+        max-width: 100%;
+    }
+    .form-inline .login-form-input input, .form-inline .login-form-input select {
+        max-width: 50%;
+    }
+    .payment-header * {
+        max-width: 100%;
+    }
+}

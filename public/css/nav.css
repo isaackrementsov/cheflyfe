@@ -35,7 +35,7 @@
     width: 35px;
     background-size: cover;
     vertical-align: middle;
-    border-style: hidden;
+    border: solid #536DFE 1px;
     border-radius: 100vw;
 }
 #navbar .menu {

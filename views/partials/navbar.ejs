@@ -29,16 +29,23 @@
                                 <li><a href="/subscription">Subscription</a></li><br>
                             <% } %>
                         <% } %>
+                        <li class="collapse-show"><a href="/ingredients">Ingredients</a></li>
+                        <li class="collapse-show"><a href="/recipes">Recipes</a></li>
+                        <li class="collapse-show"><a href="/menus">Menus</a></li>
+                        <% if(expired){ %>
+                            <li class="collapse-show"><a href="/payment">Payment</a></li>
+                            <li class="collapse-show"><a href="#" style="color: lightgrey">Account expired</a></li>
+                        <% } %>
                         <li><form method="POST" action="/logout"><input type="submit" value="Logout"></form></li>
                     </ul>
                 </div>
             </li>
-            <li><a href="/ingredients">Ingredients</a></li>
-            <li><a href="/recipes">Recipes</a></li>
-            <li><a href="/menus">Menus</a></li>
+            <li class="collapse"><a href="/ingredients">Ingredients</a></li>
+            <li class="collapse"><a href="/recipes">Recipes</a></li>
+            <li class="collapse"><a href="/menus">Menus</a></li>
             <% if(expired){ %>
-                <li><a href="/payment">Payment</a></li>
-                <li><a href="#" style="color: lightgrey">Account expired</a></li>
+                <li class="collapse"><a href="/payment">Payment</a></li>
+                <li class="collapse"><a href="#" style="color: lightgrey">Account expired</a></li>
             <% } %>
             <li><a>
                 <form method="GET" action="/users/search" id="user-get-search-form">
@@ -53,21 +60,55 @@
                 });
             </script>
         <% }else if(session.pending){ %>
-            <li><a href="/pending" style="color: lightgrey">Account disabled</a></li>
+            <li>
+                <div id="avatar-link" class="avatar-link">
+                    <div class="img" style="background-image: url(<%= session.avatar %>)" onclick="openDiv('menu')"></div>
+                    <ul id="menu"  class="menu" style="display: none">
+                        <li class="collapse-show"><a href="/pending" style="color: lightgrey">Account disabled</a></li>
+                        <% if(!session.emailPending){ %>
+                            <li class="collapse-show"><a href="/payment">Payment</a></li>
+                        <% } %>
+                        <li><form method="POST" action="/logout"><input type="submit" value="Logout"></form></li>
+                    </ul>
+                </div>
+            </li>
+            <li class="collapse"><a href="/pending" style="color: lightgrey">Account disabled</a></li>
             <% if(!session.emailPending){ %>
-                <li><a href="/payment">Payment</a></li>
+                <li class="collapse"><a href="/payment">Payment</a></li>
             <% } %>
         <% }else{ %>
-            <li><a href="/signup" style="font-weight: bold; color: #8C9EFF">Signup</a></li>
-            <li><a href="/login">Login</a></li>
-            <li><a href="/pricing">Pricing</a></li>
-            <li><a href="/how-tos">Help</a></li>
+            <li class="collapse"><a href="/signup" style="font-weight: bold; color: #8C9EFF">Signup</a></li>
+            <li class="collapse"><a href="/login">Login</a></li>
+            <li class="collapse"><a href="/pricing">Pricing</a></li>
+            <li class="collapse"><a href="/how-tos">Help</a></li>
+            <li class="collapse-menu">
+                <div id="avatar-link" class="avatar-link">
+                    <i class="material-icons" onclick="openDiv('menu')">menu</i>
+                    <ul id="menu" class="menu" style="display: none">
+                        <li class="collapse-show"><a href="/signup" style="font-weight: bold; color: #8C9EFF">Signup</a></li>
+                        <li class="collapse-show"><a href="/login">Login</a></li>
+                        <li class="collapse-show"><a href="/pricing">Pricing</a></li>
+                        <li class="collapse-show"><a href="/how-tos">Help</a></li>
+                    </ul>
+                </div>
+            </li>
         <% } %>
     <% }else{ %>
-        <li><a href="/signup" style="font-weight: bold; color: #8C9EFF">Signup</a></li>
-        <li><a href="/login">Login</a></li>
-        <li><a href="/pricing">Pricing</a></li>
-        <li><a href="/how-tos">Help</a></li>
+        <li class="collapse"><a href="/signup" style="font-weight: bold; color: #8C9EFF">Signup</a></li>
+        <li class="collapse"><a href="/login">Login</a></li>
+        <li class="collapse"><a href="/pricing">Pricing</a></li>
+        <li class="collapse"><a href="/how-tos">Help</a></li>
+        <li class="collapse-menu">
+            <div id="avatar-link" class="avatar-link">
+                <i class="material-icons" onclick="openDiv('menu')">menu</i>
+                <ul id="menu" class="menu" style="display: none">
+                    <li class="collapse-show"><a href="/signup" style="font-weight: bold; color: #8C9EFF">Signup</a></li>
+                    <li class="collapse-show"><a href="/login">Login</a></li>
+                    <li class="collapse-show"><a href="/pricing">Pricing</a></li>
+                    <li class="collapse-show"><a href="/how-tos">Help</a></li>
+                </ul>
+            </div>
+        </li>
     <% } %>
     <li class="first" id="nav-logo-text">
         <a href="/">

@@ -35,7 +35,7 @@
 <div class="profile-main recipe-main payment">
     <div class="post-card" style="width: 500px; max-width: 95%">
         <div class="post-header"><span>Enter Payment Info</span></div>
-        <form action="/payment/signup/<%= plan.id %>" method="POST" id="payment-form" class="post-content">
+        <form action="/payment/signup/<%= plan.id %>" method="POST" id="payment-form" class="post-content" style="text-align: left">
             <div class="form-row" style="text-align: left">
                 <label for="couponCode">
                     Apply a coupon code (optional)
@@ -316,9 +316,22 @@
                 </div>
             <% } %>
             <% let cond = plan.interval_count != 1 %>
-            <input type="submit"
-            value="Submit Payment (AUD <%= (plan.amount/100).toFixed(2) %> every <%= cond && plan.interval_count ? plan.interval_count : '' %> <%= plan.interval %><%= cond ? 's' : '' %> + GST)"
-            style="float: left; margin-bottom: 10px">
+            <button class="payment-button">
+                Submit Payment (AUD <%= (plan.amount/100).toFixed(2) %> every <%= cond && plan.interval_count ? plan.interval_count : '' %> <%= plan.interval %><%= cond ? 's' : '' %> + GST)
+            </button>
+            <style>
+                button.payment-button {
+                    color: #536DFE;
+                    border: solid #536DFE 1px;
+                    background-color: transparent;
+                    padding: 7px 12px !important;
+                }
+
+                .payment-button:hover {
+                    color: white;
+                    background-color: #536DFE;
+                }
+            </style>
         </form>
     </div>
 </div>
