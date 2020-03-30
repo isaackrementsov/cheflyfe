@@ -1,5 +1,5 @@
-let key = 'rfLFsPbM3Ym3WhFPZg3zAbc7v0Pv9nhuX7MIxSJo';
-let offset = 0;
+let key = 'Z5mhbMyAHdpQP99RGY1L7YuzQyFuW1J1FRb9ZZPc';
+let page = 1;
 let currentTerm;
 let header = $('#search-db-header');
 let more = $('#search-db-more')
@@ -9,31 +9,32 @@ let incConversions = $('#search-db-conversions');
 function searchDB(){
     let term = $('#search-db-input').val();
 
-    if(term != '' || offset != 0){
-        header.html('<div class="brigade"><span>Name</span><span style="width: 20%">Brand</span></div>');
+    if(term != '' || page != 1){
+        header.html('<div class="brigade"><span>Description</span><span style="width: 20%">Brand</span></div>');
 
         if(term != currentTerm){
             currentTerm = term;
             container.html('');
         }
 
-        $.ajax(`https://api.nal.usda.gov/ndb/search/?format=json&q=${term}&max=10&offset=${offset}&api_key=${key}`, {
+        $.ajax(`https://api.nal.usda.gov/fdc/v1/search?api_key=${key}`, {
                 method: 'GET',
                 dataType: 'json',
+                data: {'generalSearchInput': term, 'pageNumber': page},
                 success: res => {
-                    if(res.list){
-                        let ingredients = res.list.item;
+                    if(res.foods){
+                        let ingredients = res.foods;
 
                         for(let ingredient of ingredients){
                             container.append(`
                                 <div class="brigade" style="font-size: 13px">
                                     <i class="material-icons" style="color: #8C9EFF; cursor: pointer"
-                                    onclick="addDB(` + '`' + ingredient.name + '`, `' + ingredient.manu + '`, `' + ingredient.ndbno + '`)">' + `
+                                    onclick="addDB(` + '`' + ingredient.description + '`, `' + (ingredient.brandOwner || "") + '`, `' + ingredient.fdcId + '`)">' + `
                                         add
                                     </i>
-                                    <span style="width: 80%">${ingredient.name}</span>
+                                    <span style="width: 80%">${ingredient.description}</span>
                                     <div style="width: 20%; font-weight: normal">
-                                        ${ingredient.manu}<br>
+                                        ${ingredient.brandOwner || 'No brand'}<br>
                                     </div>
                                 </div>
                             `);
@@ -57,7 +58,7 @@ function searchDB(){
 }
 
 function loadMore(){
-    offset += 10;
+    page += 1;
     searchDB();
 }
 
@@ -71,78 +72,56 @@ function addDB(name, brand, id){
 
     let inc = incConversions.is(':checked');
 
-    $.ajax(`https://api.nal.usda.gov/ndb/reports/?ndbno=${id}&type=${inc ? 'b' : 's'}&format=json&api_key=${key}`, {
+    $.ajax(`https://api.nal.usda.gov/fdc/v1/${id}?api_key=${key}`, {
         method: 'GET',
         dataType: 'json',
         success: res => {
-            let info = res.report.food.nutrients;
-            let dbUnits;
-            let dbQt;
-
-            if(inc){
-                let m = info[0].measures;
-                dbUnits = m[0].label;
-                dbQt = 1;
-                let dbE = {units: m[0].eunit, qt: m[0].eqv};
-
-                for(let i = 1; i < m.length; i++){
-                    let measure = m[i];
-
-                    if(measure.eunit == dbE.units){
-                        let mUnits = measure.label;
-                        let mQt = Math.round(100 * dbE.qt / measure.eqv)/100;
-
-                        $('#add-ingredient-form input#qt-0').val(mQt);
-                        $('#add-ingredient-form input#units-0').val(mUnits);
-                        addConversion(0);
-                   }
-                }
-            }else{
-                dbUnits = 'g';
-                dbQt = 100;
-            }
+            let info = res.labelNutrients;
+            let dbUnits = res.servingSizeUnit;
+            let dbQt = res.servingSize;
 
             $('#add-ingredient-form input[name="qtJSON"]').val(dbQt);
             $('#add-ingredient-form input[name="units"]').val(dbUnits);
 
             $('#nutritional-info-form').show();
 
-            for(let value of info){
-                let valueNum = parseFloat(value.value);
+            for(let value of Object.keys(info)){
+                let valueNum = parseFloat(info[value].value);
 
-                switch(value.nutrient_id){
-                    case '208':
+                switch(value){
+                    case 'calories':
                         $('#nutritional-info-form input[name="calsOptJSON"]').val(valueNum);
                         break;
-                    case '204':
+                    case 'fat':
                         $('#nutritional-info-form input[name="fatOptJSON"]').val(valueNum);
                         break;
-                    case '606':
+                    case 'saturatedFat':
                         $('#nutritional-info-form input[name="satFatOptJSON"]').val(valueNum);
                         break;
-                    case '601':
+                    case 'cholesterol':
                         $('#nutritional-info-form input[name="cholOptJSON"]').val(valueNum);
                         break;
-                    case '307':
+                    case 'sodium':
                         $('#nutritional-info-form input[name="sodOptJSON"]').val(valueNum);
                         break;
-                    case '205':
+                    case 'carbohydrates':
                         $('#nutritional-info-form input[name="carbsOptJSON"]').val(valueNum);
                         break;
-                    case '291':
+                    case 'fiber':
                         $('#nutritional-info-form input[name="fibOptJSON"]').val(valueNum);
                         break;
-                    case '269':
+                    case 'sugars':
                         $('#nutritional-info-form input[name="sugOptJSON"]').val(valueNum);
                         break;
-                    case '203':
+                    case 'protein':
                         $('#nutritional-info-form input[name="protOptJSON"]').val(valueNum);
                         break;
+                    case 'transFat':
+                        $('#nutritional-info-form input[name="transFatOptJSON"]').val(valueNum);
                 }
             }
 
             $('#nutritional-info-form input[name="fatCalsOptJSON"]').val(0);
-            $('#nutritional-info-form input[name="transFatOptJSON"]').val(0);
 
             $('#nutritional-info-form input').each(function(e){
                 if($(this).val() == '') $(this).attr('value', 0);
