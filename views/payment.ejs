@@ -1,14 +1,15 @@
 <% include partials/header %>
 <div class="payment-header">
-    <% include partials/forms/error %>
+    <!--<% include partials/forms/error %>
     <h1>Pricing Plans</h1>
     <hr>
     <p>Choose a subscription option based on how long you plan to use our platform</p>
     <% if(!session.hasUsedFreeTrial){ %>
         <p style="color: #8C9EFF">All options will include a 7-day free trial</p>
-    <% } %>
+    <% } %>-->
+    <h1>Payment plans are no longer available</h1>
 </div>
-<div class="profile-main recipe-main payment">
+<!--<div class="profile-main recipe-main payment">
     <% for(let i = 0; i < plans.length; i++){ %>
         <div class="post-card">
             <div class="post-content">
@@ -19,5 +20,5 @@
             </div>
         </div>
     <% } %>
-</div>
+</div>-->
 <% include partials/footer %>

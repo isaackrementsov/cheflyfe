@@ -20,7 +20,7 @@ export default class PaymentController {
             req.flash('error', 'Verify your email before selecting payment');
             res.redirect('/pending');
         }else{
-            res.render('payment', {session: req.session, plans, error: req.flash('error'), payment: true});
+            res.render('payment', {session: req.session, plans: [], error: req.flash('error'), payment: true});
         }
     }
 

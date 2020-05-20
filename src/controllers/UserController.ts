@@ -210,7 +210,7 @@ export default class UserController {
     }
 
     postSignup = async (req: Request, res: Response) => {
-        try {
+        /*try {
             let user : User = new User({
                 admin: false,
                 password: req.body.password,
@@ -273,7 +273,8 @@ export default class UserController {
         }catch(e){
             req.flash('error', 'There was an error with form data');
             res.redirect('/signup');
-        }
+        }*/
+        res.redirect('/signup');
     }
 
     postReverify = async (req: Request, res: Response) => {

@@ -55,13 +55,14 @@
 <div id="half"></div>
 <form class="login-form" method="POST" action="/<%= session.page %>" enctype="multipart/form-data">
     <div class="login-form-header">
-        <a href="/signup" class="<%= session.page == 'signup' ? 'selected' : '' %>">Sign up</a>
+        <!--<a href="/signup" class="<%= session.page == 'signup' ? 'selected' : '' %>">Sign up</a>-->
         <a href="/login" class="<%= session.page == 'login' ? 'selected' : '' %>">Log in</a>
     </div>
     <div class="login-form-wrapper">
         <% include partials/forms/error %>
         <% if(session.page == 'signup'){ %>
-            <h3>Basic info</h3>
+            <h3>Users may no longer sign up for ChefLyfe</h3>
+            <!--<h3>Basic info</h3>
             <div class="form-inline">
                 <div class="login-form-input">
                     <label for="first">First name</label>
@@ -110,7 +111,7 @@
               <input type="checkbox" required>
               <span class="checkmark"></span>
             </label>
-            <input type="submit" value="Let's go!">
+            <input type="submit" value="Let's go!">-->
         <% }else{ %>
             <h3>Enter your details</h3>
             <div class="login-form-input">

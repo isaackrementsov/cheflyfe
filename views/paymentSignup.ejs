@@ -28,11 +28,12 @@
 </style>
 <div class="payment-header">
     <% include partials/forms/error %>
-    <h1>Signup for the <%= plan.name %> plan</h1>
+    <!--<h1>Signup for the <%= plan.name %> plan</h1>
     <hr>
-    <p><%= plan.description %></p>
+    <p><%= plan.description %></p>-->
+    <h1>Payment plans are no longer available</h1>
 </div>
-<div class="profile-main recipe-main payment">
+<!--<div class="profile-main recipe-main payment">
     <div class="post-card" style="width: 500px; max-width: 95%">
         <div class="post-header"><span>Enter Payment Info</span></div>
         <form action="/payment/signup/<%= plan.id %>" method="POST" id="payment-form" class="post-content" style="text-align: left">
@@ -334,9 +335,9 @@
             </style>
         </form>
     </div>
-</div>
+</div>-->
 <script>
-    var stripe = Stripe('pk_test_bOygl4JjGdT6OcNpMXnNNssi00OtRvTfSk');
+    /*var stripe = Stripe('pk_test_bOygl4JjGdT6OcNpMXnNNssi00OtRvTfSk');
     var elements = stripe.elements();
     var existing = <%- existing ? true : false %>;
 
@@ -403,6 +404,6 @@
 
     if(!existing){
         createCard();
-    }
+    }*/
 </script>
 <% include partials/footer %>
